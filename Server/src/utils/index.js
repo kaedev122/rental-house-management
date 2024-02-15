@@ -53,3 +53,13 @@ export const errorJoiMessages = {
     'date.base': '{#label} phải là ngày tháng',
     'date.format': '{#label} không đúng định dạng ngày tháng',
 };
+
+export const generateRandomString = () => {
+    let result = '';
+    const characters = '0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 6; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}

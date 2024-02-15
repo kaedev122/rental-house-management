@@ -19,12 +19,25 @@ const _phoneValidation = Joi.string()
     .messages({ 'string.pattern.name': 'Số điện thoại không hợp lệ!' });
 
 export const create = Joi.object({
-    username: Joi.string().max(24).alphanum().required().label("Tên đăng nhập"),
+    username: Joi.string().max(30).alphanum().lowercase().required().label("Tên đăng nhập"),
     password: passwordComplexity(_complexityOptions).required().label("Mật khẩu"),
-    email: Joi.string().email().required().label('Email'),
+    email: Joi.string().email().max(50).lowercase().required().label('Email'),
     phone: _phoneValidation.required().label("Số điện thoại"),
     birthday: Joi.date().label("Ngày sinh"),
     sex: Joi.string().max(10).label("Giới tính"),
     fullname: Joi.string().required().max(100).label("Họ và tên"),
     address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).max(100).label('Địa chỉ'),
+}).messages(errorJoiMessages);
+
+export const resendEmail = Joi.object({
+    email: Joi.string().email().max(50).lowercase().required().label('Email'),
+}).options({ allowUnknown: true }).messages(errorJoiMessages);
+
+export const login = Joi.object({
+    username: Joi.string().max(50).lowercase().label("Tên đăng nhập"),
+    password: passwordComplexity(_complexityOptions).required().label("Mật khẩu"),
+}).messages(errorJoiMessages);
+
+export const newPassword = Joi.object({
+    password: passwordComplexity(_complexityOptions).required().label("Mật khẩu"),
 }).messages(errorJoiMessages);

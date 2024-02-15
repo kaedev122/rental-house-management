@@ -69,17 +69,6 @@ export class PermissionError extends Error {
     }
 }
 
-export class GaraExpriredError extends Error {
-    constructor(message, paramName) {
-        super(message);
-
-        Object.setPrototypeOf(this, new.target.prototype);
-        this.paramName = paramName;
-        this.status = this.errorCode = ErrorCodes.PLAN_EXPRIRED;
-        Error.captureStackTrace(this);
-    }
-}
-
 export class UploadError extends Error {
     constructor(message) {
         super(message);

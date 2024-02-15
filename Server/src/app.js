@@ -5,7 +5,8 @@ import promBundle from "express-prom-bundle";
 import dayjs from "dayjs";
 
 import { connectDB } from "./connections/mongodb.js";
-import { AuthController, ErrorController } from "./controllers/index.js";
+import { AuthController, ErrorController, cmsController } from "./controllers/index.js";
+import { NotFoundError } from "./utils/errors.js";
 
 dayjs.locale('vi')
 dotenv.config();
@@ -31,6 +32,7 @@ app.get('/api', (req, res) => {
 connectDB()
 
 app.use('/api/auth', AuthController)
+app.use('/api/cms', cmsController)
 
 app.use((req, res, next) => {
     throw new NotFoundError(`Path ${req.originalUrl} is Not Found`)
@@ -39,7 +41,7 @@ app.use((req, res, next) => {
 app.use(ErrorController)
 
 process.on('uncaughtException', function (err) {
-    logger.error(`Caught exception: ${err.message} \n ${err.stack}`)
+    console.log(`Caught exception: ${err.message} \n ${err.stack}`)
 })
 
 const PORT = process.env.PORT || 9090

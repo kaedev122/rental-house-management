@@ -157,7 +157,6 @@ export const recoveryPassword = async ({body}) => {
                 await RecoveryCode.findByIdAndDelete(result._id)
                 const payload = {
                     id: user._id.toString(),
-                    username: user.username,
                     recovery: true
                 }
                 let token = jwt.sign(
@@ -169,7 +168,7 @@ export const recoveryPassword = async ({body}) => {
                 )
                 return {
                     ...payload,
-                    access_token: token
+                    recovery_token: token
                 }
             } else {
                 throw new NotFoundError(`Mã xác nhận không hợp lệ`)

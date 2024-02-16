@@ -1,0 +1,21 @@
+.text-error {
+    color: red;
+    font-size: 12px;
+}
+
+.card {
+    padding: 16px;
+    width: 32vw;
+}
+
+.btn-link {
+    text-decoration: none;
+}
+
+.btn-no-border {
+    border-width: 0;
+
+    &:focus {
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0) !important;
+    }
+}

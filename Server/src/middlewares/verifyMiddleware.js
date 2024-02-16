@@ -39,8 +39,8 @@ export const verifyRecovery = () => {
                     return resolve(payload)
                 })
             })
-            let { id, username, recovery } = payload
-            if (!id || !username) return next(new AuthenticationError(`Bạn không có quyền!`))
+            let { id, recovery } = payload
+            if (!id) return next(new AuthenticationError(`Bạn không có quyền!`))
             if (!recovery) return next(new AuthenticationError(`Bạn không có quyền!`))
             req["user"] = { ...payload }
         } catch (error) {

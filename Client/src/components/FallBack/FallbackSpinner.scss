@@ -1,0 +1,19 @@
+/**
+|--------------------------------------------------
+| FALLBACK SPINNER
+| @vunv
+| https://enqtran.com - enqtran@gmail.com
+|--------------------------------------------------
+*/
+.fallback-spinner {
+    position: fixed;
+    text-align: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+}

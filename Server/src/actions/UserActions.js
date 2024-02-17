@@ -46,7 +46,7 @@ export const create = async ({body, file}) => {
 export const active = async ({body, user, params}) => {
     const { code } = params
     const result = await ActiveCode.findOne({active_code: code})
-    if (!result) throw new ExistDataError(`Không tìm thấy tài khoản để kích hoạt`);
+    if (!result) throw new ExistDataError(`Không tìm thấy tài khoản để xác thực`);
 
     await User.findByIdAndUpdate(result.user_id, {
         status: 1
@@ -91,7 +91,7 @@ export const login = async ({body}) => {
 
     let user = await User.findOne({ $or: [{ username: username }, { email: username }] }).lean()
     if (!user) throw new ParamError("Không tìm thấy tài khoản!")
-    if (user.status == 0) throw new AuthenticationError("Vui lòng kích hoạt tài khoản")
+    if (user.status == 0) throw new AuthenticationError("Vui lòng xác thực tài khoản")
 
     if (await bcrypt.compare(password, user.password)) {
         const payload = {

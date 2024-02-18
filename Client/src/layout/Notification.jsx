@@ -13,6 +13,7 @@ const NotificationAction = (msg, variant) => {
         </Fragment>
     );
 
+    
     return (<div>
     {enqueueSnackbar(msg, {
         variant: variant,

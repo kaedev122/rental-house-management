@@ -1,13 +1,24 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
-import { Button, Form, FormGroup, Label, Input, InputGroup, InputGroupText, Card, CardBody, CardHeader, CardFooter, Row, Col } from 'reactstrap'
+import { useNavigate, Navigate, useLocation } from 'react-router-dom'
+import { Form, FormGroup, Label, Input, InputGroup, InputGroupText, Card, CardBody, CardHeader, CardFooter, Row, Col } from 'reactstrap'
 import { trim, set_authenticated_storage, http_request, get_local_storage, is_authenticated, set_local_storage, is_empty } from '@utils'
 import "@styles/style.scss";
 import "./register.scss";
 import { FaTriangleExclamation } from "react-icons/fa6";
+import { useSnackbar } from 'notistack';
+import { TextField, Button } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateField } from '@mui/x-date-pickers/DateField';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 
 const Register = () => {
+    const navigate = useNavigate();
 	const location = useLocation();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
 	const [dataAdd, setDataAdd] = useState({
 		username: "",
@@ -15,8 +26,6 @@ const Register = () => {
         repassword: "",
         email: "",
         phone: "",
-        birthday: "",
-        sex: "",
         firstname: "",
         lastname: "",
         address: "",
@@ -86,53 +95,51 @@ const Register = () => {
         }
         const input = {
 			"username": trim(dataAdd.username),
-			"password": trim(dataAdd.password)
+			"password": trim(dataAdd.password),
+            "email": trim(dataAdd.email),
+            'phone': trim(dataAdd.phone),
+            'birthday': dataAdd.birthday,
+            'sex': trim(dataAdd.sex),
+            'fullname': `${trim(dataAdd.firstname)} ${trim(dataAdd.lastname)}`,
+            'address': trim(dataAdd.address),
 		}
-		const res = await http_request({ method: "POST", url: "auth/login", data: input, path: location.pathname })
+		const res = await http_request({ method: "POST", url: "auth/register", data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
-			return dispatch(show_notification({
-				"type": "danger",
-				"message": "Hệ thống đang nâng cấp! Chờ cập nhật",
-			}))
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
 		}
         if (code === 200) {
-			set_authenticated_storage(data)
-			return get_data_store(data.department)
+            enqueueSnackbar("Đăng ký thành công, vui lòng xác thực email!", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return navigate("/done-register")
 		} else {
-			return setErrorForm({
-				"password": {
-					"error": true,
-					"message": "Thông tin đăng nhập chưa chính xác!"
-				}
-			})
+            return enqueueSnackbar(message, {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
 		}
     }
 
 	const onChangeData = (type, value) => {
         setErrorForm({})
+        console.log(type)
+        console.log(value)
+        if (type == "birthday"){
+            value = value.$d
+        }
 		return setDataAdd({
 			...dataAdd,
 			[type]: value
 		})
 	}
 
-	if (is_authenticated()) {
-		return <div>
-			<Navigate to="/home"/>
-		</div>
-	}
-
-    const goToForgotPassword = () => {
-        return <div>
-			<Navigate to="/password-recovery"/>
-        </div>
-    }
-
-    const goToRegister = () => {
-        return <div>
-			<Navigate to="/register"/>
-        </div>
+    const goToLogin = () => {
+        return navigate("/login")
     }
 
     return (
@@ -142,176 +149,187 @@ const Register = () => {
                 className="my-2"
             >
                 <CardHeader>
-                    <label className='d-flex justify-content-center'>Đăng ký tài khoản ???</label>
+                    <label className='d-flex justify-content-center'>Đăng ký tài khoản LodgingPro</label>
                 </CardHeader>
                     <FormGroup className=''>
                     <div className='d-flex justify-content-between'> 
-                        <Input
+                        <TextField
                             id="firstname"
                             name="firstname"
-                            placeholder="Họ"
+                            error={errorForm.firstname?.error}
+                            label="Họ"
+                            fullWidth={true}
                             type="firstname"
+                            value={dataAdd.firstname}
                             onChange={(e) =>
                                 onChangeData("firstname", e.target.value)
                             }
                         />
-                    <InputGroup>
-                        <Input
+                        <TextField
                             className="ms-2"
                             id="lastname"
                             name="lastname"
-                            placeholder="Tên"
+                            required
+                            error={errorForm.lastname?.error}
+                            label="Tên"
+                            fullWidth={true}
                             type="lastname"
+                            value={dataAdd.lastname}
                             onChange={(e) =>
                                 onChangeData("lastname", e.target.value)
                             }
-                            />
-                        <InputGroupText>
-                            {dataAdd.lastname ? "" : <FaTriangleExclamation/>}
-                        </InputGroupText>
-                    </InputGroup>
+                        />
                     </div>
                     {errorForm.lastname?.error && <div className='text-error text-end'>{errorForm.lastname?.message}</div>}
                     </FormGroup>
 
                     <FormGroup>
-                        <InputGroup>
-                        <Input
-                            id="Username"
+                        <TextField
+                            id="username"
                             name="username"
-                            placeholder="Tên tài khoản"
+                            required
+                            error={errorForm.username?.error}
+                            label="Tên đăng nhập"
+                            fullWidth={true}
                             type="username"
+                            value={dataAdd.username}
                             onChange={(e) =>
                                 onChangeData("username", e.target.value)
                             }
                         />
-                        <InputGroupText>
-                        {dataAdd.username ? "" : <FaTriangleExclamation/>}
-                    </InputGroupText>
-                    </InputGroup>
                         {errorForm.username?.error && <div className='text-error'>{errorForm.username?.message}</div>}
                     </FormGroup>
 
                     <FormGroup>
-                        <InputGroup>
-                        <Input
-                            id="Email"
-                            name="Email"
-                            placeholder="Email"
-                            type="Email"
+                        <TextField
+                            id="email"
+                            name="email"
+                            required
+                            error={errorForm.email?.error}
+                            label="Email"
+                            fullWidth={true}
+                            type="email"
+                            value={dataAdd.email}
                             onChange={(e) =>
                                 onChangeData("email", e.target.value)
                             }
                         />
-                        <InputGroupText>
-                        {dataAdd.email ? "" : <FaTriangleExclamation/>}
-                    </InputGroupText>
-                    </InputGroup>
                     {errorForm.email?.error && <div className='text-error'>{errorForm.email?.message}</div>}
                     </FormGroup>
 
                     <FormGroup>
-                        <InputGroup>
-                        <Input
-                            id="Phone"
+                        <TextField
+                            id="phone"
                             name="phone"
-                            placeholder="Số điện thoại"
+                            required
+                            error={errorForm.phone?.error}
+                            label="Số điện thoại"
+                            fullWidth={true}
                             type="phone"
+                            value={dataAdd.phone}
                             onChange={(e) =>
                                 onChangeData("phone", e.target.value)
                             }
                         />
-                        <InputGroupText>
-                        {dataAdd.phone ? "" : <FaTriangleExclamation/>}
-                    </InputGroupText>
-                    </InputGroup>
                         {errorForm.phone?.error && <div className='text-error'>{errorForm.phone?.message}</div>}
                     </FormGroup>
 
                     <FormGroup>
-                        <InputGroup>
-                        <Input
-                            id="Password"
+                        <TextField
+                            id="password"
                             name="password"
-                            placeholder="Mật khẩu"
+                            required
+                            error={errorForm.password?.error}
+                            label="Mật khẩu"
+                            fullWidth={true}
                             type="password"
+                            value={dataAdd.password}
                             onChange={(e) =>
                                 onChangeData("password", e.target.value)
                             }
                         />
-                        <InputGroupText>
-                        {dataAdd.password ? "" : <FaTriangleExclamation/>}
-                    </InputGroupText>
-                    </InputGroup>
                         {errorForm.password?.error && <div className='text-error'>{errorForm.password?.message}</div>}
                     </FormGroup>
 
                     <FormGroup>
-                        <InputGroup>
-                        <Input
+                        <TextField
                             id="repassword"
                             name="repassword"
-                            placeholder="Nhập lại mật khẩu"
+                            required
+                            error={errorForm.repassword?.error}
+                            label="Nhập lại mật khẩu"
+                            fullWidth={true}
                             type="password"
+                            value={dataAdd.repassword}
                             onChange={(e) =>
                                 onChangeData("repassword", e.target.value)
                             }
                         />
-                        <InputGroupText>
-                        {dataAdd.repassword ? "" : <FaTriangleExclamation/>}
-                    </InputGroupText>
-                    </InputGroup>
                         {errorForm.repassword?.error && <div className='text-error'>{errorForm.repassword?.message}</div>}
                     </FormGroup>
 
                     <FormGroup>
-                        <Input
+                        <TextField
                             id="address"
                             name="address"
-                            placeholder="Địa chỉ"
+                            error={errorForm.address?.error}
+                            label="Địa chỉ"
+                            fullWidth={true}
                             type="address"
+                            value={dataAdd.address}
                             onChange={(e) =>
                                 onChangeData("address", e.target.value)
                             }
                         />
                     </FormGroup>
                     <FormGroup>
-                        <Input
-                            id="birthday"
-                            name="birthday"
-                            placeholder="Ngày sinh"
-                            type="birthday"
-                            onChange={(e) =>
-                                onChangeData("birthday", e.target.value)
-                            }
-                        />
+                        <div className='d-flex'>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DateField  
+                                className="me-2" 
+                                id="birthday"
+                                name="birthday"
+                                label="Ngày sinh"
+                                type="birthday"
+                                format="DD/MM/YYYY"
+                                value={dataAdd.birthday}
+                                onChange={(e) => onChangeData("birthday", e)}
+                            />
+                        </LocalizationProvider>
+
+                        <FormControl sx={{ minWidth: 120 }}>
+                            <InputLabel id="sex-label">Giới tính</InputLabel>
+                            <Select
+                                labelId="sex-label"
+                                id="sex"
+                                name="sex"
+                                value={dataAdd.sex}
+                                label="Giới tính"
+                                autoWidth
+                                onChange={(e) => onChangeData("sex", e.target.value)}
+                            >
+                                <MenuItem value={'Nam'}>Nam</MenuItem>
+                                <MenuItem value={'Nữ'}>Nữ</MenuItem>
+                                <MenuItem value={'Khác'}>Khác</MenuItem>
+                            </Select>
+                        </FormControl>
+                        </div>
                     </FormGroup>
                     <FormGroup>
-                        <Input
-                            id="sex"
-                            name="sex"
-                            placeholder="Giới tính"
-                            type="sex"
-                            onChange={(e) =>
-                                onChangeData("sex", e.target.value)
-                            }
-                        />
-                    </FormGroup>
-                    <FormGroup>
-                        <Button block color='primary'
-                            onClick={onSubmit}
+                        <Button
+                            onClick={onSubmit}                            
+                            color="success" 
+                            variant="contained"
+                            className='text-center w-100 btn-no-border'
                         >
-                            Đăng nhập
-                        </Button>
-                        <Button color="link" className='text-center w-100'>
-                            Quên mật khẩu
+                            Đăng ký
                         </Button>
                     <div className='border'></div>
                     </FormGroup>
                 <CardFooter>
                     <FormGroup>
-                        <Button block outline={false}>
-                            Đăng kí tài khoản mới
+                        <Button variant="text" className='text-center w-100 btn-no-border' onClick={() => goToLogin()}>
+                            Bạn đã có tài khoản?
                         </Button>
                     </FormGroup>
                 </CardFooter>

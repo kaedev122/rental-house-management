@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useNavigate, Navigate, useLocation } from 'react-router-dom'
-import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
+import { Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
 import { trim, set_authenticated_storage, http_request, get_local_storage, is_authenticated, set_local_storage, is_empty } from '@utils'
 import "@styles/style.scss";
 import "./recovery.scss";
 import OtpInput from "otp-input-react"
+import { TextField, Button, } from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 const Recovery = () => {
 	const location = useLocation();
@@ -18,6 +20,7 @@ const Recovery = () => {
 	const [errorForm, setErrorForm] = useState({})
 	const [emailSended, setEmailSended] = useState(false)
 	const [seconds, setSeconds] = useState();
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		const intervalId = setInterval(() => {
@@ -48,25 +51,25 @@ const Recovery = () => {
 		}
 		const res = await http_request({ method: "POST", url: "auth/send-email-recovery", data: input })
 		const { code, data, message } = res
+		console.log(res)
         if (is_empty(res) || code == "EAUTH") {
-			setEmailSended(true)
-			setSeconds(120)
-			// return setErrorForm({
-			// 	"email": {
-			// 		"error": true,
-			// 		"message": "Hệ thống đang bảo trì!"
-			// 	}
-			// })
+			setEmailSended(false)
+			return enqueueSnackbar("Hệ thống đang bảo trì!", {
+				variant: "error",
+				autoHideDuration: 5000,
+			})
 		}
         if (code === 200 || code === 400) {
 			setEmailSended(true)
-			return setSeconds(120)
+			setSeconds(120)
+			return enqueueSnackbar(data || message, {
+				variant: "success",
+				autoHideDuration: 5000,
+			})
 		} else {
-			return setErrorForm({
-				"email": {
-					"error": true,
-					"message": message
-				}
+			return enqueueSnackbar(message, {
+				variant: "error",
+				autoHideDuration: 5000,
 			})
 		}
     }
@@ -87,15 +90,19 @@ const Recovery = () => {
 		const res = await http_request({ method: "POST", url: "auth/password-recovery", data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
-			return dispatch(show_notification({
-				"type": "danger",
-				"message": "Hệ thống đang bảo trì!",
-			}))
+			return enqueueSnackbar("Có lỗi đã xảy ra!", {
+				variant: "error",
+				autoHideDuration: 5000,
+			})
 		}
         if (code === 200) {
 			set_authenticated_storage(data)
 			return onSuccess()
 		} else {
+			enqueueSnackbar(message, {
+				variant: "error",
+				autoHideDuration: 5000,
+			})
 			return setErrorForm({
 				"recoveryCode": {
 					"error": true,
@@ -136,10 +143,12 @@ const Recovery = () => {
                 </CardHeader>
 				<CardBody>
                     <FormGroup>
-                        <Input
+                        <TextField
                             id="email"
                             name="email"
-                            placeholder="Email"
+                            error={errorForm.email?.error}
+                            label="Email"
+                            fullWidth={true}
                             type="email"
                             onChange={(e) =>
                                 onChangeData("email", e.target.value)
@@ -150,15 +159,18 @@ const Recovery = () => {
 				</CardBody>
 				<CardFooter>
 					<div className='d-flex justify-content-end'>
-						<Button color='secondary'
-							className='mx-2'
+						<Button						
+							className='me-2'	
+							variant="outlined" 
+							color="error"
                             onClick={onCancel}
 						>
                             Hủy
                         </Button>
-                        <Button color='primary'
+                        <Button
+							variant="contained"
                             onClick={onSubmit}
-							>
+						>
                             Xác nhận
                         </Button>
 					</div>
@@ -173,7 +185,9 @@ const Recovery = () => {
 					<FormGroup
 						className='d-flex justify-content-center otp-container'
 					>
-						<Button color='success' outline
+						<Button
+							variant="contained"
+							color='success'
                             onClick={reSendEmail}
 							disabled={seconds != 0}
 						>
@@ -194,13 +208,16 @@ const Recovery = () => {
 				</CardBody>
 				<CardFooter>
 					<div className='d-flex justify-content-end'>
-						<Button color='secondary'
-							className='mx-2'
+						<Button
+							className='me-2'
+							variant="outlined" 
+							color="error"
                             onClick={onCancel}
 						>
                             Hủy
                         </Button>
-                        <Button color='primary'
+                        <Button
+							variant="contained"
                             onClick={onRecovery}
 						>
                             Xác nhận

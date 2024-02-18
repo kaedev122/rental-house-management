@@ -1,9 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useNavigate, Navigate, useLocation } from 'react-router-dom'
-import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
+import { Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
 import { trim, set_authenticated_storage, http_request, get_local_storage, is_authenticated, set_local_storage, is_empty } from '@utils'
 import "@styles/style.scss";
 import "./recovery.scss";
+import { TextField, Button, } from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 const ResetPassword = () => {
 	const location = useLocation();
@@ -14,6 +16,7 @@ const ResetPassword = () => {
 		repassword: ""
 	});
 	const [errorForm, setErrorForm] = useState({})
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const onSubmit = async () => {
 		if (is_empty(dataAdd.password)) {
@@ -51,16 +54,20 @@ const ResetPassword = () => {
 		const res = await http_request({ method: "POST", url: "auth/new-password", data: input, recovery: true, path: location.pathname })
 		const { code, data, message } = res
         if (is_empty(res)) {
-			return dispatch(show_notification({
-				"type": "danger",
-				"message": "Hệ thống đang bảo trì!",
-			}))
 		}
         if (code === 200) {
+            enqueueSnackbar("Cài lại mật khẩu thành công!", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
             localStorage.clear()
             sessionStorage.clear()
             return navigate("/login")
 		} else {
+            enqueueSnackbar(message, {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
 			return setErrorForm({
 				"repassword": {
 					"error": true,
@@ -98,22 +105,27 @@ const ResetPassword = () => {
                     <label className='d-flex justify-content-center'>Cài lại mật khẩu</label>
                 </CardHeader>
                     <FormGroup>
-                        <Input
+                        <TextField
                             id="password"
                             name="password"
-                            placeholder="Mật khẩu mới"
+                            error={errorForm.password?.error}
+                            fullWidth={true}
+                            label="Mật khẩu"
+                            value={dataAdd.password}
                             type="password"
                             onChange={(e) =>
                                 onChangeData("password", e.target.value)
                             }
                         />
-                        {errorForm.username?.error && <div className='text-error'>{errorForm.username?.message}</div>}
+                        {errorForm.password?.error && <div className='text-error'>{errorForm.password?.message}</div>}
                     </FormGroup>
                     <FormGroup>
-                        <Input
+                        <TextField
                             id="repassword"
                             name="repassword"
-                            placeholder="Nhập lại mật khẩu"
+                            error={errorForm.repassword?.error}
+                            fullWidth={true}
+                            label="Nhập lại mật khẩu"
                             type="password"
                             value={dataAdd.repassword}
                             onChange={(e) =>
@@ -124,13 +136,16 @@ const ResetPassword = () => {
                     </FormGroup>
                 <CardFooter>
 					<div className='d-flex justify-content-end'>
-						<Button color='secondary'
-							className='mx-2'
+						<Button
+							className='me-2'
+							variant="outlined" 
+							color="error"
                             onClick={onCancel}
 						>
                             Hủy
                         </Button>
-                        <Button color='primary'
+                        <Button
+							variant="contained"
                             onClick={onSubmit}
 							>
                             Xác nhận

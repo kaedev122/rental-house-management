@@ -85,16 +85,15 @@ http_request.interceptors.response.use(
 	},
 	error => {
 		const { code } = error?.response.data
-		if (code === 401) {
-			remove_token_storage()
-			redirect_page('/login')
-		}
+		// if (code === 401) {
+		// 	remove_token_storage()
+		// 	redirect_page('/login')
+		// }
 		if (code === 403) {
 
 			//check không có quyền
 		}
-		console.log("connect server error ", error)
-		return { code: -1 }
+		return error.response.data
 	}
 )
 

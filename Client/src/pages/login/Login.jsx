@@ -1,21 +1,29 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useNavigate, Navigate, useLocation } from 'react-router-dom'
-import { Button, Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
+import { Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
 import { trim, set_authenticated_storage, http_request, get_local_storage, is_authenticated, set_local_storage, is_empty } from '@utils'
+import { TextField, Button, } from '@mui/material';
 import "@styles/style.scss";
 import "./login.scss";
+import { useDispatch } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const Login = () => {
-	const location = useLocation();
+    const location = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    let usernameRef = React.createRef();
+    let passwordRef = React.createRef();
 
 	const [dataAdd, setDataAdd] = useState({
 		username: "",
 		password: ""
 	});
 	const [errorForm, setErrorForm] = useState({})
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const onSubmit = async () => {
+    const onSubmit = async () => {    
 		if (is_empty(dataAdd.username)) {
 			return setErrorForm({
 				"username": {
@@ -39,19 +47,33 @@ const Login = () => {
 		const res = await http_request({ method: "POST", url: "auth/login", data: input, path: location.pathname })
 		const { code, data, message } = res
         if (is_empty(res)) {
-			return dispatch(show_notification({
-				"type": "danger",
-				"message": "Hệ thống đang bảo trì!",
-			}))
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
 		}
         if (code === 200) {
 			set_authenticated_storage(data)
             if (is_authenticated()) {
+                enqueueSnackbar("Đăng nhập thành công!", {
+                    variant: "success",
+                    autoHideDuration: 5000,
+                })
                 return navigate("/home")
             } else {
                 return navigate("/login")
             }
-		} else {
+		} else if (code === 401) {
+            enqueueSnackbar(message, {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+            return 
+        } else {
+            enqueueSnackbar(message, {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
 			return setErrorForm({
 				"password": {
 					"error": true,
@@ -83,6 +105,31 @@ const Login = () => {
         return navigate("/register")
     }
 
+    const pressEnterEvent = (event)=> {
+        if (event.keyCode === 13) {
+            switch (event.target.id) {
+                case "username":
+                    if (is_empty(dataAdd.username)) {
+                        return setErrorForm({
+                            "username": {
+                                "error": true,
+                                "message": "Không được để trống!"
+                            }
+                        })
+                    } else {
+                        passwordRef.current.focus();
+                    }
+                    break;
+                case "password":
+                    console.log(event.target.id)
+                    onSubmit()
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     return (
         <div className='form'>
             <div>LOGO</div>
@@ -90,46 +137,57 @@ const Login = () => {
                 className="my-2"
             >
                 <CardHeader>
-                    <label className='d-flex justify-content-center'>Đăng nhập vào ???(chưa biết để tên app là gì)</label>
+                    <label className='d-flex justify-content-center'>Đăng nhập vào LodgingPro</label>
                 </CardHeader>
                     <FormGroup>
-                        <Input
-                            id="Username"
+                        <TextField
+                            id="username"
                             name="username"
-                            placeholder="Tài khoản hoặc email"
+                            inputRef={usernameRef}
+                            error={errorForm.username?.error}
+                            label="Tài khoản hoặc email"
+                            fullWidth={true}
                             type="username"
                             onChange={(e) =>
                                 onChangeData("username", e.target.value)
                             }
+                            onKeyUp={pressEnterEvent}
                         />
                         {errorForm.username?.error && <div className='text-error'>{errorForm.username?.message}</div>}
                     </FormGroup>
                     <FormGroup>
-                        <Input
-                            id="Password"
+                        <TextField
+                            id="password"
                             name="password"
-                            placeholder="Mật khẩu"
+                            inputRef={passwordRef}
+                            error={errorForm.password?.error}
+                            fullWidth={true}
+                            label="Mật khẩu"
                             type="password"
                             onChange={(e) =>
                                 onChangeData("password", e.target.value)
                             }
+                            onKeyUp={pressEnterEvent}
                         />
                         {errorForm.password?.error && <div className='text-error'>{errorForm.password?.message}</div>}
                     </FormGroup>
                     <FormGroup>
-                        <Button block color='primary'
+                        <Button
+                            color="primary" 
+                            variant="contained"
                             onClick={onSubmit}
+                            className='text-center w-100 btn-no-border'
                         >
                             Đăng nhập
                         </Button>
-                        <Button color="link" className='text-center w-100 btn-no-border' onClick={() => goToForgotPassword()}>
+                        <Button variant="text" className='text-center w-100 btn-no-border' onClick={() => goToForgotPassword()}>
                             Quên mật khẩu
                         </Button>
                     <div className='border'></div>
                     </FormGroup>
                 <CardFooter>
                     <FormGroup>
-                        <Button block outline={false} onClick={() => goToRegister()}>
+                        <Button variant="contained" color="success" className='text-center w-100 btn-no-border' onClick={() => goToRegister()}>
                             Đăng kí tài khoản mới
                         </Button>
                     </FormGroup>

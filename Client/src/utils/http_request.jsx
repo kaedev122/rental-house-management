@@ -85,10 +85,10 @@ http_request.interceptors.response.use(
 	},
 	error => {
 		const { code } = error?.response.data
-		// if (code === 401) {
-		// 	remove_token_storage()
-		// 	redirect_page('/login')
-		// }
+		if (code === 401) {
+			remove_token_storage()
+			redirect_page('/login')
+		}
 		if (code === 403) {
 
 			//check không có quyền

@@ -159,7 +159,7 @@ export const recoveryPassword = async ({body}) => {
         const timeDiff = (currentTime - result.createdAt)/1000
         if (timeDiff > 120) {
             await RecoveryCode.findByIdAndDelete(result._id)
-            throw new AuthenticationError("Mã xác nhận đã hết hạn")
+            throw new NotFoundError("Mã xác nhận đã hết hạn")
         } else {
             if (recoveryCode == result.recovery_code) {
                 await RecoveryCode.findByIdAndDelete(result._id)

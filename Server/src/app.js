@@ -19,8 +19,11 @@ const metricsMiddleware = promBundle({
     autoregister: true,
     includePath: true
 })
-
-app.use(cors())
+app.use(cors({
+    origin: ['https://rental-house-management.vercel.app'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+}));
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(metricsMiddleware)

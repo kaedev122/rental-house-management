@@ -51,25 +51,25 @@ const Recovery = () => {
 		}
 		const res = await http_request({ method: "POST", url: "auth/send-email-recovery", data: input })
 		const { code, data, message } = res
+		console.log(res)
         if (is_empty(res) || code == "EAUTH") {
-			setEmailSended(true)
-			setSeconds(120)
-			// return setErrorForm({
-			// 	"email": {
-			// 		"error": true,
-			// 		"message": "Hệ thống đang bảo trì!"
-			// 	}
-			// })
+			setEmailSended(false)
+			return enqueueSnackbar("Hệ thống đang bảo trì!", {
+				variant: "error",
+				autoHideDuration: 5000,
+			})
 		}
         if (code === 200 || code === 400) {
 			setEmailSended(true)
-			return setSeconds(120)
+			setSeconds(120)
+			return enqueueSnackbar(data || message, {
+				variant: "success",
+				autoHideDuration: 5000,
+			})
 		} else {
-			return setErrorForm({
-				"email": {
-					"error": true,
-					"message": message
-				}
+			return enqueueSnackbar(message, {
+				variant: "error",
+				autoHideDuration: 5000,
 			})
 		}
     }

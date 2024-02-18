@@ -149,7 +149,7 @@ const Register = () => {
                 className="my-2"
             >
                 <CardHeader>
-                    <label className='d-flex justify-content-center'>Đăng ký tài khoản ???</label>
+                    <label className='d-flex justify-content-center'>Đăng ký tài khoản LodgingPro</label>
                 </CardHeader>
                     <FormGroup className=''>
                     <div className='d-flex justify-content-between'> 

@@ -13,6 +13,9 @@ const Login = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
+    let usernameRef = React.createRef();
+    let passwordRef = React.createRef();
+
 	const [dataAdd, setDataAdd] = useState({
 		username: "",
 		password: ""
@@ -102,6 +105,31 @@ const Login = () => {
         return navigate("/register")
     }
 
+    const pressEnterEvent = (event)=> {
+        if (event.keyCode === 13) {
+            switch (event.target.id) {
+                case "username":
+                    if (is_empty(dataAdd.username)) {
+                        return setErrorForm({
+                            "username": {
+                                "error": true,
+                                "message": "Không được để trống!"
+                            }
+                        })
+                    } else {
+                        passwordRef.current.focus();
+                    }
+                    break;
+                case "password":
+                    console.log(event.target.id)
+                    onSubmit()
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     return (
         <div className='form'>
             <div>LOGO</div>
@@ -109,12 +137,13 @@ const Login = () => {
                 className="my-2"
             >
                 <CardHeader>
-                    <label className='d-flex justify-content-center'>Đăng nhập vào ???(chưa biết để tên app là gì)</label>
+                    <label className='d-flex justify-content-center'>Đăng nhập vào LodgingPro</label>
                 </CardHeader>
                     <FormGroup>
                         <TextField
-                            id="Username"
+                            id="username"
                             name="username"
+                            inputRef={usernameRef}
                             error={errorForm.username?.error}
                             label="Tài khoản hoặc email"
                             fullWidth={true}
@@ -122,13 +151,15 @@ const Login = () => {
                             onChange={(e) =>
                                 onChangeData("username", e.target.value)
                             }
+                            onKeyUp={pressEnterEvent}
                         />
                         {errorForm.username?.error && <div className='text-error'>{errorForm.username?.message}</div>}
                     </FormGroup>
                     <FormGroup>
                         <TextField
-                            id="Password"
+                            id="password"
                             name="password"
+                            inputRef={passwordRef}
                             error={errorForm.password?.error}
                             fullWidth={true}
                             label="Mật khẩu"
@@ -136,6 +167,7 @@ const Login = () => {
                             onChange={(e) =>
                                 onChangeData("password", e.target.value)
                             }
+                            onKeyUp={pressEnterEvent}
                         />
                         {errorForm.password?.error && <div className='text-error'>{errorForm.password?.message}</div>}
                     </FormGroup>

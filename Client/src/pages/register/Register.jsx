@@ -127,8 +127,6 @@ const Register = () => {
 
 	const onChangeData = (type, value) => {
         setErrorForm({})
-        console.log(type)
-        console.log(value)
         if (type == "birthday"){
             value = value.$d
         }

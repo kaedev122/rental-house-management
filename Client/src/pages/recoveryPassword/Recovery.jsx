@@ -51,7 +51,6 @@ const Recovery = () => {
 		}
 		const res = await http_request({ method: "POST", url: "auth/send-email-recovery", data: input })
 		const { code, data, message } = res
-		console.log(res)
         if (is_empty(res) || code == "EAUTH") {
 			setEmailSended(false)
 			return enqueueSnackbar("Hệ thống đang bảo trì!", {

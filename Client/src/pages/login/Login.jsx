@@ -121,7 +121,6 @@ const Login = () => {
                     }
                     break;
                 case "password":
-                    console.log(event.target.id)
                     onSubmit()
                     break;
                 default:

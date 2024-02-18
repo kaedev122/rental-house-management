@@ -19,11 +19,13 @@ const metricsMiddleware = promBundle({
     autoregister: true,
     includePath: true
 })
+
 app.use(cors({
     origin: ['https://www.kaedev.me', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
+
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(metricsMiddleware)

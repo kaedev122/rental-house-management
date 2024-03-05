@@ -9,7 +9,6 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
 import { generateRandomString } from "../utils/index.js"
-import { time } from 'console';
 
 export const create = async ({body, file}) => {
     const newUser = await UserValidation.create.validateAsync(body)

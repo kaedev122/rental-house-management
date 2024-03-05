@@ -63,3 +63,8 @@ export const generateRandomString = () => {
     }
     return result;
 }
+
+export const checkSearch = (q) => {
+    const regex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+    return regex.test(q);
+}

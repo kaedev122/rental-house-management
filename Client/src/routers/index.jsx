@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { IntlProvider } from "react-intl"
 import { FallbackSpinner } from '@components'
 
-const MainRouter = lazy(() => import('./MainRouter'))
+const CmsRouter = lazy(() => import('./CmsRouter'))
 const Login = lazy(() => import('@pages/login'))
 const Home = lazy(() => import('@pages/home'))
 const ResetPassword= lazy(() => import('@pages/recoveryPassword/ResetPassword'))
@@ -24,7 +24,7 @@ function AppRouter() {
 	  	<Suspense fallback={<FallbackSpinner />} >
 		  <IntlProvider locale={state.default_locale} messages={state.messages}>
 		<Routes>
-		  <Route path="/*" element={<MainRouter/>} />
+		  <Route path="/*" element={<CmsRouter/>} />
 		  <Route exact path="/" element={<Home/>} />
 		  <Route exact path="/login" element={<Login/>} />
 		  <Route exact path="/forgot-password" element={<Recovery/>} />

@@ -21,6 +21,7 @@ router.post('/room-group/', verify(), handleRequest(RoomActions.createRoomGroup)
 router.put('/room-group/:id', verify(), handleRequest(RoomActions.updateRoomGroup))
 router.get('/list-room-group', verify(), handleRequest(RoomActions.listRoomGroup))
 router.get('/room-group/:id', verify(), handleRequest(RoomActions.getRoomGroup))
+router.get('/room-group-extend', verify(), handleRequest(RoomActions.listRoomGroupExtend))
 router.delete('/room-group/:id', verify(), handleRequest(RoomActions.removeRoomGroup))
 
 //Room

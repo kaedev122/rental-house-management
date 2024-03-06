@@ -207,3 +207,49 @@ export const remove = async ({ body, user, params }) => {
     await Room.findByIdAndUpdate(id, { status: 0 })
     return true
 }
+
+export const listRoomGroupExtend = async ({ 
+    query: { 
+        q = "",
+        status,
+        apartment
+    }, 
+    user 
+}) => {
+    let conditions = {}
+    if (q && !Utils.checkSearch(q)) {
+        conditions["$or"] = [
+            {
+                name_search: {
+                    $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
+                }
+            }
+        ]
+    }
+
+    if (!apartment) throw new ParamError("Thiếu id nhà trọ")
+    conditions.apartment = apartment
+    if (status) conditions.status = status
+    const [totalItems, dataGroup, dataRoom] = await Promise.all([
+        RoomGroup.countDocuments(conditions),
+        RoomGroup.find(conditions)
+            .select("-apartment -name_search -status -updatedAt -__v")
+            .sort({ createdAt: -1 })
+            .lean(),
+        Room.find(conditions)
+            .select("-apartment -name_search -status -updatedAt -__v")
+            .sort({ createdAt: -1 })
+            .lean()
+    ])
+
+    const result = dataGroup.map((item) => {
+        const rooms = dataRoom.filter(room => room.group.toString() == item._id.toString())
+        let totalRoom = rooms.length
+        return {
+            ...item,
+            rooms,
+            totalRoom
+        }
+    })
+    return { total: totalItems , items: result }
+}

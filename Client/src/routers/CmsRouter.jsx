@@ -5,18 +5,23 @@ import { Container } from "reactstrap";
 import { is_authenticated } from "@utils";
 
 const Home = lazy(() => import('@pages/home'))
+const HeaderNavbar = lazy(() => import("@layout/navbar/HeaderNavbar"));
 
-const MainRouter = (props) => {
+const CmsRouter = (props) => {
   if (!is_authenticated()) {
     // return <Navigate to="/login"/>
   }
+  const init_menu = [{}];
   
   return (
     <Fragment>
+      <HeaderNavbar
+        {...props}
+        menu_build={init_menu}
+      />
       <Suspense fallback={<FallbackSpinner />}>
-        <Routes>
+        <Routes>			
           <Route exact path="/home" element={<Home />} />
-
 					<Route exact path="/login" render={() => (<Navigate to={{ pathname: "/" }} />)} />
         </Routes>
       </Suspense>
@@ -24,4 +29,4 @@ const MainRouter = (props) => {
   )
 };
 
-export default MainRouter;
+export default CmsRouter;

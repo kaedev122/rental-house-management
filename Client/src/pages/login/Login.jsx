@@ -7,6 +7,7 @@ import "@styles/style.scss";
 import "./login.scss";
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import { set_apartment_list, set_apartment_curent } from '@redux/apartmentSlice'
 
 const Login = () => {
     const location = useLocation();
@@ -22,6 +23,20 @@ const Login = () => {
 	});
 	const [errorForm, setErrorForm] = useState({})
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+	const get_data_store = async () => {
+		const input = {
+            status: 1
+		}
+		const res = await http_request({method: "GET", url:"cms/apartments", params: input})
+		const { code, data } = res
+		if(code === 200 ){
+            console.log(data.items)
+			dispatch(set_apartment_list(data.items))
+            set_local_storage("apartment", data.items[0]?._id)
+            dispatch(set_apartment_curent(data.items[0]?._id))
+		}
+	}
 
     const onSubmit = async () => {    
 		if (is_empty(dataAdd.username)) {
@@ -59,6 +74,7 @@ const Login = () => {
                     variant: "success",
                     autoHideDuration: 5000,
                 })
+                await get_data_store()
                 return navigate("/home")
             } else {
                 return navigate("/login")
@@ -86,7 +102,7 @@ const Login = () => {
     useEffect(() => {
         if (is_authenticated()) {
             return navigate("/home")
-        } 
+        }
     }, [])
 
 	const onChangeData = (type, value) => {

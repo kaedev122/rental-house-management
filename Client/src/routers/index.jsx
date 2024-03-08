@@ -24,7 +24,7 @@ function AppRouter() {
 	  	<Suspense fallback={<FallbackSpinner />} >
 		  <IntlProvider locale={state.default_locale} messages={state.messages}>
 		<Routes>
-		  <Route path="/*" element={<CmsRouter/>} />
+		  <Route path="/cms/*" element={<CmsRouter/>} />
 		  <Route exact path="/login" element={<Login/>} />
 		  <Route exact path="/forgot-password" element={<Recovery/>} />
 		  <Route exact path="/reset-password" element={<ResetPassword/>} />

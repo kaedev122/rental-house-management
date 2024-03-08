@@ -165,12 +165,12 @@ const Home = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span>Quản trị chung</span>
-                        <Button
+                        {apartmentCurent && (<Button
                             onClick={() => toggle_modal_add_group()}
                             className=''
                         >
                             Thêm mới +
-                        </Button>
+                        </Button>)}
                     </div>
                     <div className='float-end'>
                         <Button

@@ -48,7 +48,7 @@ const HeaderNavbar = (props) => {
 	}
 
 	const format_path = () => {
-		const new_path = location.pathname.split('/')[1]
+		const new_path = location.pathname.split('/')[2]
 		return new_path
 	}
 
@@ -62,11 +62,11 @@ const HeaderNavbar = (props) => {
         className={`top-narbar`}
       >
         <div className="d-flex navbar-menu">
-          <NavbarBrand href="/home">LodgingPro</NavbarBrand>
+          <NavbarBrand href="/cms/home">LodgingPro</NavbarBrand>
           <NavItem key="home">
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/login"
+              href="/cms/home"
             >
               <i className="d-flex">
                 <MdDashboard/>
@@ -78,7 +78,7 @@ const HeaderNavbar = (props) => {
           <NavItem key="apartment">
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/login"
+              href="/cms/apartment"
             >
               <i className="d-flex">
                 <IoHomeSharp />
@@ -87,7 +87,7 @@ const HeaderNavbar = (props) => {
             </NavLink>
           </NavItem>
 
-          <NavItem key="report">
+          {/* <NavItem key="report">
             <NavLink 
               className="d-flex flex-row align-items-center"
               href="/login"
@@ -133,7 +133,7 @@ const HeaderNavbar = (props) => {
               </i>
               <p>CÀI ĐẶT</p>
             </NavLink>
-          </NavItem>
+          </NavItem> */}
         </div>
 
         <div className="d-flex navbar-menu">
@@ -142,6 +142,7 @@ const HeaderNavbar = (props) => {
               id="exampleSelect"
               name="select"
               type="select"
+					    disabled={format_path() === "apartment"}
               className='btn-select pointer-btn'
               value={apartment}
               onChange={(e)=>change_apartment(e.target.value)}

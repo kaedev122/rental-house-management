@@ -4,7 +4,8 @@ import React, { Component, Suspense, lazy, Fragment, useState } from "react";
 import { Container } from "reactstrap";
 import { is_authenticated } from "@utils";
 
-const Home = lazy(() => import('@pages/home'))
+const Home = lazy(() => import('@pages/home/Home'))
+const ListApartment = lazy(() => import('@pages/apartment/ListApartment'))
 const HeaderNavbar = lazy(() => import("@layout/navbar/HeaderNavbar"));
 
 const CmsRouter = (props) => {
@@ -22,6 +23,7 @@ const CmsRouter = (props) => {
       <Suspense fallback={<FallbackSpinner />}>
         <Routes>			
           <Route exact path="/home" element={<Home />} />
+          <Route exact path="/apartment" element={<ListApartment />} />
 					<Route exact path="/login" render={() => (<Navigate to={{ pathname: "/" }} />)} />
         </Routes>
       </Suspense>

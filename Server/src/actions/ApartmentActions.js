@@ -98,7 +98,8 @@ export const update = async ({body, params, user, file}) => {
 export const list = async ({ 
     query: { 
         q = "",
-        status
+        status,
+        sort
     }, 
     user 
 }) => {
@@ -124,7 +125,9 @@ export const list = async ({
             .lean()
     ])
 
-    const result = data
+    let result = data
+    if (sort === 'true') result = result.reverse()
+
     return { total: totalItems , items: result }
 }
 

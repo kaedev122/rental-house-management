@@ -31,7 +31,6 @@ const Login = () => {
 		const res = await http_request({method: "GET", url:"cms/apartments", params: input})
 		const { code, data } = res
 		if(code === 200 ){
-            console.log(data.items)
 			dispatch(set_apartment_list(data.items))
             set_local_storage("apartment", data.items[0]?._id)
             dispatch(set_apartment_curent(data.items[0]?._id))
@@ -75,7 +74,7 @@ const Login = () => {
                     autoHideDuration: 5000,
                 })
                 await get_data_store()
-                return navigate("/home")
+                return navigate("/cms/home")
             } else {
                 return navigate("/login")
             }
@@ -101,7 +100,7 @@ const Login = () => {
 
     useEffect(() => {
         if (is_authenticated()) {
-            return navigate("/home")
+            return navigate("/cms/home")
         }
     }, [])
 

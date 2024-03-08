@@ -10,7 +10,7 @@ import { getPagination, getPagingData } from "../utils/paging.js"
 const _validateOtherPrice = (otherPrice) => {
     // validate quote [{content: string, price: number, type: TYPE_QUOTE}]
     if (!otherPrice || !Array.isArray(otherPrice)) throw new ParamError('Dữ liệu chi phí khác không đúng định dạng')
-    const newOtherPrice = []
+    let newOtherPrice = []
     for (let i = 0; i < otherPrice.length; i++) {
         const item = otherPrice[i];
         let name = item.name || ''
@@ -42,7 +42,7 @@ export const create = async ({body, user, file}) => {
         try {
             validate.other_price = JSON.parse(validate.other_price)
         } catch (error) {
-            throw new ParamError('Dữ liệu báo giá không đúng')
+            throw new ParamError('Dữ liệu chi phí khác không đúng định dạng')
         }
         const { newOtherPrice } = _validateOtherPrice(validate.other_price)
         validate.other_price = newOtherPrice

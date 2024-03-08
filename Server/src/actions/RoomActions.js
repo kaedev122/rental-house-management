@@ -132,7 +132,7 @@ export const update = async ({ body, user, params }) => {
     const validate = await RoomValidation.update.validateAsync(body)
 
     let oldRoom = await Room.findById(id).lean()
-    if (!oldRoom) throw new NotFoundError(`Không tìm phòng trọ!`)
+    if (!oldRoom) throw new NotFoundError(`Không tìm thấy phòng trọ!`)
 
     if (validate.name) {
         validate.name_search = Utils.convertVietnameseString(validate.name)
@@ -212,7 +212,8 @@ export const listRoomGroupExtend = async ({
     query: { 
         q = "",
         status,
-        apartment
+        apartment,
+        sort,
     }, 
     user 
 }) => {
@@ -234,15 +235,15 @@ export const listRoomGroupExtend = async ({
         RoomGroup.countDocuments(conditions),
         RoomGroup.find(conditions)
             .select("-apartment -name_search -status -updatedAt -__v")
-            .sort({ createdAt: -1 })
             .lean(),
         Room.find(conditions)
             .select("-apartment -name_search -status -updatedAt -__v")
-            .sort({ createdAt: -1 })
+            .populate("contract", "-status -updatedAt -__v")
+            .populate("customer_represent", "fullname phone")
             .lean()
     ])
 
-    const result = dataGroup.map((item) => {
+    let result = dataGroup.map((item) => {
         const rooms = dataRoom.filter(room => room.group.toString() == item._id.toString())
         let totalRoom = rooms.length
         return {
@@ -251,5 +252,6 @@ export const listRoomGroupExtend = async ({
             totalRoom
         }
     })
+    if (sort === 'true') result = result.reverse()
     return { total: totalItems , items: result }
 }

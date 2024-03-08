@@ -16,6 +16,8 @@ const BillSchema = new mongoose.Schema({
     total_other_costs: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
     payment_status: { type: Number, default: 0 },
+    
+    contract: {type: mongoose.Schema.Types.ObjectId, ref: 'Contract'},
     room: {type: mongoose.Schema.Types.ObjectId, ref: 'Room'}
 }, { timestamps: true, versionKey: false });
 

@@ -25,7 +25,6 @@ function AppRouter() {
 		  <IntlProvider locale={state.default_locale} messages={state.messages}>
 		<Routes>
 		  <Route path="/*" element={<CmsRouter/>} />
-		  <Route exact path="/" element={<Home/>} />
 		  <Route exact path="/login" element={<Login/>} />
 		  <Route exact path="/forgot-password" element={<Recovery/>} />
 		  <Route exact path="/reset-password" element={<ResetPassword/>} />

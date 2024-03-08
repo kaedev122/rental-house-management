@@ -15,10 +15,14 @@ export const create = Joi.object({
     apartment: Joi.string().required().label("Nhà trọ"),
     group: Joi.string().required().label("Nhóm phòng trọ"),
     room_price: Joi.number().label("Giá phòng"),
+    water_price: Joi.number().label("Giá nước"),
+    electric_price: Joi.number().label("Giá điện"),
 }).messages(errorJoiMessages);
 
 export const update = Joi.object({
     name: Joi.string().max(50).pattern(/[a-zA-Z0-9\s]/).label("Tên phòng"),
     room_price: Joi.number().label("Giá phòng"),
+    water_price: Joi.number().label("Giá nước"),
+    electric_price: Joi.number().label("Giá điện"),
     contract: Joi.number().label("Hợp đồng"),
 }).messages(errorJoiMessages);

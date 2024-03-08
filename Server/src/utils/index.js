@@ -68,3 +68,8 @@ export const checkSearch = (q) => {
     const regex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
     return regex.test(q);
 }
+
+export const validatePhoneNumber = (input) => {
+    let isnum = /^\d+$/.test(input);
+    return isnum
+}

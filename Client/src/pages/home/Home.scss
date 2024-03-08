@@ -1,3 +1,30 @@
 .card {
     width: 100%;
 }
+
+.room-card-container {
+    box-shadow: 1px 1px 3px #888888;
+    min-width: 420px;
+    margin-bottom: 8px;
+}
+
+.room-card-header {
+    height: 40px;
+    align-items: center;
+}
+
+.group-container {
+    height: 70vh;
+    overflow: auto;
+}
+
+.group-header {
+    height: 40px;
+    background-color: #dddddd !important;
+    box-shadow: 1px 1px 2px #888888;
+    border: 1px solid rgb(189, 189, 189) !important;
+}
+
+.MuiPaper-root {
+    margin-bottom: 8px;
+}

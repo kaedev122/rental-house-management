@@ -7,6 +7,10 @@ const RoomSchema = new mongoose.Schema({
     status: {type : Number, default: 1},
     group: {type: mongoose.Schema.Types.ObjectId, ref: 'RoomGroup'},
     room_price: {type: Number, default: 0},
+    water_price: { type: Number, default: 0 },
+    electric_price: { type: Number, default: 0 },
+    
+    customer_represent: {type: mongoose.Schema.Types.ObjectId, ref: 'Customer'},
     contract: {type: mongoose.Schema.Types.ObjectId, ref: 'Contract'},
     apartment: {type: mongoose.Schema.Types.ObjectId, ref: 'Apartment', index: true},
 }, { timestamps: true, versionKey: false });

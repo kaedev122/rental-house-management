@@ -153,7 +153,7 @@ export const list = async ({
         q = "",
         status,
         apartment,
-        group
+        group,
     }, 
     user 
 }) => {

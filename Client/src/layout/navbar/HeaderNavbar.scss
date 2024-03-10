@@ -50,3 +50,11 @@ li {
 .navbar-menu li {
     margin: 0 2px;
 }
+
+.highlight {
+    background-color: rgb(201, 200, 200);
+    & p, i {
+        color: black;
+        font-weight: 700;
+    }
+}

@@ -20,7 +20,8 @@ const ContractSchema = new mongoose.Schema({
     status: { type: Number, default: 1 },
     customer_represent: {type: mongoose.Schema.Types.ObjectId, ref: 'Customer'},
     customers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Customer'}],
-    room: {type: mongoose.Schema.Types.ObjectId, ref: 'Room', index: true}
+    room: {type: mongoose.Schema.Types.ObjectId, ref: 'Room', index: true},
+    apartment: {type: mongoose.Schema.Types.ObjectId, ref: 'Apartment', index: true}
 }, { timestamps: true, versionKey: false });
 
 const Contract = mongoose.model('Contract', ContractSchema);

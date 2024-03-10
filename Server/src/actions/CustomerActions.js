@@ -91,6 +91,7 @@ export const list = async ({
         apartment,
         page = 1,
         limit = 10,
+        sort,
     }, 
     user 
 }) => {
@@ -124,14 +125,16 @@ export const list = async ({
     const [totalItems, data] = await Promise.all([
         Customer.countDocuments(conditions),
         Customer.find(conditions)
-            .select("-name_search -status -updatedAt -__v")
+            .select("-status -updatedAt -__v")
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip(offset)
             .lean()
     ])
 
-    const result = data
+    let result = data
+    if (sort === 'true') result = result.reverse()
+
     return getPagingData(result, totalItems, page, limit)
 }
 

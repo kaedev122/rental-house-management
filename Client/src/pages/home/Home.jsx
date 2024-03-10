@@ -18,12 +18,14 @@ import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddGroup from './ModalAddGroup';
 import ModalAddRoom from './ModalAddRoom';
+import ModalAddContract from './ModalAddContract';
 import "./Home.scss";
 
 const Home = () => {
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [groupSelected, setGroupSelected] = useState('')
+    const [roomSelected, setRoomSelected] = useState('')
     const [sort, setSort] = useState(false)
     const toggle_sort = () => {
         return setSort(!sort)
@@ -38,6 +40,11 @@ const Home = () => {
     const [modalAddRoom, setModalAddRoom] = useState(false);
     const toggle_modal_add_room = () => {
         return setModalAddRoom(!modalAddRoom)
+    }
+
+    const [modalAddContract, setModalAddContract] = useState(false);
+    const toggle_modal_add_contract = () => {
+        return setModalAddContract(!modalAddContract)
     }
 
     useEffect(() => {
@@ -67,6 +74,11 @@ const Home = () => {
     const add_room = (group_id) => {
         setGroupSelected(group_id)
         return toggle_modal_add_room()
+    }    
+    
+    const add_contract = (room_id) => {
+        setRoomSelected(room_id)
+        return toggle_modal_add_contract()
     }
 
 	const done_action = () => {
@@ -140,7 +152,10 @@ const Home = () => {
                     </Row>
                     <Row className='border-top'>
                         <Col md={6}>
-                            <FaHandshakeSimple /> {format_date_time(item?.contract?.date_start)}
+                            <FaHandshakeSimple /> {item?.contract ? format_date_time(item?.contract?.date_start) : 
+                            <span
+                                onClick={() => add_contract(item._id)}
+                            >Tạo hợp đồng</span>}
                         </Col>
                         <Col md={6} className='border-start'>
                             <FaHandshakeSimpleSlash /> {format_date_time(item?.contract?.date_end)}
@@ -148,10 +163,10 @@ const Home = () => {
                     </Row>
                     <Row className='border-top'>
                         <Col md={6}>
-                            <RiWaterFlashFill /> Đã ghi số điện & nước
+                            <RiWaterFlashFill /> {item?.contract ? "Đã ghi số điện & nước" : '---'}
                         </Col>
                         <Col md={6} className='border-start'>
-                            <FaMoneyBillWaveAlt /> Đã thanh toán
+                            <FaMoneyBillWaveAlt /> {item?.contract ? "Đã thanh toán" : '---'}
                         </Col>
                     </Row>
                 </div>
@@ -201,6 +216,13 @@ const Home = () => {
             _modal={modalAddRoom}
             _toggleModal={toggle_modal_add_room}
             _group_selected={groupSelected} 
+            _done_action={done_action}
+        />}
+
+        {modalAddContract && <ModalAddContract
+            _modal={modalAddContract}
+            _toggleModal={toggle_modal_add_contract}
+            _room_selected={roomSelected} 
             _done_action={done_action}
         />}
     </div>)

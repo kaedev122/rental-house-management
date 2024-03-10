@@ -6,6 +6,8 @@ import { is_authenticated } from "@utils";
 
 const Home = lazy(() => import('@pages/home/Home'))
 const ListApartment = lazy(() => import('@pages/apartment/ListApartment'))
+const ListCustomer = lazy(() => import('@pages/customer/ListCustomer'))
+
 const HeaderNavbar = lazy(() => import("@layout/navbar/HeaderNavbar"));
 
 const CmsRouter = (props) => {
@@ -24,6 +26,7 @@ const CmsRouter = (props) => {
         <Routes>			
           <Route exact path="/home" element={<Home />} />
           <Route exact path="/apartment" element={<ListApartment />} />
+          <Route exact path="/customer" element={<ListCustomer />} />
 					<Route exact path="/login" render={() => (<Navigate to={{ pathname: "/" }} />)} />
         </Routes>
       </Suspense>

@@ -1,10 +1,11 @@
 import FallbackSpinner from "./FallBack/FallbackSpinner"
-// import Notification from "./SnackBar/Notification"
+import Paginations from "./Pagination/Paginations"
+import SearchData from "./SearchData/SearchData"
 
 
 
 
 
 export { 
-	FallbackSpinner, 
+	FallbackSpinner, Paginations, SearchData
 }

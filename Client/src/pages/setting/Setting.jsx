@@ -277,7 +277,7 @@ const Setting = () => {
                                             </Button>
                                         </Col>
                                         <Row>
-                                            {!location && <span>Vui lòng nhập địa chỉ và lấy vị trí hiện tại</span>}
+                                            {!location && <span>Vui lòng nhập địa chỉ và lấy vị trí hiện tại.</span>}
                                         </Row>
                                     </Row>
                                 </Col>
@@ -288,7 +288,7 @@ const Setting = () => {
                                             _setLocation={setLocation}
                                         />
                                     </div>
-                                    {location && <span>Chọn vị trí chính xác bằng cách kéo dấu đỏ trên bản đồ</span>}
+                                    {location && <span>Chọn vị trí chính xác bằng cách kéo dấu đỏ trên bản đồ.</span>}
                                 </Col>
                             </Row>
                         </TabPanel>

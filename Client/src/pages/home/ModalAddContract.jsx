@@ -110,7 +110,6 @@ const AddContract = (props) => {
     const get_room_data = async () => {
         const res = await http_request({method: "GET", url:`cms/room/${roomSelected}`})
 		const { code, data, message } = res
-        console.log(data)
         if (code == 200) {
             setDataAdd({
                 ...dataAdd,
@@ -147,7 +146,10 @@ const AddContract = (props) => {
             setListCurrentCustomer(data.items)
             return data.items
         }
-        return res
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
     }
 
     const onSubmit = async () => {
@@ -232,12 +234,12 @@ const AddContract = (props) => {
 		{ field: 'fullname', headerName: 'Tên khách thuê', flex: 1 },
 		{ field: 'phone', headerName: 'SĐT', flex: 1 },
         { field: 'action', headerName: 'Hành động', width: 100, align: "center",
-        renderCell: (params) => (
-            <div>
-                {render_action(params.row)}
-            </div>
-        ),	
-    },
+            renderCell: (params) => (
+                <div>
+                    {render_action(params.row)}
+                </div>
+            ),	
+        },
 	]
 
     return (<Fragment>
@@ -539,7 +541,66 @@ const AddContract = (props) => {
                         </Row>
                     </TabPanel>
                     <TabPanel index={2} key={"2"} value={"2"}>
-                        
+                        <Row>
+                            <Col md={6}>
+                                <div style={{ height: 318, width: '100%' }}>
+                                    <DataGrid 
+                                        checkboxSelection 
+                                        disableRowSelectionOnClick 
+                                        getRowId={(row) => row._id}
+                                        columns={columns}
+                                        rows={listCurrentCustomer.map((item, index) => {
+                                            return {
+                                                ...item,
+                                                stt: index + 1
+                                            }
+                                        })}
+                                        keepNonExistentRowsSelected
+                                        onRowSelectionModelChange={(newCustomer) => {
+                                            setListCustomerSelected(newCustomer);
+                                        }}
+                                        rowSelectionModel={listCustomerSelected}
+                                        components={{
+                                            Footer: () => { return <div></div>},
+                                            NoRowsOverlay: () => (
+                                                <Stack height="100%" alignItems="center" justifyContent="center">
+                                                    Dịch vụ
+                                                </Stack>
+                                            ),
+                                        }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col md={6}>
+                                <div style={{ height: 318, width: '100%' }}>
+                                    <DataGrid 
+                                        checkboxSelection 
+                                        disableRowSelectionOnClick 
+                                        getRowId={(row) => row._id}
+                                        columns={columns}
+                                        rows={listCustomerSelectedData.map((item, index) => {
+                                            return {
+                                                ...item,
+                                                stt: index + 1
+                                            }
+                                        })}
+                                        keepNonExistentRowsSelected
+                                        onRowSelectionModelChange={(newCustomer) => {
+                                            setListCustomerSelected(newCustomer);
+                                        }}
+                                        rowSelectionModel={listCustomerSelected}
+                                        components={{
+                                            Footer: () => { return <div></div>},
+                                            NoRowsOverlay: () => (
+                                                <Stack height="100%" alignItems="center" justifyContent="center">
+                                                    Vui lòng chọn dịch vụ
+                                                </Stack>
+                                            ),
+                                        }}
+                                    />
+                                </div>
+                            </Col>
+                        </Row>
                     </TabPanel>
                 </TabContext>
             </ModalBody>

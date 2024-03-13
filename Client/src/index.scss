@@ -10,7 +10,7 @@ ol, ul {
 }
 
 body {
-  background-color: #f2f2f2;
+  background-color: #E8EBF3;
 }
 
 #root {
@@ -25,4 +25,13 @@ body {
 .label-text {
   font-size: 18px;
   font-weight: 700;
+}
+
+.header-text {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.card-header {
+  background-color: rgba(0,0,0,0) !important;
 }

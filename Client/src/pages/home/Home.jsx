@@ -20,9 +20,11 @@ import ModalAddGroup from './ModalAddGroup';
 import ModalAddRoom from './ModalAddRoom';
 import ModalAddContract from './ModalAddContract';
 import "./Home.scss";
+import { useSnackbar } from 'notistack';
 
 const Home = () => {
-	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [groupSelected, setGroupSelected] = useState('')
     const [roomSelected, setRoomSelected] = useState('')
@@ -49,7 +51,7 @@ const Home = () => {
 
     useEffect(() => {
         get_list_room_group_data(sort)
-    }, [apartmentCurent])
+    }, [apartmentCurrent])
 
     useEffect(() => {
         get_list_room_group_data(sort)
@@ -58,7 +60,7 @@ const Home = () => {
     const get_list_room_group_data = async (sortStatus) => {
         let input = {
             status: 1,
-            apartment: apartmentCurent,
+            apartment: apartmentCurrent,
             sort: sortStatus || 'false'
         }
         const res = await http_request({method: "GET", url:"cms/room-group-extend", params: input})
@@ -68,7 +70,10 @@ const Home = () => {
             setDataAdd(data)
             return true
         }
-        return res
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
     }
 
     const add_room = (group_id) => {
@@ -84,6 +89,7 @@ const Home = () => {
 	const done_action = () => {
 		setModalAddGroup(false)
 		setModalAddRoom(false)
+		setModalAddContract(false)
         return get_list_room_group_data()
 	}
 
@@ -179,8 +185,8 @@ const Home = () => {
             <CardHeader>
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
-                        <span>Quản trị chung</span>
-                        {apartmentCurent && (<Button
+                        <span className='header-text'>Quản trị chung</span>
+                        {apartmentCurrent && (<Button
                             onClick={() => toggle_modal_add_group()}
                             className=''
                         >

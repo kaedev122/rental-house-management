@@ -48,6 +48,14 @@ export const create = async ({body, user, file}) => {
         validate.other_price = newOtherPrice
     }
 
+    if (validate.location) {
+        try {
+            validate.location = JSON.parse(validate.location)
+        } catch (error) {
+            throw new ParamError('Dữ liệu báo giá không đúng')
+        }
+    }
+    
     if (!validate.phone) {
         let userPhone = await User.findById(validate.user).select("phone").lean()
         validate.phone = userPhone.phone
@@ -63,10 +71,8 @@ export const create = async ({body, user, file}) => {
 export const update = async ({body, params, user, file}) => {
     const { id } = params    
     if (!id) throw new ParamError("Thiếu id")
-
     let validate = await ApartmentValidation.update.validateAsync(body)
     validate.user = user.id
-
     let oldApartment = await Apartment.findById(id).lean()
     if (!oldApartment) throw new NotFoundError(`Không tìm thấy nhà trọ!`)
     
@@ -81,6 +87,13 @@ export const update = async ({body, params, user, file}) => {
         if (apartmentExist) throw new ExistDataError(`Tên nhà trọ đã tồn tại!`)
     }
 
+    if (validate.location) {
+        try {
+            validate.location = JSON.parse(validate.location)
+        } catch (error) {
+            throw new ParamError('Dữ liệu báo giá không đúng')
+        }
+    }
     if (validate.other_price) {
         try {
             validate.other_price = JSON.parse(validate.other_price)

@@ -18,9 +18,11 @@ import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddApartment from './ModalAddApartment';
 import "./Apartment.scss";
+import { useSnackbar } from 'notistack';
 
 const ListApartment = () => {
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listApartment, setListApartment] = useState([])
     const [sort, setSort] = useState(false)
     const toggle_sort = () => {
@@ -53,7 +55,10 @@ const ListApartment = () => {
             setDataAdd(data)
             return true
         }
-        return res
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
     }
 
 	const done_action = () => {
@@ -90,7 +95,7 @@ const ListApartment = () => {
             <CardHeader>
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
-                        <span>Quản lý nhà trọ</span>
+                        <span className='header-text'>Quản lý nhà trọ</span>
                         <Button
                             onClick={() => toggle_modal_add()}
                             className=''

@@ -57,7 +57,7 @@ export const update = async ({ body, user, params }) => {
         let phoneExist = await Customer.findOne({
             phone: validate.phone,
             status: 1,
-            apartment: validate.apartment
+            apartment: oldCustomer.apartment
         }).lean()
         if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
     }
@@ -66,7 +66,7 @@ export const update = async ({ body, user, params }) => {
         let id_numberExist = await Customer.findOne({
             id_number: validate.id_number,
             status: 1,
-            apartment: validate.apartment
+            apartment: oldCustomer.apartment
         }).lean()
         if (id_numberExist) throw new ExistDataError(`Số căn cước này đã tồn tại!`)
     }
@@ -75,7 +75,7 @@ export const update = async ({ body, user, params }) => {
         let emailExist = await Customer.findOne({
             email: validate.email,
             status: 1,
-            apartment: validate.apartment
+            apartment: oldCustomer.apartment
         }).lean()
         if (emailExist) throw new ExistDataError(`Email này đã tồn tại!`)
     }

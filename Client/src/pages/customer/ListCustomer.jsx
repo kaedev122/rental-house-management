@@ -19,9 +19,11 @@ import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddCustomer from './ModalAddCustomer';
 import "./Customer.scss";
 import { Paginations } from "@components"
+import { useSnackbar } from 'notistack';
 
 const ListCustomer = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [sort, setSort] = useState(false)
     const [page, setPage] = useState(1);
 	const [size, setSize] = useState(10);
@@ -77,7 +79,10 @@ const ListCustomer = () => {
             setTotalPage(data.totalPages)
             return true
         }
-        return res
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
     }
 
 	const done_action = () => {
@@ -120,7 +125,7 @@ const ListCustomer = () => {
             <CardHeader>
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
-                        <span>Quản lý khách thuê</span>
+                        <span className='header-text'>Quản lý khách thuê</span>
                         <Button
                             onClick={() => toggle_modal_add()}
                             className=''

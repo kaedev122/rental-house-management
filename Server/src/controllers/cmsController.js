@@ -5,6 +5,7 @@ import * as ApartmentActions from '../actions/ApartmentActions.js';
 import * as RoomActions from '../actions/RoomActions.js';
 import * as ContractActions from '../actions/ContractActions.js';
 import * as CustomerActions from '../actions/CustomerActions.js';
+import * as ServiceActions from '../actions/ServiceActions.js';
 import { verify } from '../middlewares/verifyMiddleware.js';
 const router = express.Router();
 
@@ -46,5 +47,12 @@ router.put('/customer/:id', verify(), handleRequest(CustomerActions.update))
 router.get('/customers', verify(), handleRequest(CustomerActions.list))
 router.get('/customer/:id', verify(), handleRequest(CustomerActions.get))
 router.delete('/customer/:id', verify(), handleRequest(CustomerActions.remove))
+
+//Customer
+router.post('/setting/service', verify(), handleRequest(ServiceActions.create))
+router.put('/setting/service/:id', verify(), handleRequest(ServiceActions.update))
+router.get('/setting/services', verify(), handleRequest(ServiceActions.list))
+router.get('/setting/service/:id', verify(), handleRequest(ServiceActions.get))
+router.delete('/setting/service/:id', verify(), handleRequest(ServiceActions.remove))
 
 export default router;

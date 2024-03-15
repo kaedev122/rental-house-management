@@ -128,19 +128,21 @@ const HeaderNavbar = (props) => {
               </i>
               <p>HÓA ĐƠN</p>
             </NavLink>
-          </NavItem>
+          </NavItem> */}
 
-          <NavItem key="contract">
+          <NavItem key="contract"
+            className={format_path() === 'contract' ? `highlight` : ''}
+          >
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/login"
+              href="/cms/contract"
             >
               <i className="d-flex">
                 <FaFileContract />
               </i>
               <p>HỢP ĐỒNG</p>
             </NavLink>
-          </NavItem> */}
+          </NavItem>
 
           <NavItem key="setting"
             className={format_path() === 'setting' ? `highlight` : ''}

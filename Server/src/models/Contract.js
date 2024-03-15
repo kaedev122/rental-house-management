@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const ContractSchema = new mongoose.Schema({
     note: { type: String },
+    code: {type: String},
     date_start: { type: Date, require: true },
     date_end: { type: Date, require: true },
     deposit_money: { type: Number, default: 0 },

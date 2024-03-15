@@ -13,7 +13,7 @@ export const create = async ({ body, user }) => {
 
     let phoneExist = await Customer.findOne({
         phone: validate.phone,
-        status: 1,
+        status: {$ne: 0},
         apartment: validate.apartment
     }).lean()
     if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
@@ -21,7 +21,7 @@ export const create = async ({ body, user }) => {
     if (validate.id_number) {
         let id_numberExist = await Customer.findOne({
             id_number: validate.id_number,
-            status: 1,
+            status: {$ne: 0},
             apartment: validate.apartment
         }).lean()
         if (id_numberExist) throw new ExistDataError(`Số căn cước này đã tồn tại!`)
@@ -30,7 +30,7 @@ export const create = async ({ body, user }) => {
     if (validate.email) {
         let emailExist = await Customer.findOne({
             email: validate.email,
-            status: 1,
+            status: {$ne: 0},
             apartment: validate.apartment
         }).lean()
         if (emailExist) throw new ExistDataError(`Email này đã tồn tại!`)
@@ -55,8 +55,9 @@ export const update = async ({ body, user, params }) => {
 
     if (validate.phone) {
         let phoneExist = await Customer.findOne({
+            _id: {$ne: id},
             phone: validate.phone,
-            status: 1,
+            status: {$ne: 0},
             apartment: oldCustomer.apartment
         }).lean()
         if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
@@ -64,8 +65,9 @@ export const update = async ({ body, user, params }) => {
 
     if (validate.id_number) {
         let id_numberExist = await Customer.findOne({
+            _id: {$ne: id},
             id_number: validate.id_number,
-            status: 1,
+            status: {$ne: 0},
             apartment: oldCustomer.apartment
         }).lean()
         if (id_numberExist) throw new ExistDataError(`Số căn cước này đã tồn tại!`)
@@ -73,11 +75,16 @@ export const update = async ({ body, user, params }) => {
 
     if (validate.email) {
         let emailExist = await Customer.findOne({
+            _id: {$ne: id},
             email: validate.email,
-            status: 1,
+            status: {$ne: 0},
             apartment: oldCustomer.apartment
         }).lean()
         if (emailExist) throw new ExistDataError(`Email này đã tồn tại!`)
+    }
+
+    if ((validate.status == 0 || validate.status == 1) && oldCustomer.status == 2) {
+        throw new PermissionError(`Không thể khóa khách đang thuê`)
     }
 
     let result = await Customer.findByIdAndUpdate(id, { ...validate }, {new: true})
@@ -125,7 +132,7 @@ export const list = async ({
     const [totalItems, data] = await Promise.all([
         Customer.countDocuments(conditions),
         Customer.find(conditions)
-            .select("-status -updatedAt -__v")
+            .select("-updatedAt -__v")
             .sort({ createdAt: -1 })
             .limit(limit)
             .skip(offset)
@@ -138,12 +145,37 @@ export const list = async ({
     return getPagingData(result, totalItems, page, limit)
 }
 
+export const listAdd = async ({ 
+    query: { 
+        status,
+        apartment,
+    }, 
+    user 
+}) => {
+    let conditions = {}
+
+    conditions.apartment = apartment
+    if (status) conditions.status = status
+
+    const [totalItems, data] = await Promise.all([
+        Customer.countDocuments(conditions),
+        Customer.find(conditions)
+            .select("-status -updatedAt -__v")
+            .sort({ createdAt: -1 })
+            .lean()
+    ])
+
+    let result = data
+
+    return {items: result, total: totalItems}
+}
+
 export const get = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError('Thiếu id')
 
     const data = await Customer.findById(id)
-        .select("-name_search -status -updatedAt -__v")
+        .select("-name_search -updatedAt -__v")
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy khách hàng')
 

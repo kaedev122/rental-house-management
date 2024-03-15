@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { User, RoomGroup, Room, Customer, Contract } from "../models/index.js"
 import * as ContractValidation from '../validations/ContractValidation.js'
-import * as CustomerValidation from '../validations/CustomerValidation.js'
 import * as Utils from "../utils/index.js"
 import moment from 'moment';
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
@@ -29,6 +28,11 @@ const _validateOtherPrice = (otherPrice) => {
         totalOtherPrice += total
     }
     return { newOtherPrice, totalOtherPrice }
+}
+
+const _newContractCode = async (apartment) => {
+    const numberOrder = await Contract.countDocuments({ apartment })
+    return numberOrder + 1
 }
 
 const _validateCustomers = (customers) => {
@@ -73,19 +77,28 @@ export const create = async ({ body, user }) => {
         validate.other_price = newOtherPrice
         validate.total_other_price = totalOtherPrice
     }
+    validate.code = await _newContractCode(validate.apartment)
 
     const newContract = {
         ...validate,
     }
     const result = await Contract.create(newContract)
-
-    await Room.findByIdAndUpdate(validate.room, {
-        contract: result._id,
-        room_price: validate.room_price,
-        customer_represent: validate.customer_represent,
-        water_price: validate.water_price,
-        electric_price: validate.electric_price,
-    }).lean()
+    if (result) {
+        await Promise.all([
+            Customer.updateMany({ 
+                _id: { $in: result.customers } 
+            },{ 
+                $set: { status: 2 }
+            }),
+            Room.findByIdAndUpdate(validate.room, {
+                contract: result._id,
+                room_price: validate.room_price,
+                customer_represent: validate.customer_represent,
+                water_price: validate.water_price,
+                electric_price: validate.electric_price,
+            }).lean()
+        ])
+    }
 
     return result
 }
@@ -93,127 +106,87 @@ export const create = async ({ body, user }) => {
 export const update = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError("Thiếu id")
-    const validate = await RoomValidation.update.validateAsync(body)
+    const validate = await ContractValidation.update.validateAsync(body)
 
-    let oldRoom = await Room.findById(id).lean()
-    if (!oldRoom) throw new NotFoundError(`Không tìm phòng trọ!`)
+    let oldContract = await Contract.findById(id).lean()
+    if (!oldContract) throw new NotFoundError(`Không tìm hợp đồng!`)
 
-    if (validate.name) {
-        validate.name_search = Utils.convertVietnameseString(validate.name)
-        let roomExist = await Room.findOne({
-            status: 1,
-            name_search: validate.name_search,
-            apartment: oldRoom.apartment
-        }).lean()
-        if (roomExist) throw new ExistDataError(`Tên phòng đã tồn tại!`)
+    if (validate.customers) {
+        try {
+            validate.customers = JSON.parse(validate.customers)
+        } catch (error) {
+            throw new ParamError('Dữ liệu khách hàng không đúng định dạng')
+        }
+        const { newCustomers } = _validateCustomers(validate?.customers)
+        validate.customers = newCustomers
     }
 
-    let result = await Room.findByIdAndUpdate(id, { ...validate }, {new: true})
+    if (validate.other_price) {
+        try {
+            validate.other_price = JSON.parse(validate.other_price)
+        } catch (error) {
+            throw new ParamError('Dữ liệu chi phí khác không đúng định dạng')
+        }
+        const { newOtherPrice, totalOtherPrice } = _validateOtherPrice(validate.other_price)
+        validate.other_price = newOtherPrice
+        validate.total_other_price = totalOtherPrice
+    }
+
+    let result = await Contract.findByIdAndUpdate(id, { ...validate }, {new: true})
+    if (validate.customers) {
+        await Customer.updateMany({ 
+            $and: [
+                { _id: { $in: oldContract.customers } },
+                { _id: { $nin: result.customers } }
+            ]
+        },{ 
+            $set: { status: 1 }
+        })
+        await Customer.updateMany({ 
+            $and: [
+                { _id: { $nin: oldContract.customers } },
+                { _id: { $in: result.customers } }
+            ]
+        },{ 
+            $set: { status: 2 }
+        })
+    }
     return result
 }
 
 export const list = async ({ 
-    query: { 
-        q = "",
+    query: {
         status,
         apartment,
-        group
+        page = 1,
+        limit = 10,
     }, 
     user 
 }) => {
     let conditions = {}
-    if (q && !Utils.checkSearch(q)) {
-        conditions["$or"] = [
-            {
-                name_search: {
-                    $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
-                }
-            }
-        ]
-    }
 
     if (!apartment) throw new ParamError("Thiếu id nhà trọ")
     conditions.apartment = apartment
-    if (group) conditions.group = group
     if (status) conditions.status = status
+    let { offset } = getPagination(page, limit)
 
     const [totalItems, data] = await Promise.all([
-        Room.countDocuments(conditions),
-        Room.find(conditions)
-            .select("-apartment -name_search -status -updatedAt -__v")
-            .sort({ createdAt: -1 })
+        Contract.countDocuments(conditions),
+        Contract.find(conditions)
+            .select("-apartment -updatedAt -__v")
+            .populate('room', 'name')
+            .populate('customer_represent', 'fullname phone')
+            .sort({ createdAt: -1 })            
+            .limit(limit)
+            .skip(offset)
             .lean()
     ])
 
-    const result = data
-    return { total: totalItems , items: result }
-}
-
-export const get = async ({ body, user, params }) => {
-    const { id } = params
-    if (!id) throw new ParamError('Thiếu id')
-
-    const data = await Room.findById(id)
-        .select("-apartment -name_search -status -updatedAt -__v")
-        .lean()
-    if (!data) throw new NotFoundError('Không tìm thấy phòng trọ')
-
-    return {
-        ...data,
-    }
-}
-
-export const remove = async ({ body, user, params }) => {
-    const { id } = params
-    if (!id) throw new ParamError("Thiếu id")
-    const oldRoom = await Room.findById(id)
-    if (!oldRoom) throw new NotFoundError("Không tìm thấy nhóm phòng trọ")
-    await Room.findByIdAndUpdate(id, { status: 0 })
-    return true
-}
-
-export const listRoomGroupExtend = async ({ 
-    query: { 
-        q = "",
-        status,
-        apartment
-    }, 
-    user 
-}) => {
-    let conditions = {}
-    if (q && !Utils.checkSearch(q)) {
-        conditions["$or"] = [
-            {
-                name_search: {
-                    $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
-                }
-            }
-        ]
-    }
-
-    if (!apartment) throw new ParamError("Thiếu id nhà trọ")
-    conditions.apartment = apartment
-    if (status) conditions.status = status
-    const [totalItems, dataGroup, dataRoom] = await Promise.all([
-        RoomGroup.countDocuments(conditions),
-        RoomGroup.find(conditions)
-            .select("-apartment -name_search -status -updatedAt -__v")
-            .sort({ createdAt: -1 })
-            .lean(),
-        Room.find(conditions)
-            .select("-apartment -name_search -status -updatedAt -__v")
-            .sort({ createdAt: -1 })
-            .lean()
-    ])
-
-    const result = dataGroup.map((item) => {
-        const rooms = dataRoom.filter(room => room.group.toString() == item._id.toString())
-        let totalRoom = rooms.length
+    const result = data.map(item => {
         return {
             ...item,
-            rooms,
-            totalRoom
+            code: Utils.padNumber('HD', item.code),
         }
     })
-    return { total: totalItems , items: result }
+    return getPagingData(result, totalItems, page, limit)
 }

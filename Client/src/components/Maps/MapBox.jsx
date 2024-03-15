@@ -19,10 +19,8 @@ const MapBox = (props) => {
 
     useEffect(() => {
         setViewState(_location)
+        setMarker(_location)
     }, [_location])
-
-    useEffect(() => {
-    }, [viewState])
 
     useEffect(() => {
         if (viewState) {

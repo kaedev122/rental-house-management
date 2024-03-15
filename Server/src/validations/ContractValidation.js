@@ -9,7 +9,7 @@ const _phoneValidation = Joi.string()
     .messages({ 'string.pattern.name': 'Số điện thoại không hợp lệ!' });
 
 export const create = Joi.object({
-    note: Joi.string().max(200).label("Tên nhà trọ"),
+    note: Joi.string().max(200).label("Ghi chú"),
     date_start: Joi.date().required().label("Ngày bắt đầu hợp đồng"),
     date_end: Joi.date().required().label("Ngày kết thúc hợp đồng"),
     deposit_money: Joi.number().label("Tiền cọc"),
@@ -20,14 +20,18 @@ export const create = Joi.object({
     customer_represent: Joi.string().required().label("Người đại diện"),
     customers: Joi.string().required().label("Khách hàng"),
     room: Joi.string().label("Phòng trọ"),
+    apartment: Joi.string().required().label("Nhà trọ"),
 }).messages(errorJoiMessages);
 
 export const update = Joi.object({
-    name: Joi.string().max(50).pattern(/[a-zA-Z0-9\s]/).label("Tên nhà trọ"),
-    phone: _phoneValidation.label("Số điện thoại"),
-    address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).max(100).label('Địa chỉ'),
-    location: Joi.string().label('Vị trí'),
+    note: Joi.string().max(200).label("Ghi chú"),
+    date_start: Joi.date().label("Ngày bắt đầu hợp đồng"),
+    date_end: Joi.date().label("Ngày kết thúc hợp đồng"),
+    deposit_money: Joi.number().label("Tiền cọc"),
     water_price: Joi.number().label("Giá tiền một số nước"),
     electric_price: Joi.number().label("Giá tiền một số điện"),
-    other_price: Joi.string().label('Chi phí khác'),
+    room_price: Joi.number().label("Giá phòng"),
+    other_price: Joi.string().label("Chi phí khác"),
+    customer_represent: Joi.string().label("Người đại diện"),
+    customers: Joi.string().label("Khách hàng"),
 }).messages(errorJoiMessages);

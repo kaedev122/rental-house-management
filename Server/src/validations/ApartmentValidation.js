@@ -26,4 +26,5 @@ export const update = Joi.object({
     water_price: Joi.number().label("Giá tiền một số nước"),
     electric_price: Joi.number().label("Giá tiền một số điện"),
     other_price: Joi.string().label('Chi phí khác'),
+    status: Joi.number().label('Trạng thái')
 }).messages(errorJoiMessages);

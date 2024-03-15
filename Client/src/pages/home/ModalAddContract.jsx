@@ -25,14 +25,17 @@ import { FaEdit } from "react-icons/fa";
 import { SearchData } from '@components'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import ModalAddService from '../setting/ModalAddService'
+import ModalAddCustomer from '../customer/ModalAddCustomer'
 
 const AddContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _room_selected } = props;
     const timer = useRef()
 
-	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
+    const [listService, setListService] = useState([])
     const [listRoom, setListRoom] = useState([])
     const [roomData, setRoomData] = useState({})
     const [roomSelected, setRoomSelected] = useState(_room_selected)
@@ -52,43 +55,46 @@ const AddContract = (props) => {
 
     const [listCurrentCustomer, setListCurrentCustomer] = useState([]);
     const [listCustomerSelected, setListCustomerSelected] = useState([]);
+    const [listServiceSelected, setListServiceSelected] = useState([]);
     const [listCustomerSelectedData, setListCustomerSelectedData] = useState([]);
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
 
+    const [modalAdd, setModalAdd] = useState(false);
+    const toggle_modal_add = () => {
+        return setModalAdd(!modalAdd)
+    }
+
     useEffect(() => {
         get_list_room_data()
         // get_list_customer()
-        async function getCustomerData() {
-            let result = await get_list_customer()
-            setListCustomer(result)
-        }
-        getCustomerData()
+        get_customer_data()
+        get_list_service()
     }, [])
 
     useEffect(() => {
         get_room_data(roomSelected)
-        console.log(listCustomer)
     }, [roomSelected])
-    
-    useEffect(() => {
-        console.log(dataAdd)
-    }, [dataAdd])
 
     useEffect(() => {
-        console.log(listCustomerSelectedData)
         setDataAdd({
             ...dataAdd,
             customers: JSON.stringify(listCustomerSelected)
         })
-        convert_table()
+        convert_customer_table()
     }, [listCustomerSelected])
 
-    const convert_table = async () => {
-        console.log(listCustomer)
-        console.log(listCurrentCustomer.length)
-        console.log(listCustomerSelected.length)
+    useEffect(() => {
+        convert_customer_table()
+    },[listCustomer])
+
+    const get_customer_data = async () => {
+        let result = await get_list_customer()
+        setListCustomer(result)
+    }
+
+    const convert_customer_table = async () => {
         let newListCustomer = listCustomer.filter(item => {
             return !listCustomerSelected.includes(item._id)
         })
@@ -125,7 +131,7 @@ const AddContract = (props) => {
     const get_list_room_data = async () => {
         let input = {
             status: 1,
-            apartment: apartmentCurent,
+            apartment: apartmentCurrent,
         }
         const res = await http_request({method: "GET", url:`cms/rooms`, params: input})
 		const { code, data, message } = res
@@ -138,9 +144,9 @@ const AddContract = (props) => {
         let input = {
             ...data_search,
             status: 1,
-            apartment: apartmentCurent,
+            apartment: apartmentCurrent,
         }
-        const res = await http_request({method: "GET", url:"cms/customers", params: input})
+        const res = await http_request({method: "GET", url:"cms/customer/contract", params: input})
 		const { code, data, message } = res
         if (code == 200) {
             setListCurrentCustomer(data.items)
@@ -151,6 +157,31 @@ const AddContract = (props) => {
             autoHideDuration: 5000,
         })
     }
+
+    const get_list_service = async () => {
+        let input = {
+            status: 1,
+            apartment: apartmentCurrent
+        }
+        const res = await http_request({method: "GET", url:"cms/setting/services", params: input})
+		const { code, data, message } = res
+        if (code == 200) {
+            setListService(data.items)
+            return true
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
+	const done_action = () => {
+		setModalAdd(false)
+        get_customer_data()
+        get_list_room_data()
+        get_list_service()
+        return convert_customer_table()
+	}
 
     const onSubmit = async () => {
         // if (is_empty(dataAdd.name)) {
@@ -166,6 +197,7 @@ const AddContract = (props) => {
             date_start: startDate,
             date_end: endDate,
             customer_represent: represent,
+            apartment: apartmentCurrent
         }
         console.log(input)
 		const res = await http_request({ method: "POST", url: "cms/contract/", data: input })
@@ -229,10 +261,23 @@ const AddContract = (props) => {
             />
         </div>)
 	}
-    const columns = [
+    const columns_customer = [
 		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
 		{ field: 'fullname', headerName: 'Tên khách thuê', flex: 1 },
 		{ field: 'phone', headerName: 'SĐT', flex: 1 },
+        { field: 'action', headerName: 'Hành động', width: 100, align: "center",
+            renderCell: (params) => (
+                <div>
+                    {render_action(params.row)}
+                </div>
+            ),	
+        },
+	]
+
+    const columns_service = [
+		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
+		{ field: 'name', headerName: 'Tên dịch vụ', flex: 1 },
+		{ field: 'price', headerName: 'Giá dịch vụ', flex: 1 },
         { field: 'action', headerName: 'Hành động', width: 100, align: "center",
             renderCell: (params) => (
                 <div>
@@ -287,13 +332,23 @@ const AddContract = (props) => {
                     </Box>
                     <TabPanel index={1} key={"1"} value={"1"}>
                         <Row>
+                            <div>
+                                <Label>Danh sách khách thuê</Label>
+                                <Button
+                                    onClick={() => toggle_modal_add()}
+                                >
+                                    Thêm mới +
+                                </Button>
+                            </div>
+                        </Row>
+                        <Row>
                             <Col md={6}>
                                 <div style={{ height: 318, width: '100%' }}>
                                     <DataGrid 
                                         checkboxSelection 
                                         disableRowSelectionOnClick 
                                         getRowId={(row) => row._id}
-                                        columns={columns}
+                                        columns={columns_customer}
                                         rows={listCurrentCustomer.map((item, index) => {
                                             return {
                                                 ...item,
@@ -322,7 +377,7 @@ const AddContract = (props) => {
                                         checkboxSelection 
                                         disableRowSelectionOnClick 
                                         getRowId={(row) => row._id}
-                                        columns={columns}
+                                        columns={columns_customer}
                                         rows={listCustomerSelectedData.map((item, index) => {
                                             return {
                                                 ...item,
@@ -542,24 +597,24 @@ const AddContract = (props) => {
                     </TabPanel>
                     <TabPanel index={2} key={"2"} value={"2"}>
                         <Row>
-                            <Col md={6}>
+                            <Col md={8}>
                                 <div style={{ height: 318, width: '100%' }}>
                                     <DataGrid 
                                         checkboxSelection 
                                         disableRowSelectionOnClick 
                                         getRowId={(row) => row._id}
-                                        columns={columns}
-                                        rows={listCurrentCustomer.map((item, index) => {
+                                        columns={columns_service}
+                                        rows={listService.map((item, index) => {
                                             return {
                                                 ...item,
                                                 stt: index + 1
                                             }
                                         })}
                                         keepNonExistentRowsSelected
-                                        onRowSelectionModelChange={(newCustomer) => {
-                                            setListCustomerSelected(newCustomer);
+                                        onRowSelectionModelChange={(newService) => {
+                                            setListServiceSelected(newService);
                                         }}
-                                        rowSelectionModel={listCustomerSelected}
+                                        rowSelectionModel={listServiceSelected}
                                         components={{
                                             Footer: () => { return <div></div>},
                                             NoRowsOverlay: () => (
@@ -571,34 +626,8 @@ const AddContract = (props) => {
                                     />
                                 </div>
                             </Col>
-                            <Col md={6}>
-                                <div style={{ height: 318, width: '100%' }}>
-                                    <DataGrid 
-                                        checkboxSelection 
-                                        disableRowSelectionOnClick 
-                                        getRowId={(row) => row._id}
-                                        columns={columns}
-                                        rows={listCustomerSelectedData.map((item, index) => {
-                                            return {
-                                                ...item,
-                                                stt: index + 1
-                                            }
-                                        })}
-                                        keepNonExistentRowsSelected
-                                        onRowSelectionModelChange={(newCustomer) => {
-                                            setListCustomerSelected(newCustomer);
-                                        }}
-                                        rowSelectionModel={listCustomerSelected}
-                                        components={{
-                                            Footer: () => { return <div></div>},
-                                            NoRowsOverlay: () => (
-                                                <Stack height="100%" alignItems="center" justifyContent="center">
-                                                    Vui lòng chọn dịch vụ
-                                                </Stack>
-                                            ),
-                                        }}
-                                    />
-                                </div>
+                            <Col md={4}>
+
                             </Col>
                         </Row>
                     </TabPanel>
@@ -617,6 +646,12 @@ const AddContract = (props) => {
                 </Button>
             </ModalFooter>
         </Modal>
+
+        {modalAdd && <ModalAddCustomer
+            _modal={modalAdd}
+            _toggleModal={toggle_modal_add}
+            _done_action={done_action}
+        />}
     </Fragment>)
 }
 

@@ -133,7 +133,7 @@ export const list = async ({
     const [totalItems, data] = await Promise.all([
         Apartment.countDocuments(conditions),
         Apartment.find(conditions)
-            .select("-user -name_search -status -updatedAt -__v")
+            .select("-user -name_search -updatedAt -__v")
             .sort({ createdAt: -1 })
             .lean()
     ])
@@ -149,7 +149,7 @@ export const get = async ({ params }) => {
     if (!id) throw new ParamError('Thiếu id')
 
     const data = await Apartment.findById(id)
-        .select("-user -name_search -status -updatedAt -__v")
+        .select("-user -name_search -updatedAt -__v")
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy nhà trọ')
 

@@ -73,3 +73,18 @@ export const validatePhoneNumber = (input) => {
     let isnum = /^\d+$/.test(input);
     return isnum
 }
+
+export const padNumber = (prefix = 'HD', num) => {
+    let paddedFill = '0000000';
+    let length = 5;
+
+    switch (prefix) {
+        case 'HD':
+            length = 5;
+            paddedFill = '0000000';
+            break;
+    }
+
+    const paddedNum = paddedFill + num;
+    return prefix + paddedNum.slice(-length);
+}

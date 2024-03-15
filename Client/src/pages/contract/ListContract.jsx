@@ -16,35 +16,35 @@ import { BsPersonCircle, BsLightningChargeFill } from "react-icons/bs";
 import { FaDollarSign, FaHandshakeSimple, FaHandshakeSimpleSlash, FaDoorClosed } from "react-icons/fa6";
 import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
-import ModalAddCustomer from './ModalAddCustomer';
-import ModalDetailCustomer from './ModalDetailCustomer';
-import "./Customer.scss";
-import { Paginations } from "@components"
+// import ModalAddApartment from './ModalAddApartment';
+import "./contract.scss";
 import { useSnackbar } from 'notistack';
 import { TabContext, TabList, TabPanel } from '@mui/lab'
 import { Box, Tab, Grid, Stack } from '@mui/material'
 import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
+import { format_full_time } from '@utils/format_time';
+import { Paginations } from "@components"
 
-const ListCustomer = () => {
+const ListContract = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [listApartment, setListApartment] = useState([])
     const [sort, setSort] = useState(false)
     const [page, setPage] = useState(1);
 	const [size, setSize] = useState(10);
     const [dataTable, setDataTable] = useState([]);
 	const [totalRecord, setTotalRecord] = useState(0);
 	const [totalPages, setTotalPage] = useState(0);
-    const [dataSearch, setDataSearch] = useState({
-        apartment: apartmentCurrent,
-	});
     const toggle_sort = () => {
         return setSort(!sort)
     }
     const [dataAdd, setDataAdd] = useState({})
     const [dataSelect, setDataSelect] = useState({})
-
+    const [dataSearch, setDataSearch] = useState({
+        apartment: apartmentCurrent,
+	});
     const [modalAdd, setModalAdd] = useState(false);
     const toggle_modal_add = () => {
         return setModalAdd(!modalAdd)
@@ -55,7 +55,7 @@ const ListCustomer = () => {
     }
 
     useEffect(() => {
-        get_list_customer({
+        get_list_contract({
 			...dataSearch,
 			"apartment": apartmentCurrent,
 			"page": page,
@@ -74,13 +74,12 @@ const ListCustomer = () => {
 		setDataSearch(data_input)
 		return await get_list_customer(data_input)
 	}
-
-    const get_list_customer = async (dataInput) => {
+    const get_list_contract = async (dataInput) => {
         let input = {
             ...dataInput,
             "limit": size
         }
-        const res = await http_request({method: "GET", url:"cms/customers", params: input})
+        const res = await http_request({method: "GET", url:"cms/contracts", params: input})
 		const { code, data, message } = res
         if (code == 200) {
             setDataTable(data.items)
@@ -103,7 +102,7 @@ const ListCustomer = () => {
 	const done_action = () => {
 		setModalAdd(false)
 		setModalDetail(false)
-        return get_list_customer({
+        return get_list_contract({
             ...dataSearch,
 			"apartment": apartmentCurrent,
 			"page": 1,
@@ -120,16 +119,48 @@ const ListCustomer = () => {
 	}
 
 	const render_status = (status) => {
-		if (status === 1) return <Button className='btn-status' color='success' size='sm'>Sẵn sàng</Button>
-		if (status === 0) return <Button className='btn-status' color='error' size='sm'>Khóa</Button>
-		return <Button className='btn-status' color='primary' size='sm'>Đang thuê</Button>
+		if (status === 1) return <Button className='btn-status' color='success' size='sm'>Hoạt động</Button>
+		return <Button className='btn-status' color='error' size='sm'>Khóa</Button>
+	}
+
+    const render_customers = (customers) => {
+		return <Button className='btn-status' color='primary' size='sm'>{customers.length}</Button>
 	}
 
     const columns = [
 		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
-		{ field: 'fullname', headerName: 'Tên khách thuê', flex: 1 },
-		{ field: 'phone', headerName: 'SĐT', flex: 1 },
-		{ field: 'status', headerName: 'Trạng thái', flex: 1,
+		{ field: 'code', headerName: 'Mã hợp đồng', width: 100, flex: 1 },
+		{ field: 'name', headerName: 'Phòng', flex: 1,
+            valueGetter: (params) => `${params.row.room.name}`
+        },
+		{ field: 'fullname', headerName: 'Người đại diện', flex: 1,            
+            valueGetter: (params) => `${params.row.customer_represent.fullname}`
+        },		
+        { field: 'phone', headerName: 'SĐT liên lạc', flex: 1,            
+            valueGetter: (params) => `${params.row.customer_represent.phone}`
+        },
+		{ field: 'customers', headerName: 'Số người', width: 150, 
+            renderCell: (params) => (
+                <div>
+                    {render_customers(params.row.customers)}
+                </div>
+            ),	 
+        },
+		{ field: 'date_start', headerName: 'Ngày bắt đầu', width: 150, 
+            renderCell: (params) => (
+                <div>
+                    {format_date_time(params.row.date_start)}
+                </div>
+            ),	 
+        },
+        { field: 'date_end', headerName: 'Ngày kết thúc', width: 150, 
+            renderCell: (params) => (
+                <div>
+                    {format_date_time(params.row.date_end)}
+                </div>
+            ),	 
+        },
+		{ field: 'status', headerName: 'Trạng thái', width: 150, align: "center",
             renderCell: (params) => (
                 <div>
                     {render_status(params.row.status)}
@@ -144,13 +175,12 @@ const ListCustomer = () => {
             ),	
         },
 	]
-
     return (<div id="main-content">
         <Card>
             <CardHeader>
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
-                        <span className='header-text'>Quản lý khách thuê</span>
+                        <span className='header-text'>Quản lý hợp đồng</span>
                         <Button
                             onClick={() => toggle_modal_add()}
                             className=''
@@ -203,20 +233,13 @@ const ListCustomer = () => {
             </CardFooter>
         </Card>
 
-        {modalAdd && <ModalAddCustomer
+        {/* {ModalAddApartment && <ModalAddApartment
             _modal={modalAdd}
             _toggleModal={toggle_modal_add}
             _done_action={done_action}
-        />}
-
-        {modalDetail && <ModalDetailCustomer
-            _modal={modalDetail}
-            _toggleModal={toggle_modal_detail}
-            _done_action={done_action}
-            _dataSelect={dataSelect}
-        />}
+        />} */}
     </div>)
 }
 
 
-export default ListCustomer
+export default ListContract

@@ -26,12 +26,12 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import dayjs from 'dayjs';
 
-const ModalAddCustomer = (props) => {
-	const { _modal, _toggleModal, _done_action } = props;
+const ModalDetailCustomer = (props) => {
+	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const [dataAdd, setDataAdd] = useState({})
+    const [dataAdd, setDataAdd] = useState(_dataSelect)
 	const [errorForm, setErrorForm] = useState({})
 
     const onSubmit = async () => {
@@ -56,7 +56,7 @@ const ModalAddCustomer = (props) => {
             apartment: apartmentCurrent,
             fullname: (dataAdd.firstname || '') + ' ' + dataAdd.lastname
         }
-		const res = await http_request({ method: "POST", url: "cms/customer/", data: input })
+		const res = await http_request({ method: "PUT", url: `cms/customer/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -65,7 +65,32 @@ const ModalAddCustomer = (props) => {
             })
 		}
         if (code === 200) {
-            enqueueSnackbar("Thêm mới thành công", {
+            enqueueSnackbar("Cập nhật thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return _done_action()
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
+    const changeStatus = async (status) => {
+        let input = {
+            status: status
+        }
+		const res = await http_request({ method: "PUT", url: `cms/customer/${_dataSelect._id}`, data: input })
+		const { code, data, message } = res
+        if (is_empty(res)) {
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+		}
+        if (code === 200) {
+            enqueueSnackbar("Ngưng hoạt động thành công", {
                 variant: "success",
                 autoHideDuration: 5000,
             })
@@ -115,6 +140,7 @@ const ModalAddCustomer = (props) => {
                                         fullWidth={true}
                                         label="Họ"
                                         type="text"
+                                        defaultValue={dataAdd.firstname}
                                         onChange={(e) =>
                                             onChangeData("firstname", e.target.value)
                                         }
@@ -132,6 +158,7 @@ const ModalAddCustomer = (props) => {
                                         label="Tên"
                                         required
                                         type="text"
+                                        defaultValue={dataAdd.lastname}
                                         onChange={(e) =>
                                             onChangeData("lastname", e.target.value)
                                         }
@@ -149,6 +176,7 @@ const ModalAddCustomer = (props) => {
                                 label="Số điện thoại liên hệ"
                                 type="text"
                                 required
+                                defaultValue={dataAdd.phone}
                                 onChange={(e) =>
                                     onChangeData("phone", e.target.value)
                                 }
@@ -163,6 +191,7 @@ const ModalAddCustomer = (props) => {
                                 fullWidth={true}
                                 label="Email"
                                 type="text"
+                                defaultValue={dataAdd.email}
                                 onChange={(e) =>
                                     onChangeData("email", e.target.value)
                                 }
@@ -179,6 +208,7 @@ const ModalAddCustomer = (props) => {
                                 fullWidth={true}
                                 label="Số căn cước"
                                 type="text"
+                                defaultValue={dataAdd.id_number}
                                 onChange={(e) =>
                                     onChangeData("id_number", e.target.value)
                                 }
@@ -193,6 +223,7 @@ const ModalAddCustomer = (props) => {
                                 fullWidth={true}
                                 label="Địa chỉ"
                                 type="text"
+                                defaultValue={dataAdd.address}
                                 onChange={(e) =>
                                     onChangeData("address", e.target.value)
                                 }
@@ -209,7 +240,7 @@ const ModalAddCustomer = (props) => {
                                     label="Ngày sinh"
                                     type="birthday"
                                     format="DD/MM/YYYY"
-                                    value={dataAdd.birthday}
+                                    value={dataAdd.birthday ? dayjs(dataAdd.birthday) : undefined}
                                     onChange={(e) => onChangeData("birthday", e)}
                                 />
                             </LocalizationProvider>
@@ -235,20 +266,39 @@ const ModalAddCustomer = (props) => {
                 </Row>
 
             </ModalBody>
-            <ModalFooter>
-                <Button className="btn-custom cancel" onClick={_toggleModal}>
-                    Hủy bỏ
-                </Button>
-                <Button
-                    className="btn-custom save"
-                    variant="contained"
-                    onClick={onSubmit}
-                >
-                    Lưu
-                </Button>
+            <ModalFooter className='justify-content-between'>
+                <div>
+                    {_dataSelect.status !== 0 ? <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='error'
+                        onClick={() => changeStatus(0)}
+                    >
+                        KHÓA
+                    </Button> : <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='success'
+                        onClick={() => changeStatus(1)}
+                    >
+                        MỞ
+                    </Button> }
+                </div>
+                <div>
+                    <Button className="btn-custom cancel" onClick={_toggleModal}>
+                        Hủy bỏ
+                    </Button>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        onClick={onSubmit}
+                    >
+                        Lưu
+                    </Button>
+                </div>
             </ModalFooter>
         </Modal>
     </Fragment>)
 }
 
-export default ModalAddCustomer
+export default ModalDetailCustomer

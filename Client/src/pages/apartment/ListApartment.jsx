@@ -17,8 +17,15 @@ import { FaDollarSign, FaHandshakeSimple, FaHandshakeSimpleSlash, FaDoorClosed }
 import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddApartment from './ModalAddApartment';
+import ModalDetailApartment from './ModalDetailApartment';
 import "./Apartment.scss";
 import { useSnackbar } from 'notistack';
+import { TabContext, TabList, TabPanel } from '@mui/lab'
+import { Box, Tab, Grid, Stack } from '@mui/material'
+import Select from 'react-select'
+import { DataGrid } from '@mui/x-data-grid';
+import { FaEdit } from "react-icons/fa";
+import { format_full_time } from '@utils/format_time';
 
 const ListApartment = () => {
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -29,10 +36,15 @@ const ListApartment = () => {
         return setSort(!sort)
     }
     const [dataAdd, setDataAdd] = useState({})
+    const [dataSelect, setDataSelect] = useState({})
 
     const [modalAdd, setModalAdd] = useState(false);
     const toggle_modal_add = () => {
         return setModalAdd(!modalAdd)
+    }
+    const [modalDetail, setModalDetail] = useState(false);
+    const toggle_modal_detail = () => {
+        return setModalDetail(!modalDetail)
     }
 
     useEffect(() => {
@@ -45,7 +57,6 @@ const ListApartment = () => {
 
     const get_list_apartment = async (sortStatus) => {
         let input = {
-            status: 1,
             sort: sortStatus || 'false'
         }
         const res = await http_request({method: "GET", url:"cms/apartments", params: input})
@@ -63,32 +74,55 @@ const ListApartment = () => {
 
 	const done_action = () => {
 		setModalAdd(false)
+		setModalDetail(false)
         return get_list_apartment()
 	}
 
-    const render_apartment = () => {
-        return listApartment.map((item, index) => (
-            <Accordion>
-                <AccordionSummary
-                    className='apartment-header'
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls={`panel-${index}-header`}
-                    id={`panel-${index}-header`}
-                    key={`panel-${index}-header`}
-                >
-                    <span>{index + 1}.<span className='d-flex align-items-center'>{item.name}</span></span>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Row>
+	const open_detail = (item) => {
+		toggle_modal_detail()
+        return setDataSelect(item)
+	}
 
-                    </Row>
-                    <Row className='mt-2 d-flex justify-content-center'>
+	const render_action = (item) => {
+        return (<div>
+            <FaEdit title='Sửa' className='pointer-btn'
+                onClick={()=>open_detail(item)}
+            />
+        </div>)
+	}
 
-                    </Row>
-                </AccordionDetails>
-            </Accordion>
-        ))
-    }
+	const render_status = (status) => {
+		if (status === 1) return <Button className='btn-status' color='success' size='sm'>Hoạt động</Button>
+        return <Button className='btn-status' color='error' size='sm'>Khóa</Button>
+	}
+
+    const columns = [
+		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
+		{ field: 'name', headerName: 'Tên khu trọ', width: 100, flex: 1 },
+		{ field: 'phone', headerName: 'SĐT', width: 200,},
+		{ field: 'address', headerName: 'Địa chỉ', flex: 1 },
+		{ field: 'createdAt', headerName: 'Ngày tạo', width: 150, 
+            renderCell: (params) => (
+                <div>
+                    {format_date_time(params.row.createdAt)}
+                </div>
+            ),	 
+        },
+		{ field: 'status', headerName: 'Trạng thái', width: 150, align: "center",
+            renderCell: (params) => (
+                <div>
+                    {render_status(params.row.status)}
+                </div>
+            ),	
+        },
+        { field: 'action', headerName: 'Hành động', width: 100, align: "center",
+            renderCell: (params) => (
+                <div>
+                    {render_action(params.row)}
+                </div>
+            ),	
+        },
+	]
 
     return (<div id="main-content">
         <Card>
@@ -114,7 +148,26 @@ const ListApartment = () => {
             </CardHeader>
             <CardBody>
                 <div className='group-container'>
-                    {render_apartment()}
+                    <div style={{ height: '100%', width: '100%' }}>
+                        <DataGrid 
+                            getRowId={(row) => row._id}
+                            columns={columns}
+                            rows={listApartment.map((item, index) => {
+                                return {
+                                    ...item,
+                                    stt: index + 1
+                                }
+                            })}
+                            components={{
+                                Footer: () => { return <div></div>},
+                                NoRowsOverlay: () => (
+                                    <Stack height="100%" alignItems="center" justifyContent="center">
+                                        Dịch vụ
+                                    </Stack>
+                                ),
+                            }}
+                        />
+                    </div>
                 </div>
             </CardBody>
             <CardFooter>
@@ -122,10 +175,16 @@ const ListApartment = () => {
             </CardFooter>
         </Card>
 
-        {ModalAddApartment && <ModalAddApartment
+        {modalAdd && <ModalAddApartment
             _modal={modalAdd}
             _toggleModal={toggle_modal_add}
             _done_action={done_action}
+        />}
+        {modalDetail&& <ModalDetailApartment
+            _modal={modalDetail}
+            _toggleModal={toggle_modal_detail}
+            _done_action={done_action}
+            _dataSelect={dataSelect}
         />}
     </div>)
 }

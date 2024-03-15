@@ -18,13 +18,29 @@ import "./Apartment.scss";
 import { TextField, Button, } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
-const ModalAddApartment = (props) => {
-	const { _modal, _toggleModal, _done_action } = props;
-	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+const ModalDetailApartment = (props) => {
+	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
-    const [dataAdd, setDataAdd] = useState({})
+    const [dataAdd, setDataAdd] = useState(_dataSelect)
 	const [errorForm, setErrorForm] = useState({})
+
+    useEffect(() => {
+        get_data()
+    }, [])
+
+    const get_data = async () => {
+        const res = await http_request({method: "GET", url:`cms/apartment/${_dataSelect._id}`})
+		const { code, data, message } = res
+        if (code == 200) {
+            console.log(data)
+            setDataAdd(data)
+            return true
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
 
     const onSubmit = async () => {
         if (is_empty(dataAdd.name)) {
@@ -42,7 +58,7 @@ const ModalAddApartment = (props) => {
             water_price: dataAdd.water_price,
             electric_price: dataAdd.electric_price,
         }
-		const res = await http_request({ method: "POST", url: "cms/apartment/", data: input })
+		const res = await http_request({ method: "PUT", url: `cms/apartment/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -51,7 +67,32 @@ const ModalAddApartment = (props) => {
             })
 		}
         if (code === 200) {
-            enqueueSnackbar("Thêm mới thành công", {
+            enqueueSnackbar("Cập nhật thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return _done_action()
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
+    const changeStatus = async (status) => {
+        let input = {
+            status: status
+        }
+		const res = await http_request({ method: "PUT", url: `cms/apartment/${_dataSelect._id}`, data: input })
+		const { code, data, message } = res
+        if (is_empty(res)) {
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+		}
+        if (code === 200) {
+            enqueueSnackbar("Ngưng hoạt động thành công", {
                 variant: "success",
                 autoHideDuration: 5000,
             })
@@ -83,7 +124,7 @@ const ModalAddApartment = (props) => {
             size="l"
         >
             <ModalHeader toggle={_toggleModal}>
-                Thêm mới nhà trọ
+                Sửa thông tin nhà trọ
             </ModalHeader>
             <ModalBody>
             <FormGroup>
@@ -94,6 +135,7 @@ const ModalAddApartment = (props) => {
                     fullWidth={true}
                     label="Tên nhà trọ"
                     type="text"
+                    defaultValue={dataAdd.name}
                     onChange={(e) =>
                         onChangeData("name", e.target.value)
                     }
@@ -108,6 +150,8 @@ const ModalAddApartment = (props) => {
                     fullWidth={true}
                     label="Số điện thoại liên hệ"
                     type="text"
+                    defaultValue={dataAdd.phone}
+                    value={dataAdd.phone}
                     onChange={(e) =>
                         onChangeData("phone", e.target.value)
                     }
@@ -122,6 +166,7 @@ const ModalAddApartment = (props) => {
                     fullWidth={true}
                     label="Địa chỉ"
                     type="text"
+                    defaultValue={dataAdd.address}
                     onChange={(e) =>
                         onChangeData("address", e.target.value)
                     }
@@ -136,6 +181,7 @@ const ModalAddApartment = (props) => {
                     fullWidth={true}
                     label="Giá tiền một số nước"
                     type="text"
+                    defaultValue={dataAdd.water_price}
                     onChange={(e) =>
                         onChangeData("water_price", e.target.value)
                     }
@@ -150,6 +196,7 @@ const ModalAddApartment = (props) => {
                     fullWidth={true}
                     label="Giá tiền một số điện"
                     type="text"
+                    defaultValue={dataAdd.electric_price}
                     onChange={(e) =>
                         onChangeData("electric_price", e.target.value)
                     }
@@ -159,20 +206,39 @@ const ModalAddApartment = (props) => {
             </FormGroup>
 
             </ModalBody>
-            <ModalFooter>
-                <Button className="btn-custom cancel" onClick={_toggleModal}>
-                    Hủy bỏ
-                </Button>
-                <Button
-                    className="btn-custom save"
-                    variant="contained"
-                    onClick={onSubmit}
-                >
-                    Lưu
-                </Button>
+            <ModalFooter className='justify-content-between'>
+                <div>
+                    {_dataSelect.status === 1 ? <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='error'
+                        onClick={() => changeStatus(0)}
+                    >
+                        KHÓA
+                    </Button> : <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='success'
+                        onClick={() => changeStatus(1)}
+                    >
+                        MỞ
+                    </Button> }
+                </div>
+                <div>
+                    <Button className="btn-custom cancel" onClick={_toggleModal}>
+                        Hủy bỏ
+                    </Button>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        onClick={onSubmit}
+                    >
+                        Lưu
+                    </Button>
+                </div>
             </ModalFooter>
         </Modal>
     </Fragment>)
 }
 
-export default ModalAddApartment
+export default ModalDetailApartment

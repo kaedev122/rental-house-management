@@ -45,6 +45,7 @@ router.delete('/contract/:id', verify(), handleRequest(ContractActions.remove))
 router.post('/customer/', verify(), handleRequest(CustomerActions.create))
 router.put('/customer/:id', verify(), handleRequest(CustomerActions.update))
 router.get('/customers', verify(), handleRequest(CustomerActions.list))
+router.get('/customer/contract', verify(), handleRequest(CustomerActions.listAdd))
 router.get('/customer/:id', verify(), handleRequest(CustomerActions.get))
 router.delete('/customer/:id', verify(), handleRequest(CustomerActions.remove))
 

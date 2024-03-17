@@ -16,7 +16,8 @@ import { BsPersonCircle, BsLightningChargeFill } from "react-icons/bs";
 import { FaDollarSign, FaHandshakeSimple, FaHandshakeSimpleSlash, FaDoorClosed } from "react-icons/fa6";
 import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
-// import ModalAddApartment from './ModalAddApartment';
+import ModalAddContract from './ModalAddContract';
+import ModalDetailContract from './ModalDetailContract';
 import "./contract.scss";
 import { useSnackbar } from 'notistack';
 import { TabContext, TabList, TabPanel } from '@mui/lab'
@@ -54,6 +55,10 @@ const ListContract = () => {
         return setModalDetail(!modalDetail)
     }
 
+    const [customersData, setCustomersData] = useState([])
+    const [servicesData, setServicesData] = useState([])
+    const [services, setServices] = useState([])
+
     useEffect(() => {
         get_list_contract({
 			...dataSearch,
@@ -69,6 +74,21 @@ const ListContract = () => {
 		setPage(data_search.page)
 		return search_data_input(data_search)
 	}
+
+    const get_contract_data = async (contract) => {
+        const res = await http_request({method: "GET", url:`cms/contract/${contract._id}`})
+		const { code, data, message } = res
+        if (code == 200) {
+            setServicesData(data.other_price.map(item => {
+                return {
+                    ...item,
+                    _id: item.service_id
+                }
+            }))
+            setServices(data.other_price.map(item => {return item.service_id}))
+            return setCustomersData(data.customers)
+        }
+    }
 
 	const search_data_input = async (data_input) => {
 		setDataSearch(data_input)
@@ -94,9 +114,10 @@ const ListContract = () => {
         })
     }
 
-	const open_detail = (item) => {
-		toggle_modal_detail()
-        return setDataSelect(item)
+	const open_detail = async (item) => {
+        setDataSelect(item)
+        await get_contract_data(item)
+        return toggle_modal_detail()
 	}
 
 	const done_action = () => {
@@ -233,11 +254,21 @@ const ListContract = () => {
             </CardFooter>
         </Card>
 
-        {/* {ModalAddApartment && <ModalAddApartment
+        {modalAdd && <ModalAddContract
             _modal={modalAdd}
             _toggleModal={toggle_modal_add}
             _done_action={done_action}
-        />} */}
+        />}
+
+        {modalDetail && <ModalDetailContract
+            _modal={modalDetail}
+            _toggleModal={toggle_modal_detail}
+            _done_action={done_action}
+            _dataSelect={dataSelect}
+            _customersData={customersData}
+            _servicesData={servicesData}
+            _services={services}
+        />}
     </div>)
 }
 

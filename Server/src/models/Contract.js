@@ -12,6 +12,7 @@ const ContractSchema = new mongoose.Schema({
     room_price: { type: Number, require: true },
     
     other_price: [{
+        service_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Service'},
         name: String,
         price: Number,
         number: Number

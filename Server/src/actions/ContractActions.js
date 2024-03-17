@@ -190,3 +190,20 @@ export const list = async ({
     })
     return getPagingData(result, totalItems, page, limit)
 }
+
+export const get = async ({ body, user, params }) => {
+    const { id } = params
+    if (!id) throw new ParamError('Thiếu id')
+
+    const data = await Contract.findById(id)
+        .select("-apartment -updatedAt -__v")
+        .populate('room', 'name')
+        .populate('customer_represent', 'fullname phone')
+        .populate('customers', '-__v -status -avatar -apartment -lastname -firstname -name_search -updatedAt')
+        .lean()
+    if (!data) throw new NotFoundError('Không tìm thấy hợp đồng')
+
+    return {
+        ...data,
+    }
+}

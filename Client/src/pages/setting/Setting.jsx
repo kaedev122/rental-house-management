@@ -25,6 +25,7 @@ import { FaEdit } from "react-icons/fa";
 import axios, {isCancel, AxiosError} from 'axios';
 import { useSnackbar } from 'notistack';
 import ModalAddService from './ModalAddService'
+import ModalDetailService from './ModalDetailService'
 
 const Setting = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -35,6 +36,12 @@ const Setting = () => {
 	const [errorForm, setErrorForm] = useState({})
     const selectTab = (e) => {
         setTabSelected(e)
+    }
+    const [serviceRow, setServiceRow] = useState({});
+
+    const [modalDetailService, setModalDetailService] = useState(false);
+    const toggle_modal_detail_service = () => {
+        return setModalDetailService(!modalDetailService)
     }
 
     const [location, setLocation] = useState()
@@ -171,16 +178,22 @@ const Setting = () => {
         },
 	]
 
+    const open_service_detail = (item) => {
+		toggle_modal_detail_service()
+        return setServiceRow(item)
+	}
+
 	const render_action = (item) => {
         return (<div>
             <FaEdit title='Sửa' className='pointer-btn'
-                // onClick={()=>open_detail(item)}
+                onClick={()=>open_service_detail(item)}
             />
         </div>)
 	}
 
 	const done_action = () => {
 		setModalAdd(false)
+		setModalDetailService(false)
         get_data_apartment()
         return get_list_service()
 	}
@@ -422,6 +435,13 @@ const Setting = () => {
         {modalAdd && <ModalAddService
             _modal={modalAdd}
             _toggleModal={toggle_modal_add}
+            _done_action={done_action}
+        />}
+
+        {modalDetailService && <ModalDetailService
+            _modal={modalDetailService}
+            _toggleModal={toggle_modal_detail_service}
+            _dataSelect={serviceRow}
             _done_action={done_action}
         />}
     </div>)

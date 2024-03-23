@@ -18,9 +18,11 @@ import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddGroup from './ModalAddGroup';
 import ModalAddRoom from './ModalAddRoom';
-import ModalAddContract from './ModalAddContract';
+import ModalAddContract from '../contract/ModalAddContract';
+import ModalDetailContract from '../contract/ModalDetailContract';
 import "./Home.scss";
 import { useSnackbar } from 'notistack';
+import { MdReadMore } from "react-icons/md";
 
 const Home = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -49,6 +51,16 @@ const Home = () => {
         return setModalAddContract(!modalAddContract)
     }
 
+    const [modalDetailContract, setModalDetailContract] = useState(false);
+    const toggle_modal_detail_contract = () => {
+        return setModalDetailContract(!modalDetailContract)
+    }
+
+    const [customersData, setCustomersData] = useState([])
+    const [servicesData, setServicesData] = useState([])
+    const [services, setServices] = useState([])
+    const [dataSelect, setDataSelect] = useState({})
+
     useEffect(() => {
         get_list_room_group_data(sort)
     }, [apartmentCurrent])
@@ -56,6 +68,27 @@ const Home = () => {
     useEffect(() => {
         get_list_room_group_data(sort)
     }, [sort])
+
+    const get_contract_data = async (contract) => {
+        const res = await http_request({method: "GET", url:`cms/contract/${contract._id}`})
+		const { code, data, message } = res
+        if (code == 200) {
+            setServicesData(data.other_price.map(item => {
+                return {
+                    ...item,
+                    _id: item.service_id
+                }
+            }))
+            setDataSelect({
+                ...data,
+                customers: data?.customers.map(item => {
+                    return item._id
+                }
+            )})
+            setServices(data.other_price.map(item => {return item.service_id}))
+            return setCustomersData(data.customers)
+        }
+    }
 
     const get_list_room_group_data = async (sortStatus) => {
         let input = {
@@ -86,10 +119,16 @@ const Home = () => {
         return toggle_modal_add_contract()
     }
 
+	const open_contract_detail = async (item) => {
+        await get_contract_data(item)
+        return toggle_modal_detail_contract()
+	}
+
 	const done_action = () => {
 		setModalAddGroup(false)
 		setModalAddRoom(false)
 		setModalAddContract(false)
+        setModalDetailContract(false)
         return get_list_room_group_data()
 	}
 
@@ -136,7 +175,7 @@ const Home = () => {
                         </Col>
                         <Col md={6} className=''>
                             <span className='d-flex float-end label-text align-items-center'>
-                                {item?.contract?.customers.length || 0}&nbsp;<IoPeopleSharp />
+                                {item?.contract?.customers.length || "---"}&nbsp;<IoPeopleSharp />
                             </span>
                         </Col>
                     </Row>
@@ -158,7 +197,9 @@ const Home = () => {
                     </Row>
                     <Row className='border-top'>
                         <Col md={6}>
-                            <FaHandshakeSimple /> {item?.contract ? format_date_time(item?.contract?.date_start) : 
+                            <FaHandshakeSimple /> {item?.contract ? <span onClick={() => open_contract_detail(item.contract)}>
+                                {format_date_time(item?.contract?.date_start)} <MdReadMore />
+                            </span> : 
                             <span
                                 onClick={() => add_contract(item._id)}
                             >Tạo hợp đồng</span>}
@@ -229,6 +270,16 @@ const Home = () => {
             _modal={modalAddContract}
             _toggleModal={toggle_modal_add_contract}
             _room_selected={roomSelected} 
+            _done_action={done_action}
+        />}
+
+        {modalDetailContract && <ModalDetailContract
+            _modal={modalDetailContract}
+            _toggleModal={toggle_modal_detail_contract}
+            _dataSelect={dataSelect}
+            _customersData={customersData}
+            _servicesData={servicesData}
+            _services={services}
             _done_action={done_action}
         />}
     </div>)

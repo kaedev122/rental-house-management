@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Navigate, useLocation } from 'react-router-dom'
-import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader } from 'reactstrap'
+import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader, UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
 import { http_request, get_local_storage, is_empty, } from '@utils'
 import { format_date_time } from '@utils/format_time'
 import Accordion from '@mui/material/Accordion';
@@ -26,7 +26,7 @@ import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
 import { format_full_time } from '@utils/format_time';
-import { Paginations } from "@components"
+import { Paginations, SearchBar } from "@components"
 
 const ListContract = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -58,6 +58,19 @@ const ListContract = () => {
     const [customersData, setCustomersData] = useState([])
     const [servicesData, setServicesData] = useState([])
     const [services, setServices] = useState([])
+
+	const list_status = [
+        {
+			'text': 'Hoạt động',
+			'value': 1,
+		},{
+			'text': 'Kết thúc',
+			'value': 0,
+		},{
+			'text': 'Tất cả',
+			'value': ""
+		},
+	]
 
     useEffect(() => {
         get_list_contract({
@@ -92,7 +105,24 @@ const ListContract = () => {
 
 	const search_data_input = async (data_input) => {
 		setDataSearch(data_input)
-		return await get_list_customer(data_input)
+		return await get_list_contract(data_input)
+	}
+
+    const search_type = async (type, value) => {
+		setPage(1)
+		return search_data_input({
+			...dataSearch,
+			[type]: value,
+			"page": 1
+		})
+	}
+
+	const render_selected = (list_select, selected) => {
+		const new_list = list_select.filter(item => item.value == selected)
+		if (is_empty(new_list)) {
+			return list_select[0]?.text
+		}
+		return new_list[0]?.text
 	}
     const get_list_contract = async (dataInput) => {
         let input = {
@@ -115,6 +145,7 @@ const ListContract = () => {
     }
 
 	const open_detail = async (item) => {
+        console.log(item)
         setDataSelect(item)
         await get_contract_data(item)
         return toggle_modal_detail()
@@ -141,7 +172,7 @@ const ListContract = () => {
 
 	const render_status = (status) => {
 		if (status === 1) return <Button className='btn-status' color='success' size='sm'>Hoạt động</Button>
-		return <Button className='btn-status' color='error' size='sm'>Khóa</Button>
+		return <Button className='btn-status' color='error' size='sm'>Kết thúc</Button>
 	}
 
     const render_customers = (customers) => {
@@ -216,7 +247,27 @@ const ListContract = () => {
             </CardHeader>
             <CardBody>
                 <div className='group-container'>
-                    <div style={{ height: '100%', width: '100%' }}>
+                    <div className='d-flex align-items-center'>
+                        <UncontrolledDropdown
+							className="me-2 "
+							direction="down"
+						>
+							<DropdownToggle
+								className='filter-select h-100'
+								caret
+							>
+								{render_selected(list_status, dataSearch.status)}
+							</DropdownToggle>
+							<DropdownMenu>
+								{list_status && list_status.map((item, index) => (
+									<DropdownItem key={index} color='red' value={item.value} onClick={e => search_type("status", e.target.value)}>
+										{item.text}
+									</DropdownItem>
+								))}
+							</DropdownMenu>
+						</UncontrolledDropdown>
+                    </div>
+                    <div className='mt-3' style={{ height: "578px", width: '100%' }}>
                         <DataGrid 
                             getRowId={(row) => row._id}
                             columns={columns}

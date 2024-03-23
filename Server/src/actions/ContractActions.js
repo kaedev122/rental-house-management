@@ -51,7 +51,7 @@ export const create = async ({ body, user }) => {
     let validate = await ContractValidation.create.validateAsync(body)
 
     let roomExist = await Room.findById(validate.room).lean()
-    if (roomExist?.contract) {
+    if (roomExist.contract) {
         let contractExist = await Contract.findOne({
             _id: roomExist.contract,
             status: 1
@@ -107,10 +107,8 @@ export const update = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError("Thiếu id")
     const validate = await ContractValidation.update.validateAsync(body)
-
     let oldContract = await Contract.findById(id).lean()
     if (!oldContract) throw new NotFoundError(`Không tìm hợp đồng!`)
-
     if (validate.customers) {
         try {
             validate.customers = JSON.parse(validate.customers)
@@ -119,6 +117,33 @@ export const update = async ({ body, user, params }) => {
         }
         const { newCustomers } = _validateCustomers(validate?.customers)
         validate.customers = newCustomers
+    }
+
+    if (validate.room || validate.customer_represent) {
+        let roomExist = await Room.findById(validate.room).lean()
+        if ((roomExist?.contract || "").toString() != oldContract._id.toString()) {
+            let contractExist = await Contract.findOne({
+                _id: { $ne: oldContract._id },
+                room: validate.room,
+                status: 1
+            }).lean()
+            if (contractExist) throw new ExistDataError(`Phòng đã có hợp đồng tồn tại!`)
+            await Room.findByIdAndUpdate(validate.room, {
+                contract: oldContract._id,
+                room_price: validate.room_price || oldContract.room_price,
+                customer_represent: validate.customer_represent || oldContract.customer_represent,
+                water_price: validate.water_price || oldContract.water_price,
+                electric_price: validate.electric_price || oldContract.electric_price,
+            })
+            await Room.findByIdAndUpdate(oldContract.room, {
+                contract: null,
+                customer_represent: null,
+            })
+        } else {
+            await Room.findByIdAndUpdate(validate.room, {
+                customer_represent: validate.customer_represent || oldContract.customer_represent,
+            })
+        }
     }
 
     if (validate.other_price) {
@@ -130,33 +155,57 @@ export const update = async ({ body, user, params }) => {
         const { newOtherPrice, totalOtherPrice } = _validateOtherPrice(validate.other_price)
         validate.other_price = newOtherPrice
         validate.total_other_price = totalOtherPrice
+        if (validate.customers.length <= 0) throw new PermissionError("Không được phép xóa hết khách trong hợp đồng!")
     }
-
     let result = await Contract.findByIdAndUpdate(id, { ...validate }, {new: true})
     if (validate.customers) {
-        await Customer.updateMany({ 
+        await Customer.updateMany({
             $and: [
                 { _id: { $in: oldContract.customers } },
                 { _id: { $nin: result.customers } }
             ]
-        },{ 
+        },{
             $set: { status: 1 }
         })
-        await Customer.updateMany({ 
+        await Customer.updateMany({
             $and: [
                 { _id: { $nin: oldContract.customers } },
                 { _id: { $in: result.customers } }
             ]
-        },{ 
+        },{
             $set: { status: 2 }
         })
     }
+
     return result
+}
+
+export const endContract = async ({ body, user, params }) => {
+    const { id } = params
+    if (!id) throw new ParamError("Thiếu id")
+    let oldContract = await Contract.findById(id).lean()
+    if (!oldContract) throw new NotFoundError(`Không tìm hợp đồng!`)
+    if (oldContract.status == 0) throw new PermissionError("Hợp đồng đã đóng")
+
+    await Promise.all([
+        Contract.findByIdAndUpdate(id, { status: 0 }, {new: true}),
+        Customer.updateMany({
+            _id: { $in: oldContract.customers },
+        },{
+            $set: { status: 1 }
+        }),
+        Room.findByIdAndUpdate(oldContract.room, {
+            contract: null,
+            customer_represent: null,
+        })
+    ])
+
+    return true
 }
 
 export const list = async ({ 
     query: {
-        status,
+        status = 1,
         apartment,
         page = 1,
         limit = 10,

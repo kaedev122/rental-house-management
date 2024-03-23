@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Navigate, useLocation } from 'react-router-dom'
-import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader } from 'reactstrap'
-import { http_request, get_local_storage, is_empty, } from '@utils'
+import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader, UncontrolledDropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
+import { http_request, get_local_storage, is_empty, trim } from '@utils'
 import { format_date_time } from '@utils/format_time'
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -19,7 +19,7 @@ import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddCustomer from './ModalAddCustomer';
 import ModalDetailCustomer from './ModalDetailCustomer';
 import "./Customer.scss";
-import { Paginations } from "@components"
+import { Paginations, SearchBar } from "@components"
 import { useSnackbar } from 'notistack';
 import { TabContext, TabList, TabPanel } from '@mui/lab'
 import { Box, Tab, Grid, Stack } from '@mui/material'
@@ -30,7 +30,8 @@ import { FaEdit } from "react-icons/fa";
 const ListCustomer = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const [sort, setSort] = useState(false)
+	const timer = useRef()
+
     const [page, setPage] = useState(1);
 	const [size, setSize] = useState(10);
     const [dataTable, setDataTable] = useState([]);
@@ -39,9 +40,7 @@ const ListCustomer = () => {
     const [dataSearch, setDataSearch] = useState({
         apartment: apartmentCurrent,
 	});
-    const toggle_sort = () => {
-        return setSort(!sort)
-    }
+
     const [dataAdd, setDataAdd] = useState({})
     const [dataSelect, setDataSelect] = useState({})
 
@@ -54,16 +53,34 @@ const ListCustomer = () => {
         return setModalDetail(!modalDetail)
     }
 
+	const list_status = [
+		{
+			'text': 'Tất cả',
+			'value': ""
+		},{
+			'text': 'Sẵn sàng',
+			'value': 1,
+		},{
+			'text': 'Đang thuê',
+			'value': 2,
+		},{
+			'text': 'Khóa',
+			'value': 0,
+		}
+	]
+
     useEffect(() => {
         get_list_customer({
 			...dataSearch,
 			"apartment": apartmentCurrent,
 			"page": page,
             "limit": size,
-            "sort": sort || 'false'
 		})
-    }, [apartmentCurrent, sort])
+    }, [apartmentCurrent])
 
+///////////////////////SEARCH//////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
     const search_table = (data_search) => {
 		setSize(data_search.limit || size)
 		setPage(data_search.page)
@@ -74,6 +91,42 @@ const ListCustomer = () => {
 		setDataSearch(data_input)
 		return await get_list_customer(data_input)
 	}
+
+	const onChangeText = async (text = '') => {
+		clearTimeout(timer.current)
+		return new Promise(resolve => {
+			timer.current = setTimeout(async () => resolve(search_text(text)), 350)
+		})
+	}
+
+    const search_text = async (value) => {
+		setPage(1)
+		return search_data_input({
+			...dataSearch,
+			"q": trim(value),
+			"page": 1
+		})
+	}
+
+    const search_type = async (type, value) => {
+		setPage(1)
+		return search_data_input({
+			...dataSearch,
+			[type]: value,
+			"page": 1
+		})
+	}
+
+	const render_selected = (list_select, selected) => {
+		const new_list = list_select.filter(item => item.value == selected)
+		if (is_empty(new_list)) {
+			return list_select[0]?.text
+		}
+		return new_list[0]?.text
+	}
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
 
     const get_list_customer = async (dataInput) => {
         let input = {
@@ -165,7 +218,31 @@ const ListCustomer = () => {
             </CardHeader>
             <CardBody>
                 <div className='group-container'>
-                    <div style={{ height: '100%', width: '100%' }}>
+                    <div className='d-flex align-items-center'>
+                        <SearchBar
+                            placeholder={"Tìm kiếm theo tên và SĐT"}
+                            onChangeText={onChangeText}
+                        />
+                        <UncontrolledDropdown
+							className="me-2 "
+							direction="down"
+						>
+							<DropdownToggle
+								className='filter-select h-100'
+								caret
+							>
+								{render_selected(list_status, dataSearch.status)}
+							</DropdownToggle>
+							<DropdownMenu>
+								{list_status && list_status.map((item, index) => (
+									<DropdownItem key={index} color='red' value={item.value} onClick={e => search_type("status", e.target.value)}>
+										{item.text}
+									</DropdownItem>
+								))}
+							</DropdownMenu>
+						</UncontrolledDropdown>
+                    </div>
+                    <div className='mt-3' style={{ height: "578px", width: '100%' }}>
                         <DataGrid 
                             getRowId={(row) => row._id}
                             columns={columns}

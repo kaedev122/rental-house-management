@@ -36,6 +36,7 @@ router.delete('/room/:id', verify(), handleRequest(RoomActions.remove))
 
 //Contract
 router.post('/contract/', verify(), handleRequest(ContractActions.create))
+router.post('/end-contract/:id', verify(), handleRequest(ContractActions.endContract))
 router.put('/contract/:id', verify(), handleRequest(ContractActions.update))
 router.get('/contracts', verify(), handleRequest(ContractActions.list))
 router.get('/contract/:id', verify(), handleRequest(ContractActions.get))

@@ -47,18 +47,12 @@ const Setting = () => {
     const [location, setLocation] = useState()
 
     const [dataAdd, setDataAdd] = useState({})
+    const [dataApartment, setDataApartment] = useState({})
 
     const [modalAdd, setModalAdd] = useState(false);
     const toggle_modal_add = () => {
         return setModalAdd(!modalAdd)
     }
-
-    useEffect(() => {
-        setDataAdd({
-            ...dataAdd,
-            location
-        })
-    }, [location])
 
     useEffect(() => {
         get_data_apartment()
@@ -67,7 +61,7 @@ const Setting = () => {
 
     const updateLocation = async () => {
         let input = {
-            location: JSON.stringify(dataAdd.location),
+            location: JSON.stringify(location),
             address: dataAdd.address
         }
         const res = await http_request({method: "PUT", url:`cms/apartment/${apartmentCurrent}`, data: input})
@@ -140,6 +134,7 @@ const Setting = () => {
     }
 
 	const onChangeData = (type, value) => {
+        console.log(value)
         setErrorForm({})
 		return setDataAdd({
 			...dataAdd,
@@ -156,7 +151,6 @@ const Setting = () => {
 		const { code, data, message } = res
         if (code == 200) {
             setListService(data.items)
-            setDataAdd(data)
             return true
         }
         return enqueueSnackbar(message, {

@@ -22,7 +22,6 @@ import { Box, Tab, Grid, Stack, Checkbox } from '@mui/material'
 import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
-import { SearchData } from '@components'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ModalAddService from '../setting/ModalAddService'
@@ -67,7 +66,9 @@ const ModalAddContract = (props) => {
     const [listCustomerSelectedData, setListCustomerSelectedData] = useState([]);
 
     const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const initialEndDate = new Date(startDate);
+    initialEndDate.setFullYear(initialEndDate.getFullYear() + 1);
+    const [endDate, setEndDate] = useState(initialEndDate);
     const [customerRow, setCustomerRow] = useState({});
     const [serviceRow, setServiceRow] = useState({});
     
@@ -99,7 +100,9 @@ const ModalAddContract = (props) => {
     }, [])
 
     useEffect(() => {
-        get_room_data(roomSelected)
+        if (roomSelected) {
+            get_room_data(roomSelected)
+        }
     }, [roomSelected])
 
     useEffect(() => {
@@ -239,7 +242,6 @@ const ModalAddContract = (props) => {
             apartment: apartmentCurrent,
             other_price: JSON.stringify(other_price)
         }
-        console.log(input)
 		const res = await http_request({ method: "POST", url: "cms/contract/", data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
@@ -443,11 +445,13 @@ const ModalAddContract = (props) => {
                             name="select"
                             type="select"
                             className='btn-select pointer-btn'
+                            disabled={_room_selected}
                             value={roomSelected}
                             onChange={(e)=>change_room(e.target.value)}
                         >
+                            <option value="" disabled selected hidden>Chọn phòng</option>
                             {listRoom && listRoom.map((item) =>{
-                            return (<option key={item._id} value={item._id} >{item.name}</option>)
+                                return (<option key={item._id} value={item._id} >{item.name}</option>)
                             })}
                         </Input>
                     </Col>

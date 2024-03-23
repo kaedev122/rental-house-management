@@ -22,7 +22,6 @@ import { Box, Tab, Grid, Stack, Checkbox } from '@mui/material'
 import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
-import { SearchData } from '@components'
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ModalAddService from '../setting/ModalAddService'
@@ -37,11 +36,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-const AddContract = (props) => {
+const ModalDetailContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _customersData, _dataSelect, _services, _servicesData } = props;
-    console.log(_dataSelect)
-    console.log(_services)
-    console.log(_servicesData)
+
     const timer = useRef()
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -103,6 +100,12 @@ const AddContract = (props) => {
     }, [roomSelected])
     
     useEffect(() => {
+        if(!listCustomerSelected.includes(represent)) {
+            change_customer_represent(listCustomerSelected[0])
+        }
+    }, [listCustomerSelected])
+
+    useEffect(() => {
         setDataAdd({
             ...dataAdd,
             customers: JSON.stringify(listCustomerSelected)
@@ -121,6 +124,12 @@ const AddContract = (props) => {
 
     const calc_total_price = () => {
         return listServiceSelectedData.reduce((total, item) => {
+            return total + item.price * item.number
+        }, 0)
+    }
+
+    const calc_total_price_done = () => {
+        return _dataSelect.other_price.reduce((total, item) => {
             return total + item.price * item.number
         }, 0)
     }
@@ -197,10 +206,12 @@ const AddContract = (props) => {
         const res = await http_request({method: "GET", url:"cms/setting/services", params: input})
 		const { code, data, message } = res
         if (code == 200) {
+            console.log(_servicesData)
             setListService(data.items.map((item) => {
                 return {
                     ...item,
-                    number: _servicesData.filter(service => {return service._id === item._id})[0]?.number || 1
+                    number: _servicesData.filter(service => {return service._id === item._id})[0]?.number || 1,
+                    price: _servicesData.filter(service => {return service._id === item._id})[0]?.price || item.price
                 }
             }))
             return true
@@ -231,20 +242,20 @@ const AddContract = (props) => {
                 number: parseInt(item.number)
             }
         })
-        console.log(other_price)
         let input = {
+            room: dataAdd.room,
             note: dataAdd.note,
             deposit_money: dataAdd.deposit_money,
             water_price: dataAdd.water_price, 
             electric_price: dataAdd.electric_price, 
             room_price: dataAdd.room_price,
-            customers: JSON.stringify(dataAdd.customers),
+            customers: Array.isArray(dataAdd.customers) ? JSON.stringify(dataAdd.customers) : dataAdd.customers,
             date_start: startDate,
             date_end: endDate,
             customer_represent: represent,
             other_price: JSON.stringify(other_price)
         }
-        console.log(input)
+        console.log(input.customers)
 		const res = await http_request({ method: "PUT", url: `cms/contract/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
@@ -255,6 +266,28 @@ const AddContract = (props) => {
 		}
         if (code === 200) {
             enqueueSnackbar("Cập nhật thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return _done_action()
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
+    const onEndContract = async () => {
+		const res = await http_request({ method: "POST", url: `cms/end-contract/${_dataSelect._id}`})
+        const { code, data, message } = res
+        if (is_empty(res)) {
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+		}
+        if (code === 200) {
+            enqueueSnackbar("Kết thúc hợp đồng thành công", {
                 variant: "success",
                 autoHideDuration: 5000,
             })
@@ -337,6 +370,18 @@ const AddContract = (props) => {
         return setListService(list)
     };
 
+    const onChangeDataPrice = async (value, index) => {
+        value = value.replace(/[^0-9.]/g, '')
+        const regex = /^\d+$/;
+        let list = [...listService]
+        if (regex.test(value) || value === '') {
+            list[index].price = value
+        } else {
+            value = list[index].price
+        }
+        return setListService(list)
+    };
+
     const isSelected = (id) => {
         return listServiceSelected.indexOf(id) !== -1;
     }
@@ -368,7 +413,6 @@ const AddContract = (props) => {
     const render_service = () => {
         return listService.map((item, index) => {
             const isItemSelected = isSelected(item._id);
-            console.log(item)
             return (<TableRow key={item._id} item={item} index={index} sx={{ '& > *': { borderBottom: 'unset' } }}>
                 <TableCell align="left">
                     <Checkbox
@@ -387,7 +431,21 @@ const AddContract = (props) => {
                     {item.name}
                 </TableCell>
                 <TableCell align="left">
-                    {item.price}
+                    <Input
+                        id="number"
+                        name="number"
+                        type="text"
+                        disabled={!isItemSelected}
+                        className="form-control text-center"
+                        placeholder="SL"
+                        value={item.price}
+                        onChange={(e) => onChangeDataPrice(e.target.value, index)}
+                        onBlur={(e) => {
+                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
+                            onChangeDataPrice(newValue, index);
+                        }}
+                        min={1}
+                    />
                 </TableCell>
                 <TableCell align="left">
                     <Input
@@ -396,6 +454,7 @@ const AddContract = (props) => {
                         type="text"
                         className="form-control text-center"
                         placeholder="SL"
+                        disabled={!isItemSelected}
                         value={item.number}
                         onChange={(e) => onChangeDataNumber(e.target.value, index)}
                         onBlur={(e) => {
@@ -407,6 +466,54 @@ const AddContract = (props) => {
                 </TableCell>
                 <TableCell width="100" align="left">
                     {render_service_action(item)}
+                </TableCell>
+            </TableRow>)
+        })
+    }
+
+    const render_service_done = () => {
+        console.log(_dataSelect)
+        return _dataSelect?.other_price.map((item, index) => {
+            return (<TableRow key={item._id} item={item} index={index} sx={{ '& > *': { borderBottom: 'unset' } }}>
+                <TableCell align="left">
+                    {index + 1}
+                </TableCell>
+                <TableCell align="left">
+                    {item.name}
+                </TableCell>
+                <TableCell align="left">
+                    <Input
+                        id="number"
+                        name="number"
+                        type="text"
+                        disabled
+                        className="form-control text-center"
+                        placeholder="SL"
+                        value={item.price}
+                        onChange={(e) => onChangeDataPrice(e.target.value, index)}
+                        onBlur={(e) => {
+                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
+                            onChangeDataPrice(newValue, index);
+                        }}
+                        min={1}
+                    />
+                </TableCell>
+                <TableCell align="left">
+                    <Input
+                        id="number"
+                        name="number"
+                        type="text"
+                        className="form-control text-center"
+                        placeholder="SL"
+                        disabled
+                        value={item.number}
+                        onChange={(e) => onChangeDataNumber(e.target.value, index)}
+                        onBlur={(e) => {
+                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
+                            onChangeDataNumber(newValue, index);
+                        }}
+                        min={1}
+                    />
                 </TableCell>
             </TableRow>)
         })
@@ -447,6 +554,7 @@ const AddContract = (props) => {
                             type="select"
                             className='btn-select pointer-btn'
                             value={roomSelected}
+                            disabled={_dataSelect.status == 0}
                             onChange={(e)=>change_room(e.target.value)}
                         >
                             {listRoom && listRoom.map((item) =>{
@@ -464,26 +572,27 @@ const AddContract = (props) => {
                         <TabList
                             aria-label="lab API tabs example"
                         >
-                            <Tab label="1. Chọn khách thuê" value="1" index={1} onClick={() => selectTab("1")} />
-                            <Tab label="2. Chọn dịch vụ" value="2" index={2} onClick={() => selectTab("2")} />
+                            <Tab label="1. Khách thuê & Phòng" value="1" index={1} onClick={() => selectTab("1")} />
+                            <Tab label="2. Dịch vụ" value="2" index={2} onClick={() => selectTab("2")} />
                         </TabList>
                     </Box>
                     <TabPanel index={1} key={"1"} value={"1"}>
                         <Row>
                             <div>
                                 <Label>Danh sách khách thuê</Label>
-                                <Button
+                                {_dataSelect.status == 1 && <Button
                                     onClick={() => toggle_modal_add_customer()}
                                 >
                                     Thêm mới +
-                                </Button>
+                                </Button>}
                             </div>
                         </Row>
-                        <Row>
+
+                        {_dataSelect.status == 1 ? <Row>
                             <Col md={6}>
                                 <div style={{ height: 318, width: '100%' }}>
                                     <DataGrid 
-                                        checkboxSelection 
+                                        checkboxSelection={_dataSelect.status == 1}
                                         disableRowSelectionOnClick 
                                         getRowId={(row) => row._id}
                                         columns={columns_customer}
@@ -512,7 +621,7 @@ const AddContract = (props) => {
                             <Col md={6}>
                                 <div style={{ height: 318, width: '100%' }}>
                                     <DataGrid 
-                                        checkboxSelection 
+                                        checkboxSelection={_dataSelect.status == 1}
                                         disableRowSelectionOnClick 
                                         getRowId={(row) => row._id}
                                         columns={columns_customer}
@@ -538,7 +647,33 @@ const AddContract = (props) => {
                                     />
                                 </div>
                             </Col>
-                        </Row>
+                        </Row> :
+                        <Row>
+                            <Col md={12}>
+                            <div style={{ height: 318, width: '100%' }}>
+                                    <DataGrid 
+                                        disableRowSelectionOnClick 
+                                        getRowId={(row) => row._id}
+                                        columns={columns_customer}
+                                        rows={_customersData.map((item, index) => {
+                                            return {
+                                                ...item,
+                                                stt: index + 1
+                                            }
+                                        })}
+                                        components={{
+                                            Footer: () => { return <div></div>},
+                                            NoRowsOverlay: () => (
+                                                <Stack height="100%" alignItems="center" justifyContent="center">
+                                                    Vui lòng chọn khách thuê
+                                                </Stack>
+                                            ),
+                                        }}
+                                    />
+                                </div>
+                            </Col>
+                        </Row>}
+
                         <Row className='mt-3'>
                             <Col md={6}>
                                 <Row>
@@ -555,6 +690,7 @@ const AddContract = (props) => {
                                                 error={errorForm.deposit_money?.error}
                                                 placeholder="Tiền đặt cọc"
                                                 type="text"
+                                                disabled={_dataSelect.status == 0}
                                                 value={dataAdd?.deposit_money}
                                                 onChange={(e) =>
                                                     onChangeData("deposit_money", e.target.value, true)
@@ -578,6 +714,7 @@ const AddContract = (props) => {
                                             name="select"
                                             type="select"
                                             className='btn-select pointer-btn'
+                                            disabled={_dataSelect.status == 0}
                                             value={represent}
                                             onChange={(e)=>change_customer_represent(e.target.value)}
                                         >
@@ -606,6 +743,7 @@ const AddContract = (props) => {
                                                 error={errorForm.electric_price?.error}
                                                 placeholder="Giá điện"
                                                 type="text"
+                                                disabled={_dataSelect.status == 0}
                                                 value={dataAdd?.electric_price}
                                                 onChange={(e) =>
                                                     onChangeData("electric_price", e.target.value, true)
@@ -626,6 +764,7 @@ const AddContract = (props) => {
                                                 name="water_price"
                                                 error={errorForm.water_price?.error}
                                                 placeholder="Giá nước"
+                                                disabled={_dataSelect.status == 0}
                                                 type="text"
                                                 value={dataAdd?.water_price}
                                                 onChange={(e) =>
@@ -651,6 +790,7 @@ const AddContract = (props) => {
                                                 name="room_price"
                                                 error={errorForm.room_price?.error}
                                                 placeholder="Giá phòng"
+                                                disabled={_dataSelect.status == 0}
                                                 type="text"
                                                 value={dataAdd?.room_price}
                                                 onChange={(e) =>
@@ -677,6 +817,7 @@ const AddContract = (props) => {
                                             onChange={(date) => setStartDate(date)} 
                                             placeholderText="Ngày bắt đầu"
                                             className="form-control"
+                                            disabled={_dataSelect.status == 0}
                                             selectsStart
                                             isClearable
                                             maxDate={endDate || undefined}
@@ -696,6 +837,7 @@ const AddContract = (props) => {
                                             onChange={(date) => setEndDate(date)} 
                                             placeholderText="Ngày kết thúc"
                                             className="form-control"
+                                            disabled={_dataSelect.status == 0}
                                             selectsStart
                                             minDate={startDate || undefined}
                                             isClearable
@@ -720,6 +862,7 @@ const AddContract = (props) => {
                                                 error={errorForm.note?.error}
                                                 placeholder="Ghi chú"
                                                 type="textarea"
+                                                disabled={_dataSelect.status == 0}
                                                 rows={5}
                                                 value={dataAdd?.note}
                                                 onChange={(e) =>
@@ -739,14 +882,14 @@ const AddContract = (props) => {
                             <Row>
                                 <div>
                                     <Label>Danh sách dịch vụ</Label>
-                                    <Button
+                                    {_dataSelect.status == 1 && <Button
                                         onClick={() => toggle_modal_add_service()}
                                     >
                                         Thêm mới +
-                                    </Button>
+                                    </Button>}
                                 </div>
                             </Row>
-                            <TableContainer style={{ width: '100%', height: "400px" }} component={Paper}>
+                            {_dataSelect.status == 1 ? <TableContainer style={{ width: '100%', height: "400px" }} component={Paper}>
                                 <Table aria-label="collapsible table">
                                     <TableHead>
                                     <TableRow style={{backgroundColor:'white'}}>
@@ -774,32 +917,65 @@ const AddContract = (props) => {
                                         {render_service()}
                                     </TableBody>
                                 </Table>
-                            </TableContainer>
+                            </TableContainer> : <TableContainer style={{ width: '100%', height: "400px" }} component={Paper}>
+                                <Table aria-label="collapsible table">
+                                    <TableHead>
+                                    <TableRow style={{backgroundColor:'white'}}>
+                                        <TableCell width="100" align="left">
+                                            STT
+                                        </TableCell>
+                                        <TableCell align="left">
+                                            Tên dịch vụ
+                                        </TableCell>
+                                        <TableCell width="150" align="left">
+                                            Giá tiền
+                                        </TableCell>
+                                        <TableCell width="100" align="left">
+                                            Số lượng
+                                        </TableCell>
+                                    </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {render_service_done()}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>}
                             </Col>
                             <Col md={9}>
-
                             </Col>
                             <Col md={3}>
-                                <span>Tổng cộng: {calc_total_price()}</span>
+                                <span>Tổng cộng: {calc_total_price_done()}</span>
                             </Col>
                         </Row>
                     </TabPanel>
                 </TabContext>
             </ModalBody>
-            <ModalFooter>
-                <Button className="btn-custom cancel" onClick={_toggleModal}>
-                    Hủy bỏ
-                </Button>
-                {tabSelected == "1" ? <Button
-                    className="btn-custom save"
-                    variant="contained"
-                    onClick={() => selectTab("2")}
-                >Tiếp theo</Button> : <Button
-                    className="btn-custom save"
-                    variant="contained"
-                    onClick={onSubmit}
-                >Lưu</Button>}
-            </ModalFooter>
+            {_dataSelect.status == 1 && <ModalFooter className='justify-content-between'>
+                <div>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='error'
+                        onClick={() => onEndContract()}
+                    >
+                        Kết thúc hợp đồng
+                    </Button>
+                </div>
+                <div>
+                    <Button className="btn-custom cancel" onClick={_toggleModal}>
+                        Hủy bỏ
+                    </Button>
+                    {tabSelected == "1" ? <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        onClick={() => selectTab("2")}
+                    >Tiếp theo</Button> : <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        onClick={onSubmit}
+                    >Lưu</Button>}
+                </div>
+            </ModalFooter>}
         </Modal>
 
         {modalAddCustomer && <ModalAddCustomer
@@ -830,4 +1006,4 @@ const AddContract = (props) => {
     </Fragment>)
 }
 
-export default AddContract
+export default ModalDetailContract

@@ -36,6 +36,7 @@ export const update = async ({ body, user, params }) => {
     if (validate.name) {
         validate.name_search = Utils.convertVietnameseString(validate.name)
         let nameExist = await Service.findOne({
+            _id: {$ne: oldService._id},
             name: validate.name,
             status: 1,
             apartment: oldService.apartment

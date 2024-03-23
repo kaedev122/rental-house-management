@@ -19,11 +19,12 @@ export const create = Joi.object({
     other_price: Joi.string().label("Chi phí khác"),
     customer_represent: Joi.string().required().label("Người đại diện"),
     customers: Joi.string().required().label("Khách hàng"),
-    room: Joi.string().label("Phòng trọ"),
+    room: Joi.string().required().label("Phòng trọ"),
     apartment: Joi.string().required().label("Nhà trọ"),
 }).messages(errorJoiMessages);
 
 export const update = Joi.object({
+    room: Joi.string().label("Phòng trọ"),
     note: Joi.string().max(200).label("Ghi chú"),
     date_start: Joi.date().label("Ngày bắt đầu hợp đồng"),
     date_end: Joi.date().label("Ngày kết thúc hợp đồng"),

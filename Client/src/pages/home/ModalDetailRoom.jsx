@@ -18,12 +18,17 @@ import "./Home.scss";
 import { TextField, Button, } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
-const ModalAddRoom = (props) => {
-	const { _modal, _toggleModal, _done_action, _group_selected } = props;
+const ModalDetailRoom = (props) => {
+	const { _modal, _toggleModal, _done_action, _dataSelect, _apartmentData } = props;
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const [dataAdd, setDataAdd] = useState({})
+    const [dataAdd, setDataAdd] = useState({
+        name: _dataSelect.name,
+        room_price: _dataSelect.room_price,
+        water_price: _dataSelect.water_price,
+        electric_price: _dataSelect.electric_price,
+    })
 	const [errorForm, setErrorForm] = useState({})
 
     const onSubmit = async () => {
@@ -40,10 +45,8 @@ const ModalAddRoom = (props) => {
             room_price: dataAdd.room_price,
             electric_price: dataAdd.electric_price,
             water_price: dataAdd.water_price,
-            apartment: apartmentCurent,
-            group: _group_selected,
         }
-		const res = await http_request({ method: "POST", url: "cms/room/", data: input })
+		const res = await http_request({ method: "PUT", url: `cms/room/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -52,7 +55,7 @@ const ModalAddRoom = (props) => {
             })
 		}
         if (code === 200) {
-            enqueueSnackbar("Thêm mới thành công", {
+            enqueueSnackbar("Cập nhật thành công", {
                 variant: "success",
                 autoHideDuration: 5000,
             })
@@ -62,6 +65,30 @@ const ModalAddRoom = (props) => {
             variant: "error",
             autoHideDuration: 5000,
         })
+    }
+
+    const deleteRoom = async () => {
+		const res = await http_request({ method: "DELETE", url: `cms/room/${_dataSelect._id}`})
+		const { code, data, message } = res
+        if (is_empty(res)) {
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+		}
+        if (code === 200) {
+            enqueueSnackbar("Xóa phòng thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return _done_action()
+        }
+        if (code === 500) {
+            enqueueSnackbar(message, {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+        }
     }
 
     const pressEnterEvent = (event)=> {
@@ -92,7 +119,7 @@ const ModalAddRoom = (props) => {
             size="l"
         >
             <ModalHeader toggle={_toggleModal}>
-                Thêm mới phòng
+                Cập nhật phòng
             </ModalHeader>
             <ModalBody>
                 <FormGroup>
@@ -131,7 +158,7 @@ const ModalAddRoom = (props) => {
                         name="electric_price"
                         error={errorForm.electric_price?.error}
                         fullWidth={true}
-                        label="Giá trên một số điện"
+                        label={`Giá trên một số điện (Mặc định: ${_apartmentData?.electric_price})`}
                         type="text"
                         value={dataAdd.electric_price}
                         onChange={(e) =>
@@ -146,7 +173,7 @@ const ModalAddRoom = (props) => {
                         name="water_price"
                         error={errorForm.water_price?.error}
                         fullWidth={true}
-                        label="Giá trên một số nước"
+                        label={`Giá trên một số nước (Mặc định: ${_apartmentData?.water_price})`}
                         type="text"
                         value={dataAdd.water_price}
                         onChange={(e) =>
@@ -157,20 +184,32 @@ const ModalAddRoom = (props) => {
                     {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
                 </FormGroup>
             </ModalBody>
-            <ModalFooter>
-                <Button className="btn-custom cancel" onClick={_toggleModal}>
-                    Hủy bỏ
-                </Button>
-                <Button
-                    className="btn-custom save"
-                    variant="contained"
-                    onClick={onSubmit}
-                >
-                    Lưu
-                </Button>
+            <ModalFooter className='justify-content-between'>
+                <div>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='error'
+                        onClick={() => deleteRoom()}
+                    >
+                        Xóa
+                    </Button>
+                </div>
+                <div>
+                    <Button className="btn-custom cancel" onClick={_toggleModal}>
+                        Hủy bỏ
+                    </Button>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        onClick={onSubmit}
+                    >
+                        Lưu
+                    </Button>
+                </div>
             </ModalFooter>
         </Modal>
     </Fragment>)
 }
 
-export default ModalAddRoom
+export default ModalDetailRoom

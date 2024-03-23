@@ -19,11 +19,14 @@ import { TextField, Button, } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
 const ModalAddRoom = (props) => {
-	const { _modal, _toggleModal, _done_action, _group_selected } = props;
+	const { _modal, _toggleModal, _done_action, _group_selected, _apartmentData } = props;
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const [dataAdd, setDataAdd] = useState({})
+    const [dataAdd, setDataAdd] = useState({
+        water_price: _apartmentData.water_price,
+        electric_price: _apartmentData.electric_price,
+    })
 	const [errorForm, setErrorForm] = useState({})
 
     const onSubmit = async () => {
@@ -131,7 +134,7 @@ const ModalAddRoom = (props) => {
                         name="electric_price"
                         error={errorForm.electric_price?.error}
                         fullWidth={true}
-                        label="Giá trên một số điện"
+                        label={`Giá trên một số điện (Mặc định: ${_apartmentData?.electric_price})`}
                         type="text"
                         value={dataAdd.electric_price}
                         onChange={(e) =>
@@ -146,7 +149,7 @@ const ModalAddRoom = (props) => {
                         name="water_price"
                         error={errorForm.water_price?.error}
                         fullWidth={true}
-                        label="Giá trên một số nước"
+                        label={`Giá trên một số nước (Mặc định: ${_apartmentData?.water_price})`}
                         type="text"
                         value={dataAdd.water_price}
                         onChange={(e) =>

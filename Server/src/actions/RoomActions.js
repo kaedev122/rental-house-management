@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User, RoomGroup, Room } from "../models/index.js"
+import { User, RoomGroup, Room, Contract } from "../models/index.js"
 import * as RoomValidation from '../validations/RoomValidation.js'
 import * as Utils from "../utils/index.js"
 import moment from 'moment';
@@ -137,11 +137,22 @@ export const update = async ({ body, user, params }) => {
     if (validate.name) {
         validate.name_search = Utils.convertVietnameseString(validate.name)
         let roomExist = await Room.findOne({
+            _id: {$ne: oldRoom._id},
             status: 1,
             name_search: validate.name_search,
             apartment: oldRoom.apartment
         }).lean()
         if (roomExist) throw new ExistDataError(`Tên phòng đã tồn tại!`)
+    }
+
+    if (oldRoom.contract && (validate.room_price || validate.water_price || validate.electric_price)) {
+        let dataUpdate = {}
+        if (validate.electric_price) dataUpdate.electric_price = validate.electric_price
+        if (validate.water_price) dataUpdate.water_price = validate.water_price
+        if (validate.room_price) dataUpdate.room_price = validate.room_price
+        await Contract.findByIdAndUpdate(oldRoom.contract, {
+            ...dataUpdate
+        })
     }
 
     let result = await Room.findByIdAndUpdate(id, { ...validate }, {new: true})
@@ -203,7 +214,8 @@ export const remove = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError("Thiếu id")
     const oldRoom = await Room.findById(id)
-    if (!oldRoom) throw new NotFoundError("Không tìm thấy nhóm phòng trọ")
+    if (!oldRoom) throw new NotFoundError("Không tìm thấy phòng trọ")
+    if (oldRoom.contract) throw new PermissionError("Không thể xóa phòng đang có hợp đồng!")
     await Room.findByIdAndUpdate(id, { status: 0 })
     return true
 }

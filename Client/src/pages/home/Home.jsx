@@ -18,9 +18,11 @@ import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddGroup from './ModalAddGroup';
 import ModalAddRoom from './ModalAddRoom';
+import ModalDetailRoom from './ModalDetailRoom';
 import ModalAddContract from '../contract/ModalAddContract';
 import ModalDetailContract from '../contract/ModalDetailContract';
 import "./Home.scss";
+import { FaEdit } from "react-icons/fa";
 import { useSnackbar } from 'notistack';
 import { MdReadMore } from "react-icons/md";
 
@@ -30,7 +32,10 @@ const Home = () => {
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [groupSelected, setGroupSelected] = useState('')
     const [roomSelected, setRoomSelected] = useState('')
+    const [roomData, setRoomData] = useState({})
+    const [groupData, setGroupData] = useState({})
     const [sort, setSort] = useState(false)
+    const [apartmentData, setDataApartment] = useState({})
     const toggle_sort = () => {
         return setSort(!sort)
     }
@@ -41,9 +46,19 @@ const Home = () => {
         return setModalAddGroup(!modalAddGroup)
     }
 
+    const [modalDetailGroup, setModalDetailGroup] = useState(false);
+    const toggle_modal_detail_group = () => {
+        return setModalDetailGroup(!modalDetailGroup)
+    }
+
     const [modalAddRoom, setModalAddRoom] = useState(false);
     const toggle_modal_add_room = () => {
         return setModalAddRoom(!modalAddRoom)
+    }
+
+    const [modalDetailRoom, setModalDetailRoom] = useState(false);
+    const toggle_modal_detail_room = () => {
+        return setModalDetailRoom(!modalDetailRoom)
     }
 
     const [modalAddContract, setModalAddContract] = useState(false);
@@ -63,11 +78,24 @@ const Home = () => {
 
     useEffect(() => {
         get_list_room_group_data(sort)
-    }, [apartmentCurrent])
+    }, [apartmentCurrent, sort])
 
     useEffect(() => {
-        get_list_room_group_data(sort)
-    }, [sort])
+        get_data_apartment()
+    }, [])
+
+    const get_data_apartment = async () => {
+        const res = await http_request({method: "GET", url:`cms/apartment/${apartmentCurrent}`})
+		const { code, data, message } = res
+        if (code == 200) {
+            setDataApartment(data)
+            return true
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
 
     const get_contract_data = async (contract) => {
         const res = await http_request({method: "GET", url:`cms/contract/${contract._id}`})
@@ -124,11 +152,17 @@ const Home = () => {
         return toggle_modal_detail_contract()
 	}
 
+	const open_room_detail = async (item) => {
+        setRoomData(item)
+        return toggle_modal_detail_room()
+	}
+
 	const done_action = () => {
 		setModalAddGroup(false)
 		setModalAddRoom(false)
 		setModalAddContract(false)
         setModalDetailContract(false)
+        setModalDetailRoom(false)
         return get_list_room_group_data()
 	}
 
@@ -169,7 +203,10 @@ const Home = () => {
                 <div className='border room-card-container border-secondary px-3'>
                     <Row className='room-card-header'>
                         <Col md={6} className=''>
-                            <span className='d-flex  label-text align-items-center'>
+                            <span 
+                                className='d-flex label-text align-items-center'
+                                onClick={() => open_room_detail(item)}
+                            >
                                 <FaBed />&nbsp;{item.name}
                             </span>
                         </Col>
@@ -258,12 +295,20 @@ const Home = () => {
             _toggleModal={toggle_modal_add_group}
             _done_action={done_action}
         />}
+        
+        {/* {modalDetailGroup && <ModalDetailGroup
+            _modal={modalDetailGroup}
+            _dataSelect={groupData}
+            _toggleModal={toggle_modal_detail_group}
+            _done_action={done_action}
+        />} */}
 
         {modalAddRoom && <ModalAddRoom
             _modal={modalAddRoom}
             _toggleModal={toggle_modal_add_room}
             _group_selected={groupSelected} 
             _done_action={done_action}
+            _apartmentData={apartmentData}
         />}
 
         {modalAddContract && <ModalAddContract
@@ -280,6 +325,14 @@ const Home = () => {
             _customersData={customersData}
             _servicesData={servicesData}
             _services={services}
+            _done_action={done_action}
+        />}
+
+        {modalDetailRoom && <ModalDetailRoom
+            _modal={modalDetailRoom}
+            _toggleModal={toggle_modal_detail_room}
+            _dataSelect={roomData}
+            _apartmentData={apartmentData}
             _done_action={done_action}
         />}
     </div>)

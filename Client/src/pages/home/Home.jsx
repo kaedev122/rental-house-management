@@ -25,6 +25,10 @@ import "./Home.scss";
 import { FaEdit } from "react-icons/fa";
 import { useSnackbar } from 'notistack';
 import { MdReadMore } from "react-icons/md";
+import moment from 'moment-timezone';
+import 'moment/locale/vi'; 
+moment().tz("Asia/Ho_Chi_Minh").format();
+moment.locale('vi')
 
 const Home = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -197,6 +201,19 @@ const Home = () => {
         ))
     }
 
+    const render_bill_status = (item) => {
+        if (item.bill_status == 0) {
+            return <span>   
+                Chưa ghi điện & nước
+            </span>
+        }
+        if (item.bill_status == 1) {
+            return <span>
+                Đã ghi điện & nước (Thg-{moment(item?.last_check_date).format('M') - 1})
+            </span>
+        }
+    }
+
     const render_room = (rooms) => {
         return rooms.map((item, index) => (
             <Col md={4}>
@@ -247,7 +264,7 @@ const Home = () => {
                     </Row>
                     <Row className='border-top'>
                         <Col md={6}>
-                            <RiWaterFlashFill /> {item?.contract ? "Đã ghi số điện & nước" : '---'}
+                            <RiWaterFlashFill /> {item?.contract ? render_bill_status(item?.contract) : '---'}
                         </Col>
                         <Col md={6} className='border-start'>
                             <FaMoneyBillWaveAlt /> {item?.contract ? "Đã thanh toán" : '---'}

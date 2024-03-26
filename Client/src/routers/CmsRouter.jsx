@@ -31,6 +31,7 @@ const CmsRouter = (props) => {
           <Route exact path="/customer" element={<ListCustomer />} />
           <Route exact path="/contract" element={<ListContract />} />
           <Route exact path="/setting" element={<Setting />} />
+          <Route exact path="/bill" element={<Setting />} />
 					<Route exact path="/login" render={() => (<Navigate to={{ pathname: "/" }} />)} />
         </Routes>
       </Suspense>

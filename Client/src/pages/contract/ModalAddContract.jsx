@@ -271,6 +271,12 @@ const ModalAddContract = (props) => {
         setErrorForm({})
         if (isNumber) {
 			const result = value.replace(/\D/g, "");
+            if (type == 'start_electric_number' || type =='start_water_number') {
+                return setDataAdd({
+                    ...dataAdd,
+                    [type]: parseInt(result) || 0,
+                });
+            }
 			return setDataAdd({
 				...dataAdd,
 				[type]: parseInt(result) || '',
@@ -667,9 +673,55 @@ const ModalAddContract = (props) => {
                         <Row className='mt-3'>
                             <Col md={6}>
                                 <Row>
+                                    <Col md={3}>
+                                        <Label>
+                                            Số nước đầu vào
+                                        </Label>
+                                    </Col>
+                                    <Col md={3}>
+                                        <FormGroup>
+                                            <Input
+                                                id="start_water_number"
+                                                name="start_water_number"
+                                                error={errorForm.start_water_number?.error}
+                                                placeholder="Số điện"
+                                                type="text"
+                                                value={dataAdd.start_water_number}
+                                                onChange={(e) =>
+                                                    onChangeData("start_water_number", e.target.value, true)
+                                                }
+                                            />
+                                            {errorForm.start_water_number?.error && <div className='text-error'>{errorForm.start_water_number?.message}</div>}
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={3}>
+                                        <Label>
+                                            Số điện đầu vào
+                                        </Label>
+                                    </Col>
+                                    <Col md={3}>
+                                        <FormGroup>
+                                            <Input
+                                                id="start_electric_number"
+                                                name="start_electric_number"
+                                                error={errorForm.start_electric_number?.error}
+                                                placeholder="Số nước"
+                                                type="text"
+                                                value={dataAdd.start_electric_number}
+                                                onChange={(e) =>
+                                                    onChangeData("start_electric_number", e.target.value, true)
+                                                }
+                                            />
+                                            {errorForm.start_electric_number?.error && <div className='text-error'>{errorForm.start_electric_number?.message}</div>}
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col md={6}>
+                                <Row>
                                     <Col md={2}>
                                         <Label>
-                                            Ngày bắt đầu
+                                            Ngày bắt đầu HĐ
                                         </Label>
                                     </Col>
                                     <Col md={4}>
@@ -688,7 +740,7 @@ const ModalAddContract = (props) => {
                                     </Col>
                                     <Col md={2}>
                                         <Label>
-                                            Ngày kết thúc
+                                            Ngày kết thúc HĐ
                                         </Label>
                                     </Col>
                                     <Col md={4}>
@@ -706,14 +758,11 @@ const ModalAddContract = (props) => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col md={6}>
+                        </Row>
+                        <Row>
+                            <Col md={12}>
                                 <Row>
-                                    <Col md={3}>
-                                        <Label>
-                                            Ghi chú
-                                        </Label>
-                                    </Col>
-                                    <Col md={9}>
+                                    <Col md={12}>
                                         <FormGroup>
                                             <Input
                                                 id="note"

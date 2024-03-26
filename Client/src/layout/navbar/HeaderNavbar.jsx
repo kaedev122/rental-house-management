@@ -106,6 +106,20 @@ const HeaderNavbar = (props) => {
             </NavLink>
           </NavItem>
 
+          <NavItem key="bill"
+            className={format_path() === 'bill' ? `highlight` : ''}
+          >
+            <NavLink 
+              className="d-flex flex-row align-items-center"
+              href="/cms/bill"
+            >
+              <i className="d-flex">
+                <RiBillFill />
+              </i>
+              <p>HÓA ĐƠN</p>
+            </NavLink>
+          </NavItem>
+
           {/* <NavItem key="report">
             <NavLink 
               className="d-flex flex-row align-items-center"

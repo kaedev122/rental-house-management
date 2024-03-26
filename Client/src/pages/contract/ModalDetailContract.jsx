@@ -804,6 +804,52 @@ const ModalDetailContract = (props) => {
                             </Col>
                         </Row>
                         <Row className='mt-3'>
+                        <Col md={6}>
+                                <Row>
+                                    <Col md={3}>
+                                        <Label>
+                                            Số nước đầu vào
+                                        </Label>
+                                    </Col>
+                                    <Col md={3}>
+                                        <FormGroup>
+                                            <Input
+                                                id="start_water_number"
+                                                name="start_water_number"
+                                                error={errorForm.start_water_number?.error}
+                                                placeholder="Số điện"
+                                                type="text"
+                                                value={dataAdd.start_water_number}
+                                                onChange={(e) =>
+                                                    onChangeData("start_water_number", e.target.value, true)
+                                                }
+                                            />
+                                            {errorForm.start_water_number?.error && <div className='text-error'>{errorForm.start_water_number?.message}</div>}
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={3}>
+                                        <Label>
+                                            Số điện đầu vào
+                                        </Label>
+                                    </Col>
+                                    <Col md={3}>
+                                        <FormGroup>
+                                            <Input
+                                                id="start_electric_number"
+                                                name="start_electric_number"
+                                                error={errorForm.start_electric_number?.error}
+                                                placeholder="Số nước"
+                                                type="text"
+                                                value={dataAdd.start_electric_number}
+                                                onChange={(e) =>
+                                                    onChangeData("start_electric_number", e.target.value, true)
+                                                }
+                                            />
+                                            {errorForm.start_electric_number?.error && <div className='text-error'>{errorForm.start_electric_number?.message}</div>}
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                            </Col>
                             <Col md={6}>
                                 <Row>
                                     <Col md={2}>
@@ -847,32 +893,25 @@ const ModalDetailContract = (props) => {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col md={6}>
-                                <Row>
-                                    <Col md={3}>
-                                        <Label>
-                                            Ghi chú
-                                        </Label>
-                                    </Col>
-                                    <Col md={9}>
-                                        <FormGroup>
-                                            <Input
-                                                id="note"
-                                                name="note"
-                                                error={errorForm.note?.error}
-                                                placeholder="Ghi chú"
-                                                type="textarea"
-                                                disabled={_dataSelect.status == 0}
-                                                rows={5}
-                                                value={dataAdd?.note}
-                                                onChange={(e) =>
-                                                    onChangeData("note", e.target.value)
-                                                }
-                                            />
-                                            {errorForm.note?.error && <div className='text-error'>{errorForm.note?.message}</div>}
-                                        </FormGroup>
-                                    </Col>
-                                </Row>
+                        </Row>
+                        <Row>
+                            <Col md={12}>
+                                <FormGroup>
+                                    <Input
+                                        id="note"
+                                        name="note"
+                                        error={errorForm.note?.error}
+                                        placeholder="Ghi chú"
+                                        type="textarea"
+                                        disabled={_dataSelect.status == 0}
+                                        rows={5}
+                                        value={dataAdd?.note}
+                                        onChange={(e) =>
+                                            onChangeData("note", e.target.value)
+                                        }
+                                    />
+                                    {errorForm.note?.error && <div className='text-error'>{errorForm.note?.message}</div>}
+                                </FormGroup>
                             </Col>
                         </Row>
                     </TabPanel>

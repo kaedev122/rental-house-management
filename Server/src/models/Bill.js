@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const BillSchema = new mongoose.Schema({
     status: { type: Number, default: 1 },
+    code: {type: String},
     note: { type: String },
     water_number: { type: Number, require: true },
     electric_number: { type: Number, require: true },
@@ -15,6 +16,8 @@ const BillSchema = new mongoose.Schema({
     }],
     total_other_costs: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
+    debt: { type: Number, default: 0 },
+    paid: { type: Number, default: 0 },
     payment_status: { type: Number, default: 0 },
     
     contract: {type: mongoose.Schema.Types.ObjectId, ref: 'Contract'},

@@ -929,7 +929,7 @@ const ModalDetailContract = (props) => {
                                 </div>
                             </Row>
                             {_dataSelect.status == 1 ? <TableContainer style={{ width: '100%', height: "400px" }} component={Paper}>
-                                <Table aria-label="collapsible table">
+                                <Table stickyHeader aria-label="collapsible table">
                                     <TableHead>
                                     <TableRow style={{backgroundColor:'white'}}>
                                         <TableCell width="100" align="left">

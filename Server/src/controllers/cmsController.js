@@ -6,6 +6,7 @@ import * as RoomActions from '../actions/RoomActions.js';
 import * as ContractActions from '../actions/ContractActions.js';
 import * as CustomerActions from '../actions/CustomerActions.js';
 import * as ServiceActions from '../actions/ServiceActions.js';
+import * as BillActions from '../actions/BillActions.js';
 import { verify } from '../middlewares/verifyMiddleware.js';
 const router = express.Router();
 
@@ -50,11 +51,19 @@ router.get('/customer/contract', verify(), handleRequest(CustomerActions.listAdd
 router.get('/customer/:id', verify(), handleRequest(CustomerActions.get))
 router.delete('/customer/:id', verify(), handleRequest(CustomerActions.remove))
 
-//Customer
+//Setting - Service
 router.post('/setting/service', verify(), handleRequest(ServiceActions.create))
 router.put('/setting/service/:id', verify(), handleRequest(ServiceActions.update))
 router.get('/setting/services', verify(), handleRequest(ServiceActions.list))
 router.get('/setting/service/:id', verify(), handleRequest(ServiceActions.get))
 router.delete('/setting/service/:id', verify(), handleRequest(ServiceActions.remove))
+
+//Bill
+router.post('/bill/', verify(), handleRequest(BillActions.create))
+router.put('/bill/:id', verify(), handleRequest(BillActions.update))
+router.get('/bills', verify(), handleRequest(BillActions.list))
+router.get('/bill/:id', verify(), handleRequest(BillActions.get))
+router.delete('/bill/:id', verify(), handleRequest(BillActions.remove))
+router.post('/pay-bill/:id', verify(), handleRequest(BillActions.payBill))
 
 export default router;

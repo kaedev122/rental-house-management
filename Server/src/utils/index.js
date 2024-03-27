@@ -83,8 +83,26 @@ export const padNumber = (prefix = 'HD', num) => {
             length = 5;
             paddedFill = '0000000';
             break;
+        case 'DTT':
+            length = 5;
+            paddedFill = '0000000';
+            break;
     }
 
     const paddedNum = paddedFill + num;
     return prefix + paddedNum.slice(-length);
+}
+
+export const convertCode = (q, keyword) => {
+    let code = '';
+    const keywordIndex = q.toUpperCase().indexOf(keyword);
+    if (typeof q === 'string' && keywordIndex > -1) {
+        code = q.replace(keyword, "");
+        if (code != '') code = +(code)
+    } else {
+        code = +(q);
+        if (isNaN(code)) code = '';
+    }
+
+    return code;
 }

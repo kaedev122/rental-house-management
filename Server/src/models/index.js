@@ -11,3 +11,4 @@ export {default as Customer} from './Customer.js';
 export {default as Room} from './Room.js';
 export {default as RoomGroup} from './RoomGroup.js';
 export {default as Service} from './Service.js';
+export {default as Paid} from './Paid.js';

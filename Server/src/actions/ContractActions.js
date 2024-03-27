@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User, RoomGroup, Room, Customer, Contract } from "../models/index.js"
+import { User, RoomGroup, Room, Customer, Contract, Bill } from "../models/index.js"
 import * as ContractValidation from '../validations/ContractValidation.js'
 import * as Utils from "../utils/index.js"
 import moment from 'moment';
@@ -81,7 +81,7 @@ export const create = async ({ body, user }) => {
 
     const newContract = {
         ...validate,
-        last_export_bill: new Date()
+        last_export_bill: new Date(),
     }
     const result = await Contract.create(newContract)
     if (result) {
@@ -252,8 +252,13 @@ export const get = async ({ body, user, params }) => {
         .populate('customers', '-__v -status -avatar -apartment -lastname -firstname -name_search -updatedAt')
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy hợp đồng')
+    const lastBill = await Bill.findOne({
+        status: 1,
+        contract: id,
+    }).select("electric_number water_number").sort({ createdAt: -1 }).limit(1);
 
     return {
         ...data,
+        lastBill
     }
 }

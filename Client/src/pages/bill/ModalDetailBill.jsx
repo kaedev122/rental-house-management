@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { Navigate, useLocation } from 'react-router-dom'
 import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader, ModalBody, Label, ModalFooter, FormGroup, Input } from 'reactstrap'
 import { http_request, get_local_storage, is_empty, trim } from '@utils'
 import "./bill.scss";
@@ -15,37 +16,37 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-const ModalAddBill = (props) => {
-	const { _modal, _toggleModal, _done_action, _room_selected } = props;
+const ModalDetailBill = (props) => {
+	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
     const timer = useRef()
 
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [listContract, setListContract] = useState([])
-    const [contractSelected, setContractSelected] = useState(_room_selected)
-
+    const [contractSelected, setContractSelected] = useState(_dataSelect.contract._id)
     const [dataAdd, setDataAdd] = useState({
+        contract: _dataSelect.contract._id,
+        note: _dataSelect.note,
         water_number_used: "---",
         electric_number_used: "---",
-        last_water_number: "---",
-        last_electric_number: "---",
-        electric_number: 0,
-        water_number: 0,
-        discount: 0,
-        cost_incurred: 0
+        room_price: _dataSelect.room_price,
+        other_price: _dataSelect.other_price,
+        water_price: _dataSelect.water_price,
+        electric_price: _dataSelect.electric_price,
+        last_water_number: _dataSelect.last_water_number,
+        last_electric_number: _dataSelect.last_electric_number,
+        electric_number: _dataSelect.electric_number,
+        water_number: _dataSelect.water_number,
+        discount: _dataSelect.discount,
+        cost_incurred: _dataSelect.cost_incurred
     })
 	const [errorForm, setErrorForm] = useState({})
 
     useEffect(() => {
+        console.log(_dataSelect)
         get_list_contract_data()
     }, [])
-
-    useEffect(() => {
-        if (contractSelected) {
-            get_contract_data(contractSelected)
-        }
-    }, [contractSelected])
 
 	const change_contract = async (contract_id) => {
 		return setContractSelected(contract_id)
@@ -63,24 +64,6 @@ const ModalAddBill = (props) => {
             + dataAdd.room_price + dataAdd.cost_incurred - dataAdd.discount) || "---"
     }
 
-    const get_contract_data = async () => {
-        const res = await http_request({method: "GET", url:`cms/contract/${contractSelected}`})
-		const { code, data, message } = res
-        if (code == 200) {
-            return setDataAdd({
-                ...dataAdd,
-                water_price: data.water_price,
-                electric_price: data.electric_price,
-                room_price: data.room_price,
-                other_price: data.other_price,
-                contract: data._id,
-                room: data.room._id,
-                last_water_number: data?.lastBill?.water_number || data.start_water_number,
-                last_electric_number: data?.lastBill?.electric_number || data.start_electric_number,
-            })
-        }
-    }
-
     const get_list_contract_data = async () => {
         let input = {
             status: 1,
@@ -94,63 +77,15 @@ const ModalAddBill = (props) => {
         }
     }
 
-    const get_list_customer = async (data_search) => {
-        let input = {
-            ...data_search,
-            status: 1,
-            apartment: apartmentCurrent,
-        }
-        const res = await http_request({method: "GET", url:"cms/customer/contract", params: input})
-		const { code, data, message } = res
-        if (code == 200) {
-            return data.items
-        }
-        return enqueueSnackbar(message, {
-            variant: "error",
-            autoHideDuration: 5000,
-        })
-    }
-
-    const get_list_service = async () => {
-        let input = {
-            status: 1,
-            apartment: apartmentCurrent
-        }
-        const res = await http_request({method: "GET", url:"cms/setting/services", params: input})
-		const { code, data, message } = res
-        if (code == 200) {
-            setListService(data.items.map((item) => {
-                return {
-                    ...item,
-                    number: 1
-                }
-            }))
-            return true
-        }
-        return enqueueSnackbar(message, {
-            variant: "error",
-            autoHideDuration: 5000,
-        })
-    }
-
     const onSubmit = async () => {
         let input = {
             note: dataAdd.note,
-            last_water_number: dataAdd.last_water_number,
-            last_electric_number: dataAdd.last_electric_number,
             water_number: dataAdd.water_number,
             electric_number: dataAdd.electric_number,
-            water_price: dataAdd.water_price,
-            electric_price: dataAdd.electric_price,
-            room_price: dataAdd.room_price,
-            other_price: JSON.stringify(dataAdd.other_price),
             discount: dataAdd.discount,
             cost_incurred: dataAdd.cost_incurred,
-            contract: dataAdd.contract,
-            room: dataAdd.room,
-            apartment: apartmentCurrent,
         }
-		const res = await http_request({ method: "POST", url: "cms/bill/", data: input })
+		const res = await http_request({ method: "PUT", url: `cms/bill/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -159,7 +94,7 @@ const ModalAddBill = (props) => {
             })
 		}
         if (code === 200) {
-            enqueueSnackbar("Thêm mới thành công", {
+            enqueueSnackbar("Cập nhật thành công", {
                 variant: "success",
                 autoHideDuration: 5000,
             })
@@ -245,7 +180,7 @@ const ModalAddBill = (props) => {
             size="xl"
         >
             <ModalHeader toggle={_toggleModal}>
-                Thêm mới hóa đơn
+                Cập nhật hóa đơn
             </ModalHeader>
             <ModalBody>
                 <Row>
@@ -257,7 +192,7 @@ const ModalAddBill = (props) => {
                         name="select"
                         type="select"
                         className='btn-select pointer-btn'
-                        disabled={_room_selected}
+                        disabled
                         value={contractSelected}
                         onChange={(e)=>change_contract(e.target.value)}
                     >
@@ -685,4 +620,4 @@ const ModalAddBill = (props) => {
     </Fragment>)
 }
 
-export default ModalAddBill
+export default ModalDetailBill

@@ -8,6 +8,7 @@ const Home = lazy(() => import('@pages/home/Home'))
 const ListApartment = lazy(() => import('@pages/apartment/ListApartment'))
 const ListCustomer = lazy(() => import('@pages/customer/ListCustomer'))
 const ListContract = lazy(() => import('@pages/contract/ListContract'))
+const ListBill = lazy(() => import('@pages/bill/ListBill'))
 const Setting = lazy(() => import('@pages/setting/Setting'))
 
 const HeaderNavbar = lazy(() => import("@layout/navbar/HeaderNavbar"));
@@ -30,8 +31,8 @@ const CmsRouter = (props) => {
           <Route exact path="/apartment" element={<ListApartment />} />
           <Route exact path="/customer" element={<ListCustomer />} />
           <Route exact path="/contract" element={<ListContract />} />
+          <Route exact path="/bill" element={<ListBill />} />
           <Route exact path="/setting" element={<Setting />} />
-          <Route exact path="/bill" element={<Setting />} />
 					<Route exact path="/login" render={() => (<Navigate to={{ pathname: "/" }} />)} />
         </Routes>
       </Suspense>

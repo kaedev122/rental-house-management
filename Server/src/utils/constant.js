@@ -9,3 +9,9 @@ export const ErrorCodes = {
     PERMISSION_ERROR: 403,
     UPLOAD_ERROR: 400
 }
+
+export const PAYMENT_STATUS = {
+    NOT_PAY: 0,
+    PAY_PART: 1,
+    PAID: 2,
+}

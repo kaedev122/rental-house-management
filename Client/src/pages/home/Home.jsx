@@ -231,7 +231,6 @@ const Home = () => {
     }
 
     const render_bill_status = (item) => {
-        console.log(item)
         if (item.bill_status == 0) {
             return <span
                 onClick={() => add_bill(item._id)}
@@ -240,8 +239,7 @@ const Home = () => {
             </span>
         }
         if (item.bill_status == 1) {
-            return <span
-            >
+            return <span>
                 Đã ghi điện & nước (Thg-{moment(item?.last_check_date).format('M') - 1})
             </span>
         }
@@ -259,7 +257,7 @@ const Home = () => {
             </span>
         }
         if (item.payment_status == 1) {
-            return <span
+            return <span 
                 onClick={() => {open_pay_bill(item)}}
             >
                 Thanh toán một phần
@@ -284,7 +282,7 @@ const Home = () => {
                     <Row className='room-card-header'>
                         <Col md={6} className=''>
                             <span 
-                                className='d-flex label-text align-items-center'
+                                className='text-hover d-flex label-text align-items-center'
                                 onClick={() => open_room_detail(item)}
                             >
                                 <FaBed />&nbsp;{item.name}
@@ -313,10 +311,10 @@ const Home = () => {
                         </Col>
                     </Row>
                     <Row className='border-top'>
-                        <Col md={6}>
+                        <Col md={6} className='text-hover'>
                             <FaHandshakeSimple /> {item?.contract ? <span onClick={() => open_contract_detail(item.contract)}>
                                 {format_date_time(item?.contract?.date_start)} <MdReadMore />
-                            </span> : 
+                            </span> :
                             <span
                                 onClick={() => add_contract(item._id)}
                             >Tạo hợp đồng</span>}
@@ -326,10 +324,10 @@ const Home = () => {
                         </Col>
                     </Row>
                     <Row className='border-top'>
-                        <Col md={6}>
-                            <RiWaterFlashFill /> {item?.contract ? render_bill_status(item?.contract) : '---'}
+                        <Col md={6} className={(item?.contract?.bill_status === 0) ? 'text-hover' : ''}>
+                            <RiWaterFlashFill/> {item?.contract ? render_bill_status(item?.contract) : '---'}
                         </Col>
-                        <Col md={6} className='border-start'>
+                        <Col md={6} className={(item?.bill?.payment_status === 1 || item?.bill?.payment_status === 0) ? 'border-start text-hover' : 'border-start'}>
                             <FaMoneyBillWaveAlt /> {render_payment_status(item?.bill)}
                         </Col>
                     </Row>

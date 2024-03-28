@@ -21,6 +21,9 @@ import ModalAddRoom from './ModalAddRoom';
 import ModalDetailRoom from './ModalDetailRoom';
 import ModalAddContract from '../contract/ModalAddContract';
 import ModalDetailContract from '../contract/ModalDetailContract';
+import ModalAddBill from '../bill/ModalAddBill';
+import ModalDetailBill from '../bill/ModalDetailBill';
+import ModalPayBill from '../bill/ModalPayBill';
 import "./Home.scss";
 import { FaEdit } from "react-icons/fa";
 import { useSnackbar } from 'notistack';
@@ -36,6 +39,8 @@ const Home = () => {
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [groupSelected, setGroupSelected] = useState('')
     const [roomSelected, setRoomSelected] = useState('')
+    const [contractSelected, setContractSelected] = useState('')
+    const [billSelected, setBillSelected] = useState('')
     const [roomData, setRoomData] = useState({})
     const [groupData, setGroupData] = useState({})
     const [sort, setSort] = useState(false)
@@ -75,6 +80,21 @@ const Home = () => {
         return setModalDetailContract(!modalDetailContract)
     }
 
+    const [modalAddBill, setModalAddBill] = useState(false);
+    const toggle_modal_add_bill = () => {
+        return setModalAddBill(!modalAddBill)
+    }
+
+    const [modalDetailBill, setModalDetailBill] = useState(false);
+    const toggle_modal_detail_bill = () => {
+        return setModalDetailBill(!modalDetailBill)
+    }
+
+    const [modalPay, setModalPay] = useState(false);
+    const toggle_modal_pay = () => {
+        return setModalPay(!modalPay)
+    }
+
     const [customersData, setCustomersData] = useState([])
     const [servicesData, setServicesData] = useState([])
     const [services, setServices] = useState([])
@@ -85,7 +105,8 @@ const Home = () => {
     }, [apartmentCurrent, sort])
 
     useEffect(() => {
-        get_data_apartment()
+        console.log(apartmentCurrent)
+        if (apartmentCurrent) get_data_apartment()
     }, [])
 
     const get_data_apartment = async () => {
@@ -135,10 +156,6 @@ const Home = () => {
             setDataAdd(data)
             return true
         }
-        return enqueueSnackbar(message, {
-            variant: "error",
-            autoHideDuration: 5000,
-        })
     }
 
     const add_room = (group_id) => {
@@ -149,6 +166,16 @@ const Home = () => {
     const add_contract = (room_id) => {
         setRoomSelected(room_id)
         return toggle_modal_add_contract()
+    }
+
+    const add_bill = (contract_id) => {
+        setContractSelected(contract_id)
+        return toggle_modal_add_bill()
+    }
+
+    const open_pay_bill = (bill_id) => {
+        setBillSelected(bill_id)
+        return toggle_modal_pay()
     }
 
 	const open_contract_detail = async (item) => {
@@ -164,6 +191,8 @@ const Home = () => {
 	const done_action = () => {
 		setModalAddGroup(false)
 		setModalAddRoom(false)
+		setModalAddBill(false)
+		setModalPay(false)
 		setModalAddContract(false)
         setModalDetailContract(false)
         setModalDetailRoom(false)
@@ -202,16 +231,50 @@ const Home = () => {
     }
 
     const render_bill_status = (item) => {
+        console.log(item)
         if (item.bill_status == 0) {
-            return <span>   
+            return <span
+                onClick={() => add_bill(item._id)}
+            >   
                 Chưa ghi điện & nước
             </span>
         }
         if (item.bill_status == 1) {
-            return <span>
+            return <span
+            >
                 Đã ghi điện & nước (Thg-{moment(item?.last_check_date).format('M') - 1})
             </span>
         }
+        if (item.bill_status == 2) {
+            return <span>
+                Tháng đầu
+            </span>
+        }
+    }
+
+    const render_payment_status = (item) => {
+        if (item.payment_status === "") {
+            return <span>
+                ---
+            </span>
+        }
+        if (item.payment_status == 1) {
+            return <span
+                onClick={() => {open_pay_bill(item)}}
+            >
+                Thanh toán một phần
+            </span>
+        }
+        if (item.payment_status == 2) {
+            return <span>
+                Đã thanh toán
+            </span>
+        }
+        return <span
+            onClick={() => {open_pay_bill(item)}}
+        >
+            Chưa thanh toán
+        </span>
     }
 
     const render_room = (rooms) => {
@@ -267,7 +330,7 @@ const Home = () => {
                             <RiWaterFlashFill /> {item?.contract ? render_bill_status(item?.contract) : '---'}
                         </Col>
                         <Col md={6} className='border-start'>
-                            <FaMoneyBillWaveAlt /> {item?.contract ? "Đã thanh toán" : '---'}
+                            <FaMoneyBillWaveAlt /> {render_payment_status(item?.bill)}
                         </Col>
                     </Row>
                 </div>
@@ -351,6 +414,20 @@ const Home = () => {
             _dataSelect={roomData}
             _apartmentData={apartmentData}
             _done_action={done_action}
+        />}
+
+        {modalAddBill && <ModalAddBill
+            _modal={modalAddBill}
+            _toggleModal={toggle_modal_add_bill}
+            _contract_id={contractSelected}
+            _done_action={done_action}
+        />}
+
+        {modalPay && <ModalPayBill
+            _modal={modalPay}
+            _toggleModal={toggle_modal_pay}
+            _done_action={done_action}
+            _dataSelect={billSelected}
         />}
     </div>)
 }

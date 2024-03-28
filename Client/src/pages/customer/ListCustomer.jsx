@@ -70,12 +70,14 @@ const ListCustomer = () => {
 	]
 
     useEffect(() => {
-        get_list_customer({
-			...dataSearch,
-			"apartment": apartmentCurrent,
-			"page": page,
-            "limit": size,
-		})
+        if (apartmentCurrent) {
+            get_list_customer({
+                ...dataSearch,
+                "apartment": apartmentCurrent,
+                "page": page,
+                "limit": size,
+            })
+        }
     }, [apartmentCurrent])
 
 ///////////////////////SEARCH//////////////////////////////////////////////////////
@@ -207,6 +209,7 @@ const ListCustomer = () => {
                         <Button
                             onClick={() => toggle_modal_add()}
                             className=''
+                            disabled={!apartmentCurrent}
                         >
                             Thêm mới +
                         </Button>

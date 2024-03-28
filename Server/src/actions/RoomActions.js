@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User, RoomGroup, Room, Contract } from "../models/index.js"
+import { User, RoomGroup, Room, Contract, Bill } from "../models/index.js"
 import * as RoomValidation from '../validations/RoomValidation.js'
 import * as Utils from "../utils/index.js"
 import moment from 'moment';
@@ -243,7 +243,7 @@ export const listRoomGroupExtend = async ({
     if (!apartment) throw new ParamError("Thiếu id nhà trọ")
     conditions.apartment = apartment
     if (status) conditions.status = status
-    const [totalItems, dataGroup, dataRoom] = await Promise.all([
+    let [totalItems, dataGroup, dataRoom] = await Promise.all([
         RoomGroup.countDocuments(conditions),
         RoomGroup.find(conditions)
             .select("-apartment -name_search -status -updatedAt -__v")
@@ -254,6 +254,24 @@ export const listRoomGroupExtend = async ({
             .populate("customer_represent", "fullname phone")
             .lean()
     ])
+
+    dataRoom = await Promise.map(dataRoom, async (room) => {
+        const lastBill = await Bill.findOne({
+            contract: room.contract,
+            room: room._id,
+            status: 1
+        }).sort({ createdAt: -1 }).limit(1).lean();
+        return {
+            ...room,
+            bill: {
+                payment_status: lastBill ? lastBill?.payment_status : '',
+                _id: lastBill ? lastBill?._id : "",
+                paid: lastBill ? lastBill?.paid : "",
+                total: lastBill ? lastBill?.total : "",
+                debt: lastBill ? lastBill?.debt : "",
+            }
+        }
+    })
 
     let result = dataGroup.map((item) => {
         const rooms = dataRoom.filter(room => room.group.toString() == item._id.toString())

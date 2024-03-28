@@ -55,8 +55,10 @@ const Setting = () => {
     }
 
     useEffect(() => {
-        get_data_apartment()
-        get_list_service()
+        if (apartmentCurrent) {
+            get_data_apartment()
+            get_list_service()
+        }
     }, [apartmentCurrent])
 
     const updateLocation = async () => {
@@ -245,6 +247,7 @@ const Setting = () => {
                                                     error={errorForm.name?.error}
                                                     placeholder="Tên khu trọ"
                                                     type="text"
+                                                    disabled={!apartmentCurrent}
                                                     value={dataAdd.name}
                                                     onChange={(e) =>
                                                         onChangeData("name", e.target.value)
@@ -267,6 +270,7 @@ const Setting = () => {
                                                     name="phone"
                                                     error={errorForm.phone?.error}
                                                     placeholder="Số điện thoại"
+                                                    disabled={!apartmentCurrent}
                                                     type="text"
                                                     value={dataAdd.phone}
                                                     onChange={(e) =>
@@ -290,6 +294,7 @@ const Setting = () => {
                                                     name="electric_price"
                                                     error={errorForm.electric_price?.error}
                                                     placeholder="Giá điện"
+                                                    disabled={!apartmentCurrent}
                                                     type="text"
                                                     value={dataAdd.electric_price}
                                                     onChange={(e) =>
@@ -313,6 +318,7 @@ const Setting = () => {
                                                     name="water_price"
                                                     error={errorForm.water_price?.error}
                                                     placeholder="Giá nước"
+                                                    disabled={!apartmentCurrent}
                                                     type="text"
                                                     value={dataAdd.water_price}
                                                     onChange={(e) =>
@@ -325,6 +331,7 @@ const Setting = () => {
                                     </Row>
                                     </CardBody>
                                         <CardFooter><Button
+                                            disabled={!apartmentCurrent}
                                             className='float-end'
                                             onClick={() => updateApartment()}
                                         >
@@ -338,6 +345,7 @@ const Setting = () => {
                                             <div>
                                                 <Label>Danh sách dịch vụ</Label>
                                                 <Button
+                                                    disabled={!apartmentCurrent}
                                                     onClick={() => toggle_modal_add()}
                                                 >
                                                     Thêm mới +
@@ -383,6 +391,7 @@ const Setting = () => {
                                                     name="address"
                                                     error={errorForm.address?.error}
                                                     placeholder="Địa chỉ"
+                                                    disabled={!apartmentCurrent}
                                                     type="text"
                                                     value={dataAdd.address}
                                                     onChange={(e) =>
@@ -395,6 +404,7 @@ const Setting = () => {
                                         <Col md={2} className='d-flex align-items-center'>
                                             <Button
                                                 onClick={() => get_location(dataAdd.address)}
+                                                disabled={!apartmentCurrent}
                                             >
                                                 Lấy vị trí
                                             </Button>
@@ -419,6 +429,7 @@ const Setting = () => {
                 </div>
             </CardBody>
                 {tabSelected==2 && <CardFooter><Button
+                    disabled={!apartmentCurrent}
                     className='float-end'
                     onClick={() => updateLocation()}
                 >

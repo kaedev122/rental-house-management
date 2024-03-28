@@ -36,5 +36,5 @@ export const update = Joi.object({
 }).messages(errorJoiMessages);
 
 export const pay = Joi.object({
-    money: Joi.number().label("Số tiền"),
+    money: Joi.number().positive().label("Số tiền"),
 }).messages(errorJoiMessages);

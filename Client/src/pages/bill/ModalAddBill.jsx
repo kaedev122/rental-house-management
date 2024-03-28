@@ -16,14 +16,14 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 const ModalAddBill = (props) => {
-	const { _modal, _toggleModal, _done_action, _room_selected } = props;
+	const { _modal, _toggleModal, _done_action, _contract_id } = props;
     const timer = useRef()
-
+    console.log(_contract_id)
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [listContract, setListContract] = useState([])
-    const [contractSelected, setContractSelected] = useState(_room_selected)
+    const [contractSelected, setContractSelected] = useState(_contract_id)
 
     const [dataAdd, setDataAdd] = useState({
         water_number_used: "---",
@@ -257,13 +257,13 @@ const ModalAddBill = (props) => {
                         name="select"
                         type="select"
                         className='btn-select pointer-btn'
-                        disabled={_room_selected}
+                        disabled={_contract_id}
                         value={contractSelected}
                         onChange={(e)=>change_contract(e.target.value)}
                     >
                         <option value="" disabled selected hidden>Chọn hợp đồng</option>
                         {listContract && listContract.map((item) =>{
-                            return (<option key={item._id} value={item._id} >{item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
+                            return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
                         })}
                     </Input>
                 </Row>

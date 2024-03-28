@@ -73,13 +73,14 @@ const ListContract = () => {
 	]
 
     useEffect(() => {
-        get_list_contract({
+        if (apartmentCurrent) {
+            get_list_contract({
 			...dataSearch,
 			"apartment": apartmentCurrent,
 			"page": page,
             "limit": size,
             "sort": sort || 'false'
-		})
+		})}
     }, [apartmentCurrent, sort])
 
     const search_table = (data_search) => {
@@ -235,6 +236,7 @@ const ListContract = () => {
                         <span className='header-text'>Quản lý hợp đồng</span>
                         <Button
                             onClick={() => toggle_modal_add()}
+                            disabled={!apartmentCurrent}
                             className=''
                         >
                             Thêm mới +

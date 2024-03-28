@@ -11,6 +11,7 @@ import { IoMdSettings } from "react-icons/io";
 import { IoStatsChartSharp, IoLogOut, IoHomeSharp  } from "react-icons/io5";
 import { set_apartment_list, set_apartment_curent } from '@redux/apartmentSlice'
 import { FaPerson } from "react-icons/fa6";
+import { GrMoney } from "react-icons/gr";
 
 const HeaderNavbar = (props) => {
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -31,6 +32,7 @@ const HeaderNavbar = (props) => {
 		const res = await http_request({method: "GET", url:"cms/apartments", params: input})
 		const { code, data } = res
 		if(code === 200 ){
+      console.log(data.items)
 			setListApartment(data.items)
 			dispatch(set_apartment_list(data.items))
 		}
@@ -43,6 +45,7 @@ const HeaderNavbar = (props) => {
 	}
 
 	const change_apartment = async (apartment_id) => {
+    console.log(apartment_id)
 		setApartment(apartment_id)
 		set_local_storage("apartment", apartment_id)
 		dispatch(set_apartment_curent(apartment_id))
@@ -120,10 +123,12 @@ const HeaderNavbar = (props) => {
             </NavLink>
           </NavItem>
 
-          {/* <NavItem key="report">
+          <NavItem key="report"
+            className={format_path() === 'report' ? `highlight` : ''}
+          >
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/login"
+              href="/cms/report"
             >
               <i className="d-flex">
                 <IoStatsChartSharp />
@@ -132,17 +137,19 @@ const HeaderNavbar = (props) => {
             </NavLink>
           </NavItem>
 
-          <NavItem key="bill">
+          <NavItem key="revenue"
+            className={format_path() === 'revenue' ? `highlight` : ''}
+          >
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/login"
+              href="/cms/revenue"
             >
               <i className="d-flex">
-                <RiBillFill />
+                <GrMoney />
               </i>
-              <p>HÓA ĐƠN</p>
+              <p>DOANH THU</p>
             </NavLink>
-          </NavItem> */}
+          </NavItem>
 
           <NavItem key="contract"
             className={format_path() === 'contract' ? `highlight` : ''}

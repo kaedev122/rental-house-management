@@ -15,6 +15,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import ModalPayBill from './ModalPayBill';
 
 const ModalDetailBill = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
@@ -39,7 +40,8 @@ const ModalDetailBill = (props) => {
         electric_number: _dataSelect.electric_number,
         water_number: _dataSelect.water_number,
         discount: _dataSelect.discount,
-        cost_incurred: _dataSelect.cost_incurred
+        cost_incurred: _dataSelect.cost_incurred,
+        paid: _dataSelect.paid,
     })
 	const [errorForm, setErrorForm] = useState({})
 
@@ -126,14 +128,18 @@ const ModalDetailBill = (props) => {
 			[type]: value
 		})
 	}
+    const [modalPay, setModalPay] = useState(false);
+    const toggle_modal_pay = () => {
+        return setModalPay(!modalPay)
+    }
+    
+    const open_pay_modal = () => {
+        toggle_modal_pay()
+    }
 
-	const render_customer_action = (item) => {
-        return (<div>
-            <FaEdit title='Sửa' className='pointer-btn'
-                onClick={()=>open_customer_detail(item)}
-            />
-        </div>)
-	}
+    const done_action = () => {
+
+    }
 
     const render_service_done = () => {
         return (dataAdd?.other_price || []).map((item, index) => {
@@ -198,7 +204,7 @@ const ModalDetailBill = (props) => {
                     >
                         <option value="" disabled selected hidden>Chọn hợp đồng</option>
                         {listContract && listContract.map((item) =>{
-                            return (<option key={item._id} value={item._id} >{item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
+                            return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
                         })}
                     </Input>
                 </Row>
@@ -569,7 +575,7 @@ const ModalDetailBill = (props) => {
                                 error={errorForm.note?.error}
                                 placeholder="Ghi chú"
                                 type="textarea"
-                                rows={3}
+                                rows={5}
                                 value={dataAdd.note}
                                 onChange={(e) =>
                                     onChangeData("note", e.target.value)
@@ -603,6 +609,54 @@ const ModalDetailBill = (props) => {
                                 </FormGroup>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col md={5}>
+                                <Label>
+                                    Đã trả
+                                </Label>
+                            </Col>
+                            <Col md={7}>
+                                <FormGroup>
+                                    <Input
+                                        id="total"
+                                        name="total"
+                                        error={errorForm.total?.error}
+                                        placeholder="Tổng tiền"
+                                        type="text"
+                                        disabled
+                                        value={dataAdd.paid}
+                                        onChange={(e) =>
+                                            onChangeData("total", e.target.value, true)
+                                        }
+                                    />
+                                    {errorForm.total?.error && <div className='text-error'>{errorForm.total?.message}</div>}
+                                </FormGroup>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col md={5}>
+                                <Label>
+                                    Còn nợ
+                                </Label>
+                            </Col>
+                            <Col md={7}>
+                                <FormGroup>
+                                    <Input
+                                        id="total"
+                                        name="total"
+                                        error={errorForm.total?.error}
+                                        placeholder="Tổng tiền"
+                                        type="text"
+                                        disabled
+                                        value={calc_total_money() - dataAdd.paid}
+                                        onChange={(e) =>
+                                            onChangeData("total", e.target.value, true)
+                                        }
+                                    />
+                                    {errorForm.total?.error && <div className='text-error'>{errorForm.total?.message}</div>}
+                                </FormGroup>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
             </ModalBody>
@@ -617,6 +671,13 @@ const ModalDetailBill = (props) => {
                 >Lưu</Button>
             </ModalFooter>
         </Modal>
+
+        {modalPay && <ModalPayBill
+            _modal={modalPay}
+            _toggleModal={toggle_modal_pay}
+            _done_action={done_action}
+            _dataSelect={dataSelect}
+        />}
     </Fragment>)
 }
 

@@ -18,6 +18,7 @@ import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import ModalAddBill from './ModalAddBill';
 import ModalDetailBill from './ModalDetailBill';
+import ModalPayBill from './ModalPayBill';
 import "./bill.scss";
 import { useSnackbar } from 'notistack';
 import { TabContext, TabList, TabPanel } from '@mui/lab'
@@ -48,11 +49,17 @@ const ListBill = () => {
     const toggle_modal_add = () => {
         return setModalAdd(!modalAdd)
     }
+
     const [modalDetail, setModalDetail] = useState(false);
     const toggle_modal_detail = () => {
         return setModalDetail(!modalDetail)
     }
 
+    const [modalPay, setModalPay] = useState(false);
+    const toggle_modal_pay = () => {
+        return setModalPay(!modalPay)
+    }
+    
 	const list_status = [
         {
 			'text': 'Tất cả',
@@ -86,13 +93,15 @@ const ListBill = () => {
 	]
 
     useEffect(() => {
-        get_list_contract({
-			...dataSearch,
-			"apartment": apartmentCurrent,
-			"page": page,
-            "limit": size,
-            "sort": sort || 'false'
-		})
+        if (apartmentCurrent) {
+            get_list_contract({
+                ...dataSearch,
+                "apartment": apartmentCurrent,
+                "page": page,
+                "limit": size,
+                "sort": sort || 'false'
+            })
+        }
     }, [apartmentCurrent, sort])
 
     const search_table = (data_search) => {
@@ -148,9 +157,16 @@ const ListBill = () => {
         return toggle_modal_detail()
 	}
 
+	const open_pay = async (item) => {
+        console.log(item)
+        setDataSelect(item)
+        return toggle_modal_pay()
+	}
+
 	const done_action = () => {
 		setModalAdd(false)
 		setModalDetail(false)
+		setModalPay(false)
         return get_list_contract({
             ...dataSearch,
 			"apartment": apartmentCurrent,
@@ -215,7 +231,9 @@ const ListBill = () => {
         },
         { field: 'payment_status', headerName: 'Thanh toán', width: 200, align: "center",
             renderCell: (params) => (
-                <div>
+                <div
+                    onClick={() => open_pay(params.row)}
+                >
                     {render_payment_status(params.row.payment_status)}
                 </div>
         ),	
@@ -237,6 +255,7 @@ const ListBill = () => {
                         <span className='header-text'>Quản lý hóa đơn</span>
                         <Button
                             onClick={() => toggle_modal_add()}
+                            disabled={!apartmentCurrent}
                             className=''
                         >
                             Thêm mới +
@@ -338,6 +357,13 @@ const ListBill = () => {
         {modalDetail && <ModalDetailBill
             _modal={modalDetail}
             _toggleModal={toggle_modal_detail}
+            _done_action={done_action}
+            _dataSelect={dataSelect}
+        />}
+
+        {modalPay && <ModalPayBill
+            _modal={modalPay}
+            _toggleModal={toggle_modal_pay}
             _done_action={done_action}
             _dataSelect={dataSelect}
         />}

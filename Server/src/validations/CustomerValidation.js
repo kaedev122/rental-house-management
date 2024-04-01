@@ -12,7 +12,7 @@ export const create = Joi.object({
     firstname: Joi.string().max(50).allow('').label("Họ"),
     lastname: Joi.string().max(50).required().label("Tên"),
     fullname: Joi.string().max(50).required().label("Họ và tên"),
-    phone: _phoneValidation.required().label("Số điện thoại"),
+    phone: _phoneValidation.label("Số điện thoại"),
     email: Joi.string().email().max(50).allow('').lowercase().label('Email'),
     id_number: Joi.string().max(15).allow('').label('Số căn cước công dân'),
     birthday: Joi.date().allow('').label("Ngày sinh"),

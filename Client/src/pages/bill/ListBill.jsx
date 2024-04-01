@@ -221,7 +221,9 @@ const ListBill = () => {
         },		
         { field: 'water_number', headerName: 'Số nước cuối', width: 100, flex: 1, },
 		{ field: 'electric_number', headerName: 'Số điện cuối', width: 100, flex: 1 },
-		{ field: 'total', headerName: 'Tổng tiền', width: 100, flex: 1 },
+		{ field: 'total', headerName: 'Tổng tiền', width: 100, flex: 1, 
+            valueGetter: (params) => `${params.row.total.toLocaleString()} đ` 
+        },
 		{ field: 'status', headerName: 'Trạng thái', width: 200, align: "center",
             renderCell: (params) => (
                 <div>
@@ -236,8 +238,8 @@ const ListBill = () => {
                 >
                     {render_payment_status(params.row.payment_status)}
                 </div>
-        ),	
-    },
+            ),	
+        },
         { field: 'action', headerName: 'Hành động', width: 100, align: "center",
             renderCell: (params) => (
                 <div>

@@ -370,16 +370,16 @@ const ModalDetailContract = (props) => {
         return setListService(list)
     };
 
-    const onChangeDataPrice = async (value, index) => {
-        value = value.replace(/[^0-9.]/g, '')
-        const regex = /^\d+$/;
-        let list = [...listService]
-        if (regex.test(value) || value === '') {
-            list[index].price = value
-        } else {
-            value = list[index].price
+    const onChangeDataPrice = (value, index) => {
+        if (is_empty(value)) {
+            let list = [...listService]
+            list[index].price = 0;
+            return setListService(list)
         }
-        return setListService(list)
+        const result = value.replace(/\D/g, "");
+        let list = [...listService]
+        list[index].price = parseInt(result);
+        setListService(list)
     };
 
     const isSelected = (id) => {
@@ -438,13 +438,9 @@ const ModalDetailContract = (props) => {
                         disabled={!isItemSelected}
                         className="form-control text-center"
                         placeholder="SL"
-                        value={item.price}
+                        value={(item?.price || 0).toLocaleString()}
+                        min={0}
                         onChange={(e) => onChangeDataPrice(e.target.value, index)}
-                        onBlur={(e) => {
-                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
-                            onChangeDataPrice(newValue, index);
-                        }}
-                        min={1}
                     />
                 </TableCell>
                 <TableCell align="left">
@@ -457,11 +453,6 @@ const ModalDetailContract = (props) => {
                         disabled={!isItemSelected}
                         value={item.number}
                         onChange={(e) => onChangeDataNumber(e.target.value, index)}
-                        onBlur={(e) => {
-                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
-                            onChangeDataNumber(newValue, index);
-                        }}
-                        min={1}
                     />
                 </TableCell>
                 <TableCell width="100" align="left">
@@ -489,13 +480,8 @@ const ModalDetailContract = (props) => {
                         disabled
                         className="form-control text-center"
                         placeholder="SL"
-                        value={item.price}
+                        value={item.price.toLocaleString() || ""}
                         onChange={(e) => onChangeDataPrice(e.target.value, index)}
-                        onBlur={(e) => {
-                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
-                            onChangeDataPrice(newValue, index);
-                        }}
-                        min={1}
                     />
                 </TableCell>
                 <TableCell align="left">
@@ -508,11 +494,6 @@ const ModalDetailContract = (props) => {
                         disabled
                         value={item.number}
                         onChange={(e) => onChangeDataNumber(e.target.value, index)}
-                        onBlur={(e) => {
-                            const newValue = (e.target.value == '' || e.target.value == '0') ? '1' : e.target.value;
-                            onChangeDataNumber(newValue, index);
-                        }}
-                        min={1}
                     />
                 </TableCell>
             </TableRow>)
@@ -691,7 +672,7 @@ const ModalDetailContract = (props) => {
                                                 placeholder="Tiền đặt cọc"
                                                 type="text"
                                                 disabled={_dataSelect.status == 0}
-                                                value={dataAdd?.deposit_money}
+                                                value={dataAdd.deposit_money ? dataAdd.deposit_money.toLocaleString() : ""}
                                                 onChange={(e) =>
                                                     onChangeData("deposit_money", e.target.value, true)
                                                 }
@@ -732,28 +713,6 @@ const ModalDetailContract = (props) => {
                                 <Row>
                                     <Col md={3}>
                                         <Label>
-                                            Giá 1 số điện
-                                        </Label>
-                                    </Col>
-                                    <Col md={3}>
-                                        <FormGroup>
-                                            <Input
-                                                id="electric_price"
-                                                name="electric_price"
-                                                error={errorForm.electric_price?.error}
-                                                placeholder="Giá điện"
-                                                type="text"
-                                                disabled={_dataSelect.status == 0}
-                                                value={dataAdd?.electric_price}
-                                                onChange={(e) =>
-                                                    onChangeData("electric_price", e.target.value, true)
-                                                }
-                                            />
-                                            {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
-                                        </FormGroup>
-                                    </Col>
-                                    <Col md={3}>
-                                        <Label>
                                             Giá 1 số nước
                                         </Label>
                                     </Col>
@@ -766,12 +725,34 @@ const ModalDetailContract = (props) => {
                                                 placeholder="Giá nước"
                                                 disabled={_dataSelect.status == 0}
                                                 type="text"
-                                                value={dataAdd?.water_price}
+                                                value={dataAdd.water_price ? dataAdd.water_price.toLocaleString() : ""}
                                                 onChange={(e) =>
                                                     onChangeData("water_price", e.target.value, true)
                                                 }
                                             />
                                             {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={3}>
+                                        <Label>
+                                            Giá 1 số điện
+                                        </Label>
+                                    </Col>
+                                    <Col md={3}>
+                                        <FormGroup>
+                                            <Input
+                                                id="electric_price"
+                                                name="electric_price"
+                                                error={errorForm.electric_price?.error}
+                                                placeholder="Giá điện"
+                                                type="text"
+                                                disabled={_dataSelect.status == 0}
+                                                value={dataAdd.electric_price ? dataAdd.electric_price.toLocaleString() : ""}
+                                                onChange={(e) =>
+                                                    onChangeData("electric_price", e.target.value, true)
+                                                }
+                                            />
+                                            {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
                                         </FormGroup>
                                     </Col>
                                 </Row>
@@ -792,7 +773,7 @@ const ModalDetailContract = (props) => {
                                                 placeholder="Giá phòng"
                                                 disabled={_dataSelect.status == 0}
                                                 type="text"
-                                                value={dataAdd?.room_price}
+                                                value={dataAdd.room_price ? dataAdd.room_price.toLocaleString() : ''}
                                                 onChange={(e) =>
                                                     onChangeData("room_price", e.target.value, true)
                                                 }
@@ -817,7 +798,8 @@ const ModalDetailContract = (props) => {
                                                 id="start_water_number"
                                                 name="start_water_number"
                                                 error={errorForm.start_water_number?.error}
-                                                placeholder="Số điện"
+                                                placeholder="Số nước"
+                                                disabled={_dataSelect.status == 0}
                                                 type="text"
                                                 value={dataAdd.start_water_number}
                                                 onChange={(e) =>
@@ -838,7 +820,8 @@ const ModalDetailContract = (props) => {
                                                 id="start_electric_number"
                                                 name="start_electric_number"
                                                 error={errorForm.start_electric_number?.error}
-                                                placeholder="Số nước"
+                                                placeholder="Số điện"
+                                                disabled={_dataSelect.status == 0}
                                                 type="text"
                                                 value={dataAdd.start_electric_number}
                                                 onChange={(e) =>
@@ -983,7 +966,7 @@ const ModalDetailContract = (props) => {
                             <Col md={9}>
                             </Col>
                             <Col md={3}>
-                                <span>Tổng cộng: {calc_total_price_done()}</span>
+                                <span>Tổng cộng: {calc_total_price().toLocaleString()} đ</span>
                             </Col>
                         </Row>
                     </TabPanel>

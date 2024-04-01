@@ -52,15 +52,17 @@ const ModalAddBill = (props) => {
 	}
 
     const calc_total_price_done = () => {
-        return (dataAdd?.other_price || []).reduce((total, item) => {
+        let result = (dataAdd?.other_price || []).reduce((total, item) => {
             return total + item.price * item.number
         }, 0)
+        return result
     }
 
     const calc_total_money = () => {
-        return (((dataAdd.water_number - dataAdd.last_water_number) * dataAdd.water_price) 
+        let result = (((dataAdd.water_number - dataAdd.last_water_number) * dataAdd.water_price) 
             + ((dataAdd.electric_number - dataAdd.last_electric_number) * dataAdd.electric_price) + calc_total_price_done() 
             + dataAdd.room_price + dataAdd.cost_incurred - dataAdd.discount) || "---"
+        return result
     }
 
     const get_contract_data = async () => {
@@ -217,7 +219,7 @@ const ModalAddBill = (props) => {
                         disabled
                         className="form-control text-center"
                         placeholder="SL"
-                        value={item.price}
+                        value={item.price.toLocaleString()}
                         min={1}
                     />
                 </TableCell>
@@ -380,7 +382,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Số nước"
                                         type="text"
                                         disabled
-                                        value={dataAdd.water_price || "---"}
+                                        value={dataAdd.water_price ? dataAdd?.water_price.toLocaleString() : "---"}
                                         onChange={(e) =>
                                             onChangeData("water_price", e.target.value, true)
                                         }
@@ -397,7 +399,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Số nước"
                                         type="text"
                                         disabled
-                                        value={((dataAdd.water_number - dataAdd.last_water_number) * dataAdd.water_price) || '---'}
+                                        value={dataAdd.contract ? ((dataAdd.water_number - dataAdd.last_water_number) * dataAdd.water_price).toLocaleString() : '---'}
                                         onChange={(e) =>
                                             onChangeData("total_water_price", e.target.value, true)
                                         }
@@ -472,7 +474,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Số điện"
                                         type="text"
                                         disabled
-                                        value={dataAdd.electric_price || "---"}
+                                        value={dataAdd.electric_price ? dataAdd?.electric_price.toLocaleString() : "---"}
                                         onChange={(e) =>
                                             onChangeData("electric_price", e.target.value, true)
                                         }
@@ -489,7 +491,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Số điện"
                                         type="text"
                                         disabled
-                                        value={((dataAdd.electric_number - dataAdd.last_electric_number) * dataAdd.electric_price) || '---'}
+                                        value={dataAdd.contract ? ((dataAdd.electric_number - dataAdd.last_electric_number) * dataAdd.electric_price).toLocaleString() : '---'}
                                         onChange={(e) =>
                                             onChangeData("total_electric_price", e.target.value, true)
                                         }
@@ -544,7 +546,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Giá phòng"
                                         type="text"
                                         disabled
-                                        value={dataAdd.room_price || "---"}
+                                        value={dataAdd.room_price ? dataAdd.room_price.toLocaleString() : "---"}
                                         onChange={(e) =>
                                             onChangeData("room_price", e.target.value, true)
                                         }
@@ -568,7 +570,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Giá dịch vụ"
                                         type="text"
                                         disabled
-                                        value={calc_total_price_done() || "---"}
+                                        value={calc_total_price_done().toLocaleString() || "---"}
                                         onChange={(e) =>
                                             onChangeData("other_price", e.target.value, true)
                                         }
@@ -591,7 +593,7 @@ const ModalAddBill = (props) => {
                                         error={errorForm.cost_incurred?.error}
                                         placeholder="Giá dịch vụ"
                                         type="text"
-                                        value={dataAdd.cost_incurred || 0}
+                                        value={dataAdd.cost_incurred.toLocaleString() || 0}
                                         onChange={(e) =>
                                             onChangeData("cost_incurred", e.target.value, true)
                                         }
@@ -614,7 +616,7 @@ const ModalAddBill = (props) => {
                                         error={errorForm.discount?.error}
                                         placeholder="Giảm giá"
                                         type="text"
-                                        value={dataAdd.discount || 0}
+                                        value={dataAdd.discount.toLocaleString() || 0}
                                         onChange={(e) =>
                                             onChangeData("discount", e.target.value, true)
                                         }
@@ -659,7 +661,7 @@ const ModalAddBill = (props) => {
                                         placeholder="Tổng tiền"
                                         type="text"
                                         disabled
-                                        value={calc_total_money()}
+                                        value={calc_total_money().toLocaleString() || "---"}
                                         onChange={(e) =>
                                             onChangeData("total", e.target.value, true)
                                         }

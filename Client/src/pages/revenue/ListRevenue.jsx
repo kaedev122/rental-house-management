@@ -233,7 +233,8 @@ const ListReport = () => {
 		{ field: 'contract', headerName: 'Hợp đồng', flex: 1,            
             valueGetter: (params) => `${params.row.contract.code}`
         },		
-		{ field: 'money', headerName: 'Số tiền', width: 100, flex: 1 },
+        { field: 'money', headerName: 'Số tiền', width: 100, flex: 1, 
+            valueGetter: (params) => `${params.row.money.toLocaleString()} đ`},
         { field: 'createdAt', headerName: 'Ngày thu', width: 100, flex: 1, 
             renderCell: (params) => (
                 <div>
@@ -249,13 +250,6 @@ const ListReport = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span className='header-text'>Quản lý doanh thu</span>
-                        <Button
-                            onClick={() => toggle_modal_add()}
-                            disabled={!apartmentCurrent}
-                            className=''
-                        >
-                            Thêm mới +
-                        </Button>
                     </div>
                     <div className='float-end'>
 

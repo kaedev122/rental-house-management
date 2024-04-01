@@ -355,7 +355,17 @@ const ModalAddContract = (props) => {
                     {item.name}
                 </TableCell>
                 <TableCell align="left">
-                    {item.price}
+                    <Input
+                        id="number"
+                        name="number"
+                        type="text"
+                        disabled={!isItemSelected}
+                        className="form-control text-center"
+                        placeholder="SL"
+                        value={(item?.price || 0).toLocaleString()}
+                        min={0}
+                        onChange={(e) => onChangeDataPrice(e.target.value, index)}
+                    />
                 </TableCell>
                 <TableCell align="left">
                     <Input
@@ -379,6 +389,18 @@ const ModalAddContract = (props) => {
             </TableRow>)
         })
     }
+
+    const onChangeDataPrice = (value, index) => {
+        if (is_empty(value)) {
+            let list = [...listService]
+            list[index].price = 0;
+            return setListService(list)
+        }
+        const result = value.replace(/\D/g, "");
+        let list = [...listService]
+        list[index].price = parseInt(result);
+        setListService(list)
+    };
 
 	const render_service_action = (item) => {
         return (<div>
@@ -562,7 +584,7 @@ const ModalAddContract = (props) => {
                                                 error={errorForm.deposit_money?.error}
                                                 placeholder="Tiền đặt cọc"
                                                 type="text"
-                                                value={dataAdd.deposit_money}
+                                                value={dataAdd.deposit_money ? dataAdd.deposit_money.toLocaleString() : ""}
                                                 onChange={(e) =>
                                                     onChangeData("deposit_money", e.target.value, true)
                                                 }
@@ -602,27 +624,6 @@ const ModalAddContract = (props) => {
                                 <Row>
                                     <Col md={3}>
                                         <Label>
-                                            Giá 1 số điện
-                                        </Label>
-                                    </Col>
-                                    <Col md={3}>
-                                        <FormGroup>
-                                            <Input
-                                                id="electric_price"
-                                                name="electric_price"
-                                                error={errorForm.electric_price?.error}
-                                                placeholder="Giá điện"
-                                                type="text"
-                                                value={dataAdd.electric_price}
-                                                onChange={(e) =>
-                                                    onChangeData("electric_price", e.target.value, true)
-                                                }
-                                            />
-                                            {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
-                                        </FormGroup>
-                                    </Col>
-                                    <Col md={3}>
-                                        <Label>
                                             Giá 1 số nước
                                         </Label>
                                     </Col>
@@ -634,12 +635,33 @@ const ModalAddContract = (props) => {
                                                 error={errorForm.water_price?.error}
                                                 placeholder="Giá nước"
                                                 type="text"
-                                                value={dataAdd.water_price}
+                                                value={dataAdd.water_price ? dataAdd.water_price.toLocaleString() : ""}
                                                 onChange={(e) =>
                                                     onChangeData("water_price", e.target.value, true)
                                                 }
                                             />
                                             {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={3}>
+                                        <Label>
+                                            Giá 1 số điện
+                                        </Label>
+                                    </Col>
+                                    <Col md={3}>
+                                        <FormGroup>
+                                            <Input
+                                                id="electric_price"
+                                                name="electric_price"
+                                                error={errorForm.electric_price?.error}
+                                                placeholder="Giá điện"
+                                                type="text"
+                                                value={dataAdd.electric_price ? dataAdd.electric_price.toLocaleString() : ""}
+                                                onChange={(e) =>
+                                                    onChangeData("electric_price", e.target.value, true)
+                                                }
+                                            />
+                                            {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
                                         </FormGroup>
                                     </Col>
                                 </Row>
@@ -659,7 +681,7 @@ const ModalAddContract = (props) => {
                                                 error={errorForm.room_price?.error}
                                                 placeholder="Giá phòng"
                                                 type="text"
-                                                value={dataAdd.room_price}
+                                                value={dataAdd.room_price ? dataAdd.room_price.toLocaleString() : ''}
                                                 onChange={(e) =>
                                                     onChangeData("room_price", e.target.value, true)
                                                 }
@@ -684,7 +706,7 @@ const ModalAddContract = (props) => {
                                                 id="start_water_number"
                                                 name="start_water_number"
                                                 error={errorForm.start_water_number?.error}
-                                                placeholder="Số điện"
+                                                placeholder="Số nước"
                                                 type="text"
                                                 value={dataAdd.start_water_number}
                                                 onChange={(e) =>
@@ -705,7 +727,7 @@ const ModalAddContract = (props) => {
                                                 id="start_electric_number"
                                                 name="start_electric_number"
                                                 error={errorForm.start_electric_number?.error}
-                                                placeholder="Số nước"
+                                                placeholder="Số điện"
                                                 type="text"
                                                 value={dataAdd.start_electric_number}
                                                 onChange={(e) =>
@@ -830,7 +852,7 @@ const ModalAddContract = (props) => {
 
                             </Col>
                             <Col md={3}>
-                                <span>Tổng cộng: {calc_total_price()}</span>
+                                <span>Tổng cộng: {calc_total_price().toLocaleString()} đ</span>
                             </Col>
                         </Row>
                     </TabPanel>

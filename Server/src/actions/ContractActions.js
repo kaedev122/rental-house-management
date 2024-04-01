@@ -209,8 +209,8 @@ export const list = async ({
     query: {
         status = 1,
         apartment,
-        page = 1,
-        limit = 10,
+        page,
+        limit,
     }, 
     user 
 }) => {

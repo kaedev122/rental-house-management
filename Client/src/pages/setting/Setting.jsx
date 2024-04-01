@@ -135,9 +135,16 @@ const Setting = () => {
         })
     }
 
-	const onChangeData = (type, value) => {
+	const onChangeData = (type, value, number) => {
         console.log(value)
         setErrorForm({})
+        if (number) {
+			const result = value.replace(/\D/g, "");
+			return setDataAdd({
+				...dataAdd,
+				[type]: parseInt(result) || '',
+			});
+		}
 		return setDataAdd({
 			...dataAdd,
 			[type]: value
@@ -164,7 +171,9 @@ const Setting = () => {
     const columns = [
 		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
 		{ field: 'name', headerName: 'Tên dịch vụ', flex: 1 },
-		{ field: 'price', headerName: 'Giá', flex: 1 },
+		{ field: 'price', headerName: 'Giá', flex: 1, 
+            valueGetter: (params) => `${params.row.price.toLocaleString()} đ`
+        },
         { field: 'action', headerName: 'Hành động', width: 100, align: "center",
             renderCell: (params) => (
                 <div>
@@ -296,9 +305,9 @@ const Setting = () => {
                                                     placeholder="Giá điện"
                                                     disabled={!apartmentCurrent}
                                                     type="text"
-                                                    value={dataAdd.electric_price}
+                                                    value={dataAdd.electric_price ? dataAdd.electric_price.toLocaleString() : ""}
                                                     onChange={(e) =>
-                                                        onChangeData("electric_price", e.target.value)
+                                                        onChangeData("electric_price", e.target.value, true)
                                                     }
                                                 />
                                                 {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
@@ -320,9 +329,9 @@ const Setting = () => {
                                                     placeholder="Giá nước"
                                                     disabled={!apartmentCurrent}
                                                     type="text"
-                                                    value={dataAdd.water_price}
+                                                    value={dataAdd.water_price ? dataAdd.water_price.toLocaleString() : ""}
                                                     onChange={(e) =>
-                                                        onChangeData("water_price", e.target.value)
+                                                        onChangeData("water_price", e.target.value, true)
                                                     }
                                                 />
                                                 {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}

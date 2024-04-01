@@ -122,7 +122,7 @@ const ModalDetailService = (props) => {
                         fullWidth={true}
                         label="Giá dịch vụ"
                         type="text"
-                        value={dataAdd.price}
+                        value={dataAdd.price ? dataAdd.price.toLocaleString() : ""}
                         onChange={(e) =>
                             onChangeData("price", e.target.value, true)
                         }

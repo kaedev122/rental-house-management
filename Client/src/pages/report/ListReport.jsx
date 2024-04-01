@@ -16,10 +16,7 @@ import { BsPersonCircle, BsLightningChargeFill } from "react-icons/bs";
 import { FaDollarSign, FaHandshakeSimple, FaHandshakeSimpleSlash, FaDoorClosed } from "react-icons/fa6";
 import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
-import ModalAddBill from './ModalAddBill';
-import ModalDetailBill from './ModalDetailBill';
-import ModalPayBill from './ModalPayBill';
-import "./bill.scss";
+import "./revenue.scss";
 import { useSnackbar } from 'notistack';
 import { TabContext, TabList, TabPanel } from '@mui/lab'
 import { Box, Tab, Grid, Stack } from '@mui/material'
@@ -29,7 +26,7 @@ import { FaEdit } from "react-icons/fa";
 import { format_full_time } from '@utils/format_time';
 import { Paginations, SearchBar } from "@components"
 
-const ListBill = () => {
+const ListRevenue = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
 	const timer = useRef()
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -41,6 +38,7 @@ const ListBill = () => {
 	const [totalPages, setTotalPage] = useState(0);
 
     const [dataAdd, setDataAdd] = useState({})
+    const [totalRevenue, setTotalRevenue] = useState({})
     const [dataSelect, setDataSelect] = useState({})
     const [dataSearch, setDataSearch] = useState({
         apartment: apartmentCurrent,
@@ -94,7 +92,7 @@ const ListBill = () => {
 
     useEffect(() => {
         if (apartmentCurrent) {
-            get_list_contract({
+            get_list_revenue({
                 ...dataSearch,
                 "apartment": apartmentCurrent,
                 "page": page,
@@ -112,7 +110,7 @@ const ListBill = () => {
 
 	const search_data_input = async (data_input) => {
 		setDataSearch(data_input)
-		return await get_list_contract(data_input)
+		return await get_list_revenue(data_input)
 	}
 
     const search_type = async (type, value) => {
@@ -131,19 +129,36 @@ const ListBill = () => {
 		}
 		return new_list[0]?.text
 	}
-    const get_list_contract = async (dataInput) => {
+    const get_list_revenue = async (dataInput) => {
         let input = {
             ...dataInput,
             "limit": size
         }
-        const res = await http_request({method: "GET", url:"cms/bills", params: input})
+
+        const res = await http_request({method: "GET", url:"cms/revenues", params: input})
 		const { code, data, message } = res
         if (code == 200) {
+            console.log(data)
             setDataTable(data.items)
             setDataAdd(data)
             setTotalRecord(data.total)
             setTotalPage(data.totalPages)
-            return true
+            return get_total_revenue()
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
+    const get_total_revenue = async () => {
+        let input = {
+            apartment: apartmentCurrent
+        }
+        const res = await http_request({method: "GET", url:"cms/revenue-total", params: input})
+		const { code, data, message } = res
+        if (code == 200) {
+            return setTotalRevenue(data)
         }
         return enqueueSnackbar(message, {
             variant: "error",
@@ -167,7 +182,7 @@ const ListBill = () => {
 		setModalAdd(false)
 		setModalDetail(false)
 		setModalPay(false)
-        return get_list_contract({
+        return get_list_revenue({
             ...dataSearch,
 			"apartment": apartmentCurrent,
 			"page": 1,
@@ -212,36 +227,17 @@ const ListBill = () => {
 
     const columns = [
 		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
-		{ field: 'code', headerName: 'Mã hóa đơn', width: 100, flex: 1 },
-		{ field: 'name', headerName: 'Phòng', flex: 1,
-            valueGetter: (params) => `${params.row.room.name}`
+		{ field: 'bill', headerName: 'Hóa đơn', flex: 1,
+            valueGetter: (params) => `${params.row.bill.code}`
         },
 		{ field: 'contract', headerName: 'Hợp đồng', flex: 1,            
             valueGetter: (params) => `${params.row.contract.code}`
         },		
-        { field: 'water_number', headerName: 'Số nước cuối', width: 100, flex: 1, },
-		{ field: 'electric_number', headerName: 'Số điện cuối', width: 100, flex: 1 },
-		{ field: 'total', headerName: 'Tổng tiền', width: 100, flex: 1 },
-		{ field: 'status', headerName: 'Trạng thái', width: 200, align: "center",
+		{ field: 'money', headerName: 'Số tiền', width: 100, flex: 1 },
+        { field: 'createdAt', headerName: 'Ngày thu', width: 100, flex: 1, 
             renderCell: (params) => (
                 <div>
-                    {render_status(params.row.status)}
-                </div>
-            ),	
-        },
-        { field: 'payment_status', headerName: 'Thanh toán', width: 200, align: "center",
-            renderCell: (params) => (
-                <div
-                    onClick={() => open_pay(params.row)}
-                >
-                    {render_payment_status(params.row.payment_status)}
-                </div>
-        ),	
-    },
-        { field: 'action', headerName: 'Hành động', width: 100, align: "center",
-            renderCell: (params) => (
-                <div>
-                    {render_action(params.row)}
+                    {format_full_time(params.row.createdAt)}
                 </div>
             ),	
         },
@@ -347,27 +343,7 @@ const ListBill = () => {
                 />
             </CardFooter>
         </Card>
-
-        {modalAdd && <ModalAddBill
-            _modal={modalAdd}
-            _toggleModal={toggle_modal_add}
-            _done_action={done_action}
-        />}
-
-        {modalDetail && <ModalDetailBill
-            _modal={modalDetail}
-            _toggleModal={toggle_modal_detail}
-            _done_action={done_action}
-            _dataSelect={dataSelect}
-        />}
-
-        {modalPay && <ModalPayBill
-            _modal={modalPay}
-            _toggleModal={toggle_modal_pay}
-            _done_action={done_action}
-            _dataSelect={dataSelect}
-        />}
     </div>)
 }
 
-export default ListBill
+export default ListRevenue

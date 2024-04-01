@@ -11,12 +11,12 @@ export const create = async ({ body, user }) => {
     let validate = await CustomerValidation.create.validateAsync(body)
     validate.name_search = Utils.convertVietnameseString(validate.fullname)
 
-    let phoneExist = await Customer.findOne({
-        phone: validate.phone,
-        status: {$ne: 0},
-        apartment: validate.apartment
-    }).lean()
-    if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
+    // let phoneExist = await Customer.findOne({
+    //     phone: validate.phone,
+    //     status: {$ne: 0},
+    //     apartment: validate.apartment
+    // }).lean()
+    // if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
 
     if (validate.id_number) {
         let id_numberExist = await Customer.findOne({
@@ -53,15 +53,15 @@ export const update = async ({ body, user, params }) => {
 
     if (validate.fullname) validate.name_search = Utils.convertVietnameseString(validate.fullname)
 
-    if (validate.phone) {
-        let phoneExist = await Customer.findOne({
-            _id: {$ne: id},
-            phone: validate.phone,
-            status: {$ne: 0},
-            apartment: oldCustomer.apartment
-        }).lean()
-        if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
-    }
+    // if (validate.phone) {
+    //     let phoneExist = await Customer.findOne({
+    //         _id: {$ne: id},
+    //         phone: validate.phone,
+    //         status: {$ne: 0},
+    //         apartment: oldCustomer.apartment
+    //     }).lean()
+    //     if (phoneExist) throw new ExistDataError(`Số điện thoại này đã tồn tại!`)
+    // }
 
     if (validate.id_number) {
         let id_numberExist = await Customer.findOne({

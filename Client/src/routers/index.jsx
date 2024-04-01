@@ -5,7 +5,7 @@ import { FallbackSpinner } from '@components'
 
 const CmsRouter = lazy(() => import('./CmsRouter'))
 const Login = lazy(() => import('@pages/login'))
-const Home = lazy(() => import('@pages/home'))
+// const Home = lazy(() => import('@pages/home'))
 const ResetPassword= lazy(() => import('@pages/recoveryPassword/ResetPassword'))
 const Recovery = lazy(() => import('@pages/recoveryPassword/Recovery'))
 const Register = lazy(() => import('@pages/register/Register'))

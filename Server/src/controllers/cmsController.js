@@ -7,6 +7,7 @@ import * as ContractActions from '../actions/ContractActions.js';
 import * as CustomerActions from '../actions/CustomerActions.js';
 import * as ServiceActions from '../actions/ServiceActions.js';
 import * as BillActions from '../actions/BillActions.js';
+import * as RevenueActions from '../actions/RevenueActions.js';
 import { verify } from '../middlewares/verifyMiddleware.js';
 const router = express.Router();
 
@@ -65,5 +66,9 @@ router.get('/bills', verify(), handleRequest(BillActions.list))
 router.get('/bill/:id', verify(), handleRequest(BillActions.get))
 router.delete('/bill/:id', verify(), handleRequest(BillActions.remove))
 router.post('/pay-bill/:id', verify(), handleRequest(BillActions.payBill))
+
+//Revenue
+router.get('/revenues', verify(), handleRequest(RevenueActions.list))
+router.get('/revenue-total', verify(), handleRequest(RevenueActions.total))
 
 export default router;

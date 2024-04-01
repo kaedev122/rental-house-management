@@ -43,14 +43,14 @@ const ModalDetailCustomer = (props) => {
 				}
 			})
 		}
-        if (is_empty(dataAdd.phone)) {
-			return setErrorForm({
-				"phone": {
-					"error": true,
-					"message": "Không được để trống!"
-				}
-			})
-		}
+        // if (is_empty(dataAdd.phone)) {
+		// 	return setErrorForm({
+		// 		"phone": {
+		// 			"error": true,
+		// 			"message": "Không được để trống!"
+		// 		}
+		// 	})
+		// }
         let input = {
             ...dataAdd,
             apartment: apartmentCurrent,
@@ -175,7 +175,7 @@ const ModalDetailCustomer = (props) => {
                                 fullWidth={true}
                                 label="Số điện thoại liên hệ"
                                 type="text"
-                                required
+                                // required
                                 defaultValue={dataAdd.phone}
                                 onChange={(e) =>
                                     onChangeData("phone", e.target.value)

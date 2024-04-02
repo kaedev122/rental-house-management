@@ -26,6 +26,7 @@ import { Box, Tab, Grid, Stack } from '@mui/material'
 import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
+import AddIcon from '@mui/icons-material/Add';
 
 const ListCustomer = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -206,16 +207,17 @@ const ListCustomer = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span className='header-text'>Quản lý khách thuê</span>
+                    </div>
+                    <div className='float-end'>
                         <Button
                             onClick={() => toggle_modal_add()}
                             className=''
-                            disabled={!apartmentCurrent}
+                            disabled={!apartmentCurrent}                            
+                            variant="contained"
+                            endIcon={<AddIcon />}
                         >
-                            Thêm mới +
+                            Thêm mới
                         </Button>
-                    </div>
-                    <div className='float-end'>
-
                     </div>
                 </div>
             </CardHeader>

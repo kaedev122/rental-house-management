@@ -64,7 +64,7 @@ router.post('/bill/', verify(), handleRequest(BillActions.create))
 router.put('/bill/:id', verify(), handleRequest(BillActions.update))
 router.get('/bills', verify(), handleRequest(BillActions.list))
 router.get('/bill/:id', verify(), handleRequest(BillActions.get))
-router.delete('/bill/:id', verify(), handleRequest(BillActions.remove))
+router.delete('/bill/:id', verify(), handleRequest(BillActions.closeBill))
 router.post('/pay-bill/:id', verify(), handleRequest(BillActions.payBill))
 
 //Revenue

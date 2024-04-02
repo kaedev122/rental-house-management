@@ -258,3 +258,13 @@ export const get = async ({ body, user, params }) => {
         ...data,
     }
 }
+
+export const closeBill = async ({ body, user, params }) => {
+    const { id } = params
+    if (!id) throw new ParamError("Thiếu id")
+    let oldBill = await Bill.findById(id).lean()
+    if (!oldBill) throw new NotFoundError(`Không tìm thấy hóa đơn!`)
+    if (oldBill.status == 0) throw new PermissionError("Hóa đơn đã đóng!")
+    await Bill.findByIdAndUpdate(id, { status: 0 })
+    return true
+}

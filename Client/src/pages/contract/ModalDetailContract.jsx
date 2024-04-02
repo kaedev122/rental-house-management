@@ -35,6 +35,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { ModalDialog } from '@components'
+import AddIcon from '@mui/icons-material/Add';
 
 const ModalDetailContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _customersData, _dataSelect, _services, _servicesData } = props;
@@ -66,6 +68,8 @@ const ModalDetailContract = (props) => {
 
     const [startDate, setStartDate] = useState(new Date(_dataSelect.date_start));
     const [endDate, setEndDate] = useState(new Date(_dataSelect.date_end));
+
+    const [openDialog, setOpenDialog] = useState(false)
 
     const [modalAddCustomer, setModalAddCustomer] = useState(false);
     const toggle_modal_add_customer = () => {
@@ -253,6 +257,8 @@ const ModalDetailContract = (props) => {
             date_start: startDate,
             date_end: endDate,
             customer_represent: represent,
+            start_water_number: dataAdd.start_water_number,
+            start_electric_number: dataAdd.start_electric_number,
             other_price: JSON.stringify(other_price)
         }
         console.log(input.customers)
@@ -513,6 +519,11 @@ const ModalDetailContract = (props) => {
         },
 	]
 
+    const confirm_close_contract = () => {
+        setOpenDialog(false)
+        return onEndContract()
+    }
+
     return (<Fragment>
         <Modal 				
             isOpen={_modal}
@@ -559,14 +570,19 @@ const ModalDetailContract = (props) => {
                     </Box>
                     <TabPanel index={1} key={"1"} value={"1"}>
                         <Row>
-                            <div>
-                                <Label>Danh sách khách thuê</Label>
-                                {_dataSelect.status == 1 && <Button
+                            <Col md={6}>
+                                <Label className='me-2'>Chọn khách thuê</Label>
+                                <Button
                                     onClick={() => toggle_modal_add_customer()}
+                                    endIcon={<AddIcon />} 
+                                    size="small"
                                 >
-                                    Thêm mới +
-                                </Button>}
-                            </div>
+                                    Thêm mới
+                                </Button>
+                            </Col>
+                            <Col md={6}>
+                                <Label>Danh sách khách thuê</Label>
+                            </Col>
                         </Row>
 
                         {_dataSelect.status == 1 ? <Row>
@@ -906,8 +922,10 @@ const ModalDetailContract = (props) => {
                                     <Label>Danh sách dịch vụ</Label>
                                     {_dataSelect.status == 1 && <Button
                                         onClick={() => toggle_modal_add_service()}
+                                        endIcon={<AddIcon />} 
+                                        size="small"
                                     >
-                                        Thêm mới +
+                                        Thêm mới
                                     </Button>}
                                 </div>
                             </Row>
@@ -978,7 +996,7 @@ const ModalDetailContract = (props) => {
                         className="btn-custom save"
                         variant="contained"
                         color='error'
-                        onClick={() => onEndContract()}
+                        onClick={() => setOpenDialog(true)}
                     >
                         Kết thúc hợp đồng
                     </Button>
@@ -1024,6 +1042,16 @@ const ModalDetailContract = (props) => {
             _toggleModal={toggle_modal_detail_customer}
             _done_action={done_action}
             _dataSelect={customerRow}
+        />}
+
+        {openDialog && <ModalDialog
+            title='Kết thúc hợp đồng'
+            message='Bạn có muốn kết thúc hợp đồng này? Hành động này sẽ không thể hoàn tác!'
+            open={openDialog}
+            confirm={() => {
+                confirm_close_contract()
+            }}
+            cancel={() => setOpenDialog(false)}
         />}
     </Fragment>)
 }

@@ -12,14 +12,21 @@ import { IoStatsChartSharp, IoLogOut, IoHomeSharp  } from "react-icons/io5";
 import { set_apartment_list, set_apartment_curent } from '@redux/apartmentSlice'
 import { FaPerson } from "react-icons/fa6";
 import { GrMoney } from "react-icons/gr";
+import { ModalDialog } from '@components'
 
 const HeaderNavbar = (props) => {
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
   const [apartment, setApartment] = useState(apartmentCurent);
   const [listApartment, setListApartment] = useState([]);
+  const [openDialog, setOpenDialog] = useState(false)
 
 	const dispatch = useDispatch()
 	const location = useLocation();
+
+  const confirm_logout = () => {
+    setOpenDialog(false)
+    return logout()
+}
 
 	useEffect(()=> {
 		get_data_store()
@@ -202,7 +209,7 @@ const HeaderNavbar = (props) => {
               variant="contained"
               color="primary"
               className="d-flex flex-row align-items-center btn-logout" 
-              onClick={() => logout()}>
+              onClick={() => setOpenDialog(true)}>
               <i className="d-flex flex-row">
                 <IoLogOut />
               </i>
@@ -211,6 +218,16 @@ const HeaderNavbar = (props) => {
           </NavItem>
         </div>
       </Navbar>
+
+      {openDialog && <ModalDialog
+          title='Đăng xuất'
+          message='Bạn có muốn đăng xuất?'
+          open={openDialog}
+          confirm={() => {
+              confirm_logout()
+          }}
+          cancel={() => setOpenDialog(false)}
+      />}
     </React.Fragment>
   );
 };

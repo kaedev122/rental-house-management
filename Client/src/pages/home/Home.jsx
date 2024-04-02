@@ -32,6 +32,7 @@ import moment from 'moment-timezone';
 import 'moment/locale/vi'; 
 moment().tz("Asia/Ho_Chi_Minh").format();
 moment.locale('vi')
+import AddIcon from '@mui/icons-material/Add';
 
 const Home = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -342,14 +343,15 @@ const Home = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span className='header-text'>Quản trị chung</span>
-                        {apartmentCurrent && (<Button
-                            onClick={() => toggle_modal_add_group()}
-                            className=''
-                        >
-                            Thêm mới +
-                        </Button>)}
                     </div>
                     <div className='float-end'>
+                        {apartmentCurrent && (<Button
+                            onClick={() => toggle_modal_add_group()}
+                            variant="contained"
+                            endIcon={<AddIcon />}
+                        >
+                            Thêm mới
+                        </Button>)}
                         <Button
                             onClick={() => toggle_sort()}
                         >

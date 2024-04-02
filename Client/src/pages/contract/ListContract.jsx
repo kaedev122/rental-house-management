@@ -27,6 +27,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
 import { format_full_time } from '@utils/format_time';
 import { Paginations, SearchBar } from "@components"
+import AddIcon from '@mui/icons-material/Add';
 
 const ListContract = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -234,16 +235,17 @@ const ListContract = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span className='header-text'>Quản lý hợp đồng</span>
+                    </div>
+                    <div className='float-end'>
                         <Button
                             onClick={() => toggle_modal_add()}
                             disabled={!apartmentCurrent}
-                            className=''
+                            className=''                            
+                            variant="contained"
+                            endIcon={<AddIcon />}
                         >
-                            Thêm mới +
+                            Thêm mới
                         </Button>
-                    </div>
-                    <div className='float-end'>
-
                     </div>
                 </div>
             </CardHeader>

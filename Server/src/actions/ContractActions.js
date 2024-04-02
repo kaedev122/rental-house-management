@@ -186,8 +186,8 @@ export const endContract = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError("Thiếu id")
     let oldContract = await Contract.findById(id).lean()
-    if (!oldContract) throw new NotFoundError(`Không tìm hợp đồng!`)
-    if (oldContract.status == 0) throw new PermissionError("Hợp đồng đã đóng")
+    if (!oldContract) throw new NotFoundError(`Không tìm thấy hợp đồng!`)
+    if (oldContract.status == 0) throw new PermissionError("Hợp đồng đã đóng!")
 
     await Promise.all([
         Contract.findByIdAndUpdate(id, { status: 0 }, {new: true}),

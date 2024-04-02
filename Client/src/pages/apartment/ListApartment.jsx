@@ -26,6 +26,7 @@ import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
 import { format_full_time } from '@utils/format_time';
+import AddIcon from '@mui/icons-material/Add';
 
 const ListApartment = () => {
 	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -130,14 +131,16 @@ const ListApartment = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span className='header-text'>Quản lý nhà trọ</span>
+                    </div>
+                    <div className='float-end'>
                         <Button
                             onClick={() => toggle_modal_add()}
                             className=''
+                            variant="contained"
+                            endIcon={<AddIcon />}
                         >
-                            Thêm mới +
+                            Thêm mới
                         </Button>
-                    </div>
-                    <div className='float-end'>
                         <Button
                             onClick={() => toggle_sort()}
                         >

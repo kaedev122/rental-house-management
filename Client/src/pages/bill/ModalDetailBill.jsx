@@ -16,6 +16,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import ModalPayBill from './ModalPayBill';
+import { ModalDialog } from '@components'
 
 const ModalDetailBill = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
@@ -23,6 +24,7 @@ const ModalDetailBill = (props) => {
 
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [openDialog, setOpenDialog] = useState(false)
 
     const [listContract, setListContract] = useState([])
     const [contractSelected, setContractSelected] = useState(_dataSelect.contract._id)
@@ -108,6 +110,29 @@ const ModalDetailBill = (props) => {
         })
     }
 
+    const onEndBill = async () => {
+		const res = await http_request({ method: "DELETE", url: `cms/bill/${_dataSelect._id}`})
+		const { code, data, message } = res
+        if (is_empty(res)) {
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+		}
+        if (code === 200) {
+            enqueueSnackbar("Đóng thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return _done_action()
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
+    
 	const onChangeData = (type, value, isNumber) => {
         setErrorForm({})
         if (isNumber) {
@@ -128,17 +153,14 @@ const ModalDetailBill = (props) => {
 			[type]: value
 		})
 	}
-    const [modalPay, setModalPay] = useState(false);
-    const toggle_modal_pay = () => {
-        return setModalPay(!modalPay)
-    }
-    
-    const open_pay_modal = () => {
-        toggle_modal_pay()
-    }
 
     const done_action = () => {
 
+    }
+
+    const confirm_close_bill = () => {
+        setOpenDialog(false)
+        return onEndBill()
     }
 
     const render_service_done = () => {
@@ -660,23 +682,38 @@ const ModalDetailBill = (props) => {
                     </Col>
                 </Row>
             </ModalBody>
-            <ModalFooter>
-                <Button className="btn-custom cancel" onClick={_toggleModal}>
-                    Hủy bỏ
-                </Button>
-                <Button
-                    className="btn-custom save"
-                    variant="contained"
-                    onClick={onSubmit}
-                >Lưu</Button>
+            <ModalFooter className='justify-content-between'>
+                <div>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        color='error'
+                        onClick={() => setOpenDialog(true)}
+                    >
+                        Đóng hóa đơn
+                    </Button>
+                </div>
+                <div>
+                    <Button className="btn-custom cancel" onClick={_toggleModal}>
+                        Hủy bỏ
+                    </Button>
+                    <Button
+                        className="btn-custom save"
+                        variant="contained"
+                        onClick={onSubmit}
+                    >Lưu</Button>
+                </div>
             </ModalFooter>
         </Modal>
 
-        {modalPay && <ModalPayBill
-            _modal={modalPay}
-            _toggleModal={toggle_modal_pay}
-            _done_action={done_action}
-            _dataSelect={dataSelect}
+        {openDialog && <ModalDialog
+            title='Đóng hóa đơn'
+            message='Bạn có muốn đóng hóa đơn này? Hành động này sẽ không thể hoàn tác!'
+            open={openDialog}
+            confirm={() => {
+                confirm_close_bill()
+            }}
+            cancel={() => setOpenDialog(false)}
         />}
     </Fragment>)
 }

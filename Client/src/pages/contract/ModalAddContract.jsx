@@ -35,6 +35,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import AddIcon from '@mui/icons-material/Add';
 
 const ModalAddContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _room_selected } = props;
@@ -499,14 +500,19 @@ const ModalAddContract = (props) => {
                     </Box>
                     <TabPanel index={1} key={"1"} value={"1"}>
                         <Row>
-                            <div>
-                                <Label>Danh sách khách thuê</Label>
+                            <Col md={6}>
+                                <Label className='me-2'>Chọn khách thuê</Label>
                                 <Button
                                     onClick={() => toggle_modal_add_customer()}
+                                    endIcon={<AddIcon />} 
+                                    size="small"
                                 >
-                                    Thêm mới +
+                                    Thêm mới
                                 </Button>
-                            </div>
+                            </Col>
+                            <Col md={6}>
+                                <Label>Danh sách khách thuê</Label>
+                            </Col>
                         </Row>
                         <Row>
                             <Col md={6}>
@@ -812,9 +818,11 @@ const ModalAddContract = (props) => {
                                 <div>
                                     <Label>Danh sách dịch vụ</Label>
                                     <Button
-                                        onClick={() => toggle_modal_add_service()}
+                                        onClick={() => toggle_modal_add_service()}                                    
+                                        endIcon={<AddIcon />} 
+                                        size="small"
                                     >
-                                        Thêm mới +
+                                        Thêm mới
                                     </Button>
                                 </div>
                             </Row>

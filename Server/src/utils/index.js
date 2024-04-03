@@ -1,4 +1,6 @@
 import { ErrorCodes } from './constant.js';
+import moment from "moment-timezone"
+moment.tz.setDefault("Asia/Ho_Chi_Minh")
 
 export const handleRequest = handler => async (req, res, next) => {
     if (typeof handler !== "function")
@@ -105,4 +107,16 @@ export const convertCode = (q, keyword) => {
     }
 
     return code;
+}
+
+export const convertToStartTime = (startTime) => {
+    const startDate = moment(startTime)
+    startDate.startOf('day');
+    return startDate.toDate();
+}
+
+export const convertToEndTime = (stopTime) => {
+    const stopDate = moment(stopTime)
+    stopDate.endOf('day');
+    return stopDate.toDate();
 }

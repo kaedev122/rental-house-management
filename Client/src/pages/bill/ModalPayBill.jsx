@@ -117,7 +117,7 @@ const ModalPayBill = (props) => {
                                 placeholder="Tổng tiền"
                                 type="text"
                                 disabled
-                                value={dataAdd.total}
+                                value={(dataAdd.total || 0).toLocaleString()}
                             />
                         </FormGroup>
                     </Col>
@@ -137,7 +137,7 @@ const ModalPayBill = (props) => {
                                 placeholder="Tổng tiền"
                                 type="text"
                                 disabled
-                                value={dataAdd.paid}
+                                value={(dataAdd?.paid || 0).toLocaleString()}
                             />
                         </FormGroup>
                     </Col>
@@ -157,7 +157,7 @@ const ModalPayBill = (props) => {
                                 placeholder="Tổng tiền"
                                 type="text"
                                 disabled
-                                value={dataAdd.debt}
+                                value={(dataAdd.debt || 0).toLocaleString()}
                             />
                         </FormGroup>
                     </Col>
@@ -178,7 +178,7 @@ const ModalPayBill = (props) => {
                                     placeholder="Tổng tiền"
                                     type="text"
                                     disabled={!dataAdd.debt}
-                                    value={dataAdd.money}
+                                    value={(dataAdd.money || 0).toLocaleString()}
                                     onChange={(e) =>
                                         onChangeData("money", e.target.value, true)
                                     }

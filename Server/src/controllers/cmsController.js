@@ -8,6 +8,7 @@ import * as CustomerActions from '../actions/CustomerActions.js';
 import * as ServiceActions from '../actions/ServiceActions.js';
 import * as BillActions from '../actions/BillActions.js';
 import * as RevenueActions from '../actions/RevenueActions.js';
+import * as ReportActions from '../actions/ReportActions.js';
 import { verify } from '../middlewares/verifyMiddleware.js';
 const router = express.Router();
 
@@ -70,5 +71,9 @@ router.post('/pay-bill/:id', verify(), handleRequest(BillActions.payBill))
 //Revenue
 router.get('/revenues', verify(), handleRequest(RevenueActions.list))
 router.get('/revenue-total', verify(), handleRequest(RevenueActions.total))
+
+//Report
+router.get('/report-debt', verify(), handleRequest(ReportActions.getDebtReport))
+
 
 export default router;

@@ -33,23 +33,29 @@ import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
+    PointElement,
+    LineElement,
     BarElement,
     Title,
     Tooltip,
     Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
+import moment from "moment"
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     BarElement,
-    Title,
+    Title,  
+    PointElement,
+    LineElement,
     Tooltip,
     Legend
 );
 
-export const options = {
+export const barOptions = {
     plugins: {
         title: {
             display: false,
@@ -66,12 +72,44 @@ export const options = {
     },
 };
 
+export const lineOptions = {
+    plugins: {
+        legend: {
+            position: 'top',
+        },
+        title: {
+            display: false,
+        },
+    },
+    scales: {
+        x: {
+            stacked: true,
+        },
+        y: {
+            stacked: true,
+        },
+    },
+};
+
 const ListRevenue = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
     const [dataSearch, setDataSearch] = useState({})
     const [listRoomGroup, setListRoomGroup] = useState([])
+    const [listYear, setListYear] = useState(() => {
+        let listYear = []
+        let curYear = moment().format("YYYY")
+        for (let i = 2023; i <= curYear; i++) {
+            listYear.push(i)
+        }
+        return listYear
+    })
     const [group, setGroup] = useState('')
+    const [year, setYear] = useState(moment().format("YYYY"))
     const [chartBarData, setChartBarData] = useState({
+        labels: [],
+        datasets: []
+    })
+    const [chartLineData, setChartLineData] = useState({
         labels: [],
         datasets: []
     })
@@ -83,6 +121,10 @@ const ListRevenue = () => {
                 "apartment": apartmentCurrent,
             })
             get_list_room_group_data()
+            get_income_report({
+                "apartment": apartmentCurrent,
+                "year": year
+            })
         }
     }, [apartmentCurrent])
 
@@ -94,16 +136,20 @@ const ListRevenue = () => {
                 "group": group
             })
         }
-        console.log(group)
         setDataSearch({
             ...dataSearch,
             group: group
         })
-        get_debt_report({
-            ...dataSearch,
-            group: group
-        })
     }, [group])
+
+    useEffect(() => {
+        if (apartmentCurrent) {
+            get_income_report({
+                "apartment": apartmentCurrent,
+                "year": year
+            })
+        }
+    }, [year])
 
 	const search_data_table = async (type, value) => {
 		setDataSearch({
@@ -134,11 +180,9 @@ const ListRevenue = () => {
             apartment: apartmentCurrent,
             ...dataInput,
         }
-        console.log(input)
         const res = await http_request({method: "GET", url:"cms/report-debt", params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            console.log(data)
             let result = {
                 labels: data.map(item => {
                     return item.name
@@ -160,6 +204,36 @@ const ListRevenue = () => {
                 ]
             }
             return setChartBarData(result)
+        }
+    }
+
+    const get_income_report = async (dataInput) => {
+        let input = {
+            ...dataInput,
+            apartment: apartmentCurrent,
+        }
+        const res = await http_request({method: "GET", url:"cms/report-income", params: input})
+		const { code, data, message } = res
+        if (code == 200) {
+            let result = {
+                labels: data.map(item => {
+                    return item.month
+                }),
+                datasets: [
+                    {
+                        label: 'Tổng tiền',
+                        data: data.map(item => {
+                            return item.totalMoney
+                        }),
+                        borderColor: 'rgb(53, 162, 235)',
+                        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                        cubicInterpolationMode: 'monotone',
+                        tension: 0.4,
+                        fill: false,
+                    }
+                ]
+            }
+            return setChartLineData(result)
         }
     }
 
@@ -253,15 +327,43 @@ const ListRevenue = () => {
                                         </UncontrolledDropdown>
                                     </Col>
                                 </Row>
-                                <Row>
+                                <Row style={{height: "70vh"}} className='d-flex justify-content-center align-items-center'>
                                     <Bar 
-                                        options={options} 
+                                        options={barOptions} 
                                         data={chartBarData} 
                                     />
                                 </Row>
                             </Col>
                             <Col md={4}>
-                                
+                                <Row>
+                                    <Col md={3}>
+                                        <Label>
+                                            Chọn năm
+                                        </Label>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Input
+                                            id="exampleSelect"
+                                            name="select"
+                                            type="select"
+                                            className='btn-select pointer-btn'
+                                            value={year}
+                                            onChange={(e) => {
+                                                setYear(e.target.value)
+                                            }}
+                                        >
+                                            {listYear && listYear.map((item) =>{
+                                                return (<option key={item} value={item} >{item}</option>)
+                                            })}
+                                        </Input>
+                                    </Col>
+                                </Row>
+                                <Row style={{height: "70vh"}} className='d-flex justify-content-center align-items-center'>
+                                    <Line
+                                        options={lineOptions} 
+                                        data={chartLineData} 
+                                    />
+                                </Row>
                             </Col>
                         </Row>
                     </div>

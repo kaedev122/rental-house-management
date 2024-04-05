@@ -22,6 +22,13 @@ body {
   height: calc(100% - 80px);
 }
 
+@media only screen and (max-width: 1470px) {
+  #main-content {
+    padding-top: 0px;
+    height: 100%;
+  }
+}
+
 .label-text {
   font-size: 18px;
   font-weight: 700;
@@ -39,4 +46,45 @@ body {
 .group-container {
   height: 80vh;
   max-height: 80vh;
+}
+
+.text-warning {
+  color: #db9027 !important;
+  font-weight: 600;
+}
+.text-warning-hover:hover {
+  color: #a0640f !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.text-success {
+  color: #4baa95 !important;
+  font-weight: 600;
+}
+
+.text-success-hover:hover {
+  color: #2d7a6a !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.text-danger {
+  color: #ca2715 !important;
+  font-weight: 600;
+}
+
+.text-danger-hover:hover {
+  color: #800d00 !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.text-info {
+  color: #21a3ca !important;
+}
+
+.text-info-hover:hover {
+  color: #0d7797 !important;
+  cursor: pointer;
 }

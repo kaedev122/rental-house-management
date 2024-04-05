@@ -2,11 +2,12 @@ import mongoose from 'mongoose';
 import { User, RoomGroup, Room, Customer, Contract, Bill, Paid } from "../models/index.js"
 import * as BillValidation from '../validations/BillValidation.js'
 import * as Utils from "../utils/index.js"
-import moment from 'moment';
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
 import Promise from "bluebird"
 import { getPagination, getPagingData } from "../utils/paging.js"
 import { PAYMENT_STATUS } from '../utils/constant.js';
+import moment from "moment-timezone"
+moment.tz.setDefault("Asia/Ho_Chi_Minh")
 
 const _validateOtherPrice = (otherPrice) => {
     // validate quote [{content: string, price: number, type: TYPE_QUOTE}]
@@ -178,6 +179,9 @@ export const payBill = async ({ body, user, params }) => {
     let result = await Paid.create({
         money: validate.money,
         bill: oldBill._id,
+        day: moment().day(),
+        month: moment().month() + 1,
+        year: moment().year(),
         contract: oldBill.contract,
         apartment: oldBill.apartment
     })

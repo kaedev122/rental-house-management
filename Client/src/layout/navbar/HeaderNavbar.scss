@@ -41,14 +41,17 @@ li {
     border-radius: 0px;
     background-color: transparent;
     padding: 8px 16px;
-
+    transition: all 0.25s ease-in-out;
+    background-color: #1976d2;
     &:hover {
         background-color: #cc3e3e;
     }
 }
 
-.navbar-menu li {
-    margin: 0 2px;
+.navbar-menu {
+    li {
+        margin: 0 2px;
+    }
 }
 
 .highlight {
@@ -56,5 +59,24 @@ li {
     & p, i {
         color: black;
         font-weight: 700;
+    }
+}
+
+.navbar-custom li {
+    background-color: #E8EBF3;
+}
+
+.navbar-nav li {
+    padding: 8px 16px;
+    .btn-logout {
+        padding: 8px 0px;
+    }
+}
+
+.li-btn-logout:hover {
+    background-color: #cc3e3e;
+    transition: all 0.25s ease-in-out;
+    .btn-logout  {
+        background-color: #cc3e3e;
     }
 }

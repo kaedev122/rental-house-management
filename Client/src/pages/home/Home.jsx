@@ -233,57 +233,63 @@ const Home = () => {
 
     const render_bill_status = (item) => {
         if (item.bill_status == 0) {
-            return <span
+            return (<div
+                className='text-danger'
                 onClick={() => add_bill(item._id)}
             >   
-                Chưa ghi điện & nước
-            </span>
+                <RiWaterFlashFill/> Chưa ghi điện & nước
+            </div>)
         }
         if (item.bill_status == 1) {
-            return <span>
-                Đã ghi điện & nước (Thg-{moment(item?.last_check_date).format('M') - 1})
-            </span>
+            return (<div
+                className='text-success'
+            >
+                <RiWaterFlashFill/> Đã ghi điện & nước (Thg-{moment(item?.last_check_date).format('M') - 1})
+            </div>)
         }
         if (item.bill_status == 2) {
-            return <span>
-                Tháng đầu
-            </span>
+            return (<div
+                className='text-success'
+            >
+                <RiWaterFlashFill/> Tháng đầu
+            </div>)
         }
     }
 
     const render_payment_status = (item) => {
         if (item.payment_status === "") {
-            return <span>
-                ---
-            </span>
+            return (<div>
+                <FaMoneyBillWaveAlt /> ---
+            </div>)
         }
         if (item.payment_status == 1) {
-            return <span 
+            return (<div 
+                className='text-warning text-warning-hover'
                 onClick={() => {open_pay_bill(item)}}
             >
-                Thanh toán một phần
-            </span>
+                <FaMoneyBillWaveAlt /> Thanh toán một phần
+            </div>)
         }
         if (item.payment_status == 2) {
-            return <span>
-                Đã thanh toán
-            </span>
+            return (
+            <div className='text-success'>
+                <FaMoneyBillWaveAlt /> Đã thanh toán
+            </div>)
         }
-        return <span
-            onClick={() => {open_pay_bill(item)}}
-        >
-            Chưa thanh toán
-        </span>
-    }
+        return (
+            <div className='text-danger text-danger-hover' onClick={() => {open_pay_bill(item)}}>
+                <FaMoneyBillWaveAlt /> Chưa thanh toán
+            </div>)
+        }
 
     const render_room = (rooms) => {
         return rooms.map((item, index) => (
-            <Col md={4}>
+            <Col xxl={4} xl={6}>
                 <div className='border room-card-container border-secondary px-3'>
                     <Row className='room-card-header'>
                         <Col md={6} className=''>
                             <span 
-                                className='text-hover d-flex label-text align-items-center'
+                                className='text-info-hover d-flex label-text align-items-center'
                                 onClick={() => open_room_detail(item)}
                             >
                                 <FaBed />&nbsp;{item.name}
@@ -312,13 +318,18 @@ const Home = () => {
                         </Col>
                     </Row>
                     <Row className='border-top'>
-                        <Col md={6} className='text-hover'>
-                            <FaHandshakeSimple /> {item?.contract ? <span onClick={() => open_contract_detail(item.contract)}>
-                                {format_date_time(item?.contract?.date_start)} <MdReadMore />
-                            </span> :
-                            <span
+                        <Col md={6}>
+                            {item?.contract ? <div 
+                                className='text-info text-info-hover'
+                                onClick={() => open_contract_detail(item.contract)}>
+                                <FaHandshakeSimple /> {format_date_time(item?.contract?.date_start)} <MdReadMore />
+                            </div> :
+                            <div
+                                className='text-danger text-danger-hover'
                                 onClick={() => add_contract(item._id)}
-                            >Tạo hợp đồng</span>}
+                            >
+                                <FaHandshakeSimple /> Tạo hợp đồng
+                            </div>}
                         </Col>
                         <Col md={6} className='border-start'>
                             <FaHandshakeSimpleSlash /> {format_date_time(item?.contract?.date_end)}
@@ -326,10 +337,10 @@ const Home = () => {
                     </Row>
                     <Row className='border-top'>
                         <Col md={6} className={(item?.contract?.bill_status === 0) ? 'text-hover' : ''}>
-                            <RiWaterFlashFill/> {item?.contract ? render_bill_status(item?.contract) : '---'}
+                            {item?.contract ? render_bill_status(item?.contract) : <div><RiWaterFlashFill/> ---</div>}
                         </Col>
                         <Col md={6} className={(item?.bill?.payment_status === 1 || item?.bill?.payment_status === 0) ? 'border-start text-hover' : 'border-start'}>
-                            <FaMoneyBillWaveAlt /> {render_payment_status(item?.bill)}
+                            {render_payment_status(item?.bill)}
                         </Col>
                     </Row>
                 </div>

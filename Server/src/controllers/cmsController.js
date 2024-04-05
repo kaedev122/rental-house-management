@@ -74,6 +74,6 @@ router.get('/revenue-total', verify(), handleRequest(RevenueActions.total))
 
 //Report
 router.get('/report-debt', verify(), handleRequest(ReportActions.getDebtReport))
-
+router.get('/report-income', verify(), handleRequest(ReportActions.getIncomeReport))
 
 export default router;

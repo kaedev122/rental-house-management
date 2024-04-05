@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 import { User, RoomGroup, Room, Customer, Contract, Bill, Paid } from "../models/index.js"
 import * as BillValidation from '../validations/BillValidation.js'
 import * as Utils from "../utils/index.js"
-import moment from 'moment';
+import moment from "moment-timezone"
+moment.tz.setDefault("Asia/Ho_Chi_Minh")
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
 import Promise from "bluebird"
 import { getPagination, getPagingData } from "../utils/paging.js"
@@ -66,5 +67,55 @@ export const getDebtReport = async ({
             group: item.group,
         }
     })
+    return result
+}
+
+export const getIncomeReport = async ({ 
+    query: { 
+        apartment,
+        dateFrom='',
+        dateTo='',
+        year,
+    }, 
+    user 
+}) => {
+    let conditions = {}
+    if (apartment) conditions.apartment = mongoose.Types.ObjectId(apartment)
+    conditions.year = parseInt(moment().format("YYYY"))
+    if (year) conditions.year = parseInt(year)
+    console.log(conditions)
+    let paidAgg = [
+        {
+            $match: {
+                ...conditions
+            }
+        },
+        {
+            $group: {
+                _id: "$month",
+                total_money: { $sum: "$money" }
+            }
+        }
+    ]
+
+    const data = await Paid.aggregate(paidAgg)
+    let result = []
+    for (let i = 1; i < 13; i++) {
+        let monthData = data.filter(item => {
+            return item._id == i
+        })
+        if (monthData.length) {
+            result.push({
+                month: `Thg ${monthData[0]._id}`,
+                totalMoney: monthData[0].total_money
+            })
+        } else {
+            result.push({
+                month: `Thg ${i}`,
+                totalMoney: null
+            })
+        }
+    }   
+    
     return result
 }

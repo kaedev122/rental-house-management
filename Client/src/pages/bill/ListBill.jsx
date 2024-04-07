@@ -31,7 +31,7 @@ import { Paginations, SearchBar } from "@components"
 import AddIcon from '@mui/icons-material/Add';
 
 const ListBill = () => {
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
 	const timer = useRef()
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [sort, setSort] = useState(false)

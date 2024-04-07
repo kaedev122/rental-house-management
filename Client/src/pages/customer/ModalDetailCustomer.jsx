@@ -28,7 +28,7 @@ import dayjs from 'dayjs';
 
 const ModalDetailCustomer = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [dataAdd, setDataAdd] = useState(_dataSelect)

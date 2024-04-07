@@ -20,7 +20,7 @@ import { useSnackbar } from 'notistack';
 
 const ModalDetailGroup = (props) => {
 	const { _modal, _toggleModal, _done_action } = props;
-	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [dataAdd, setDataAdd] = useState({})
@@ -37,7 +37,7 @@ const ModalDetailGroup = (props) => {
 		}
         let input = {
             name: dataAdd.name,
-            apartment: apartmentCurent
+            apartment: apartmentcurrent
         }
 		const res = await http_request({ method: "POST", url: "cms/room-group/", data: input })
 		const { code, data, message } = res

@@ -92,7 +92,7 @@ export const lineOptions = {
 };
 
 const ListRevenue = () => {
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const [dataSearch, setDataSearch] = useState({})
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [listYear, setListYear] = useState(() => {

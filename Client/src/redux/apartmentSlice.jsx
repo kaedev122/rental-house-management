@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   'list': [],
-  'curent': ""
+  'current': ""
 }
 
 export const apartmentSlice = createSlice({
@@ -14,15 +14,15 @@ export const apartmentSlice = createSlice({
       console.log(action)
       state.list = action.payload
     },
-    set_apartment_curent: (state, action) => {
+    set_apartment_current: (state, action) => {
       console.log(state)
       console.log(action)
-      state.curent = action.payload
+      state.current = action.payload
     },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { set_apartment_list, set_apartment_curent } = apartmentSlice.actions
+export const { set_apartment_list, set_apartment_current } = apartmentSlice.actions
 
 export default apartmentSlice.reducer

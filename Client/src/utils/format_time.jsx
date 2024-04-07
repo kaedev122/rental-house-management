@@ -101,7 +101,7 @@ const format_full_time_api = (date) => {
 	}
 	
 }
-const get_day_curent = () => {
+const get_day_current = () => {
 
 	const today = new Date()
 	return `Ngày ${form_date(today.getDate())} tháng ${form_date(today.getMonth() + 1)} năm ${today.getFullYear()} `
@@ -118,4 +118,4 @@ const count_hour = (date) => {
 }
 
 
-export { format_date_month, count_hour,  format_date_time, format_full_time, format_hour, format_date_time_api, format_full_time_display, format_time_table, format_full_time_api, format_date_time_search, get_day_curent }
+export { format_date_month, count_hour,  format_date_time, format_full_time, format_hour, format_date_time_api, format_full_time_display, format_time_table, format_full_time_api, format_date_time_search, get_day_current }

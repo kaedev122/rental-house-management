@@ -27,7 +27,7 @@ import { format_full_time } from '@utils/format_time';
 import { Paginations, SearchBar } from "@components"
 
 const ListReport = () => {
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
 	const timer = useRef()
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [sort, setSort] = useState(false)

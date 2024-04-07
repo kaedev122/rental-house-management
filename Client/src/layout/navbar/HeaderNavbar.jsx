@@ -9,14 +9,14 @@ import { RiBillFill } from "react-icons/ri";
 import { FaFileContract } from "react-icons/fa6";
 import { IoMdSettings } from "react-icons/io";
 import { IoStatsChartSharp, IoLogOut, IoHomeSharp  } from "react-icons/io5";
-import { set_apartment_list, set_apartment_curent } from '@redux/apartmentSlice'
+import { set_apartment_list, set_apartment_current } from '@redux/apartmentSlice'
 import { FaPerson } from "react-icons/fa6";
 import { GrMoney } from "react-icons/gr";
 import { ModalDialog } from '@components'
 
 const HeaderNavbar = (props) => {
-	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
-  const [apartment, setApartment] = useState(apartmentCurent);
+	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+  const [apartment, setApartment] = useState(apartmentcurrent);
   const [listApartment, setListApartment] = useState([]);
   const [openDialog, setOpenDialog] = useState(false)
   const [collapsed, setCollapsed] = useState(true);
@@ -66,7 +66,7 @@ const HeaderNavbar = (props) => {
     console.log(apartment_id)
 		setApartment(apartment_id)
 		set_local_storage("apartment", apartment_id)
-		dispatch(set_apartment_curent(apartment_id))
+		dispatch(set_apartment_current(apartment_id))
 	}
 
 	const format_path = () => {

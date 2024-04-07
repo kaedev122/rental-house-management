@@ -7,7 +7,7 @@ import "@styles/style.scss";
 import "./login.scss";
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import { set_apartment_list, set_apartment_curent } from '@redux/apartmentSlice'
+import { set_apartment_list, set_apartment_current } from '@redux/apartmentSlice'
 
 const Login = () => {
     const location = useLocation();
@@ -33,7 +33,7 @@ const Login = () => {
 		if(code === 200 ){
 			dispatch(set_apartment_list(data.items))
             set_local_storage("apartment", data.items[0]?._id)
-            dispatch(set_apartment_curent(data.items[0]?._id))
+            dispatch(set_apartment_current(data.items[0]?._id))
 		}
 	}
 

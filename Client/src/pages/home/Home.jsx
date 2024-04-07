@@ -36,7 +36,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { MdOutlineBedroomChild } from "react-icons/md";
 
 const Home = () => {
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [groupSelected, setGroupSelected] = useState('')

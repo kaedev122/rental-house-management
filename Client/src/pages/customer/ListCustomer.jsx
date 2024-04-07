@@ -29,7 +29,7 @@ import { FaEdit } from "react-icons/fa";
 import AddIcon from '@mui/icons-material/Add';
 
 const ListCustomer = () => {
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 	const timer = useRef()
 

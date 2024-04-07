@@ -44,7 +44,7 @@ const ModalDetailContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _customersData, _dataSelect, _services, _servicesData } = props;
 
     const timer = useRef()
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listCurrentCustomer, setListCurrentCustomer] = useState([]);
     const [listCustomerSelected, setListCustomerSelected] = useState(_dataSelect.customers);

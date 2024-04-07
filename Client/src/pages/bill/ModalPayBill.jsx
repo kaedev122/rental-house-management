@@ -19,7 +19,7 @@ const ModalPayBill = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
     console.log(_dataSelect)
     const timer = useRef()
-	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [dataAdd, setDataAdd] = useState({

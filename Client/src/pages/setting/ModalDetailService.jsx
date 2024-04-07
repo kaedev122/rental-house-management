@@ -20,7 +20,7 @@ import "./setting.scss"
 
 const ModalDetailService = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
-	const apartmentCurent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
+	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [dataAdd, setDataAdd] = useState(_dataSelect)

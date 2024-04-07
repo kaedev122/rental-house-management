@@ -8,6 +8,14 @@
     margin-bottom: 8px;
 }
 
+.room-status-open {
+    border-left: 8px solid #dd8f22 !important;
+}
+
+.room-status-rented {
+    border-left: 8px solid 	#4aafcd !important;
+}
+
 .room-card-header {
     height: 40px;
     align-items: center;
@@ -30,4 +38,41 @@
     box-shadow: none !important;
     border: 1px solid #c2c2c2;
     border-radius: 4px;
+}
+
+.group-label {
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.room-status {
+    background-color: #888888;
+    height: 100%;
+    width: 10px;
+}
+
+.legend-open-room {
+    background-color: #dd8f22;
+    height: 100%;
+    width: 50%;
+}
+
+.legend-rented-room {
+    background-color:#4aafcd;
+    width: 50%;
+    height: 100%;
+}
+
+.legend-container {
+    height: 36.5px;
+    width: 400px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: white;
+    font-weight: 500;
 }

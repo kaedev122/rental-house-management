@@ -273,15 +273,33 @@ export const listRoomGroupExtend = async ({
         }
     })
 
+    let totalOpen = 0
+    let totalRent = 0
+
     let result = dataGroup.map((item) => {
         const rooms = dataRoom.filter(room => room.group.toString() == item._id.toString())
         let totalRoom = rooms.length
+        let open = 0
+        let rent = 0
+
+        for (let room of rooms) {
+            if (room.contract) {
+                rent += 1
+                totalRent += 1
+            } else {
+                open += 1
+                totalOpen += 1
+            }
+        }
+
         return {
             ...item,
             rooms,
-            totalRoom
+            totalRoom,
+            open,
+            rent
         }
     })
     if (sort === 'true') result = result.reverse()
-    return { total: totalItems , items: result }
+    return { total: totalItems, items: result, totalOpen, totalRent }
 }

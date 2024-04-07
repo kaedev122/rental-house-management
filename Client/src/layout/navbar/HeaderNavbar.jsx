@@ -21,7 +21,15 @@ const HeaderNavbar = (props) => {
   const [openDialog, setOpenDialog] = useState(false)
   const [collapsed, setCollapsed] = useState(true);
   const toggleNavbar = () => setCollapsed(!collapsed);
-  const windowWidth = useRef(window.innerWidth);
+  
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const updateWindowWidth = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    window.addEventListener('resize', updateWindowWidth);
+    return () => window.removeEventListener('resize', updateWindowWidth);
+  }, []); // Only run once on component mount
   
 	const dispatch = useDispatch()
 	const location = useLocation();
@@ -66,13 +74,9 @@ const HeaderNavbar = (props) => {
 		return new_path
 	}
 
-  useEffect(() => {
-    console.log(windowWidth)
-  },[windowWidth])
-
   return (
     <React.Fragment>
-      { windowWidth.current <= 1470 ? 
+      { windowWidth <= 1470 ? 
       (<Navbar color="faded" light>
         <div className='d-flex w-100 flex-row justify-content-between'>
           <NavbarBrand href="/cms/home">LodgingPro</NavbarBrand>

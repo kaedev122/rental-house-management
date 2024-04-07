@@ -121,7 +121,7 @@ const ModalAddRoom = (props) => {
                         fullWidth={true}
                         label="Giá phòng"
                         type="text"
-                        value={dataAdd.room_price}
+                        value={dataAdd.room_price ? dataAdd.room_price.toLocaleString() : ""}
                         onChange={(e) =>
                             onChangeData("room_price", e.target.value, true)
                         }
@@ -134,9 +134,9 @@ const ModalAddRoom = (props) => {
                         name="electric_price"
                         error={errorForm.electric_price?.error}
                         fullWidth={true}
-                        label={`Giá trên một số điện (Mặc định: ${_apartmentData?.electric_price})`}
+                        label={`Giá trên một số điện (Mặc định: ${_apartmentData.electric_price ? _apartmentData.electric_price.toLocaleString() : ""})`}
                         type="text"
-                        value={dataAdd.electric_price}
+                        value={dataAdd.electric_price ? dataAdd.electric_price.toLocaleString() : ""}
                         onChange={(e) =>
                             onChangeData("electric_price", e.target.value, true)
                         }
@@ -149,9 +149,9 @@ const ModalAddRoom = (props) => {
                         name="water_price"
                         error={errorForm.water_price?.error}
                         fullWidth={true}
-                        label={`Giá trên một số nước (Mặc định: ${_apartmentData?.water_price})`}
+                        label={`Giá trên một số nước (Mặc định: ${_apartmentData.water_price ? _apartmentData.water_price.toLocaleString() : ""})`}
                         type="text"
-                        value={dataAdd.water_price}
+                        value={dataAdd.water_price ? dataAdd.water_price.toLocaleString() : ""}
                         onChange={(e) =>
                             onChangeData("water_price", e.target.value, true)
                         }

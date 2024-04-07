@@ -33,6 +33,7 @@ import 'moment/locale/vi';
 moment().tz("Asia/Ho_Chi_Minh").format();
 moment.locale('vi')
 import AddIcon from '@mui/icons-material/Add';
+import { MdOutlineBedroomChild } from "react-icons/md";
 
 const Home = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.curent) || get_local_storage("apartment", "")
@@ -153,6 +154,7 @@ const Home = () => {
         const res = await http_request({method: "GET", url:"cms/room-group-extend", params: input})
 		const { code, data, message } = res
         if (code == 200) {
+            console.log(data)
             setListRoomGroup(data.items)
             setDataAdd(data)
             return true
@@ -210,11 +212,13 @@ const Home = () => {
                     id={`panel-${index}-header`}
                     key={`panel-${index}-header`}
                 >
-                    <span className='d-flex align-items-center'>{item.name} - <MdOutlineSensorDoor />{item.totalRoom} phòng</span>
+                    <div className='d-flex align-items-center'>
+                        <span className='d-flex align-items-center group-label'>{item.name}</span>&nbsp;<span>({item.rent}/{item.totalRoom} P.Đã được thuê)</span>
+                    </div>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Row>
-                        {render_room(item.rooms)}
+                        {render_room(item.rooms)} 
                     </Row>
                     <Row className='mt-2 d-flex justify-content-center'>
                         <Button
@@ -285,7 +289,7 @@ const Home = () => {
     const render_room = (rooms) => {
         return rooms.map((item, index) => (
             <Col xxl={4} xl={6}>
-                <div className='border room-card-container border-secondary px-3'>
+                <div className={item.contract ? `border room-card-container border-secondary px-3 room-status-rented` : `border room-card-container border-secondary px-3 room-status-open`}>
                     <Row className='room-card-header'>
                         <Col md={6} className=''>
                             <span 
@@ -354,6 +358,14 @@ const Home = () => {
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
                         <span className='header-text'>Quản trị chung</span>
+                    </div>
+                    <div className='d-flex legend-container'>
+                        <div className='legend-open-room legend-item border border-secondary border-1'>
+                            P.Trống ({dataAdd.totalOpen})
+                        </div>
+                        <div className='legend-rented-room legend-item border border-secondary border-1'>
+                            P.Đã được thuê ({dataAdd.totalRent})
+                        </div>
                     </div>
                     <div className='float-end'>
                         {apartmentCurrent && (<Button

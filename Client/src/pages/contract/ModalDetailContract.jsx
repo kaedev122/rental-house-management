@@ -22,7 +22,9 @@ import { Box, Tab, Grid, Stack, Checkbox } from '@mui/material'
 import Select from 'react-select'
 import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
-import DatePicker from "react-datepicker";
+import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import { vi } from 'date-fns/locale/vi';
+registerLocale('vi', vi)
 import "react-datepicker/dist/react-datepicker.css";
 import ModalAddService from '../setting/ModalAddService'
 import ModalDetailService from '../setting/ModalDetailService'
@@ -866,7 +868,6 @@ const ModalDetailContract = (props) => {
                                             selectsStart
                                             isClearable
                                             maxDate={endDate || undefined}
-                                            minDate={new Date()}
                                             dateFormat="dd/MM/yyyy"
                                             locale='vi'
                                         />

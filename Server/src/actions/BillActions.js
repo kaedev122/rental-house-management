@@ -8,6 +8,7 @@ import { getPagination, getPagingData } from "../utils/paging.js"
 import { PAYMENT_STATUS } from '../utils/constant.js';
 import moment from "moment-timezone"
 moment.tz.setDefault("Asia/Ho_Chi_Minh")
+import { uploadImage } from "../utils/UploadService.js"
 
 const _validateOtherPrice = (otherPrice) => {
     // validate quote [{content: string, price: number, type: TYPE_QUOTE}]

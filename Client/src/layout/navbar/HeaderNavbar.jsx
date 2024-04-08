@@ -15,8 +15,8 @@ import { GrMoney } from "react-icons/gr";
 import { ModalDialog } from '@components'
 
 const HeaderNavbar = (props) => {
-	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
-  const [apartment, setApartment] = useState(apartmentcurrent);
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+  const [apartment, setApartment] = useState(apartmentCurrent);
   const [listApartment, setListApartment] = useState([]);
   const [openDialog, setOpenDialog] = useState(false)
   const [collapsed, setCollapsed] = useState(true);

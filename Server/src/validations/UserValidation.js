@@ -41,3 +41,17 @@ export const login = Joi.object({
 export const newPassword = Joi.object({
     password: passwordComplexity(_complexityOptions).required().label("Mật khẩu"),
 }).messages(errorJoiMessages);
+
+export const changePassword = Joi.object({
+    oldPassword: Joi.string().min(8).max(20).required().label("Mật khẩu cũ"),
+    newPassword: passwordComplexity(_complexityOptions).required().label("Mật khẩu mới"),
+}).messages(errorJoiMessages);
+
+export const changeUserData = Joi.object({
+    phone: _phoneValidation.label("Số điện thoại"),
+    birthday: Joi.date().label("Ngày sinh"),
+    email: Joi.string().email().max(50).lowercase().label('Email'),
+    sex: Joi.string().max(10).label("Giới tính"),
+    fullname: Joi.string().max(100).label("Họ và tên"),
+    address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).max(100).label('Địa chỉ'),
+}).messages(errorJoiMessages);

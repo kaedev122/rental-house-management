@@ -198,9 +198,57 @@ export const newPassword = async ({body, user}) => {
     return true
 }
 
+export const changePassword = async ({body, user}) => {
+    const validate = await UserValidation.changePassword.validateAsync(body)
+    let { oldPassword, newPassword } = validate
+    let userExist = await User.findById(user.id).lean()
+    if (!userExist) throw new NotFoundError(`Không tìm thấy tài khoản`)
+    if (bcrypt.compare(oldPassword, userExist.password)) {
+        if (newPassword == oldPassword) throw new ParamError("Mật khẩu mới không được trùng với mật khẩu cũ")
+        let plainPassword = newPassword;
+        let password = bcrypt.hashSync(plainPassword, 12)
+        await User.findByIdAndUpdate(user.id, {
+            password: password
+        })
+        return true
+    } else {
+        throw new ParamError("Mật khẩu cũ không đúng")
+    }
+}
+
+export const changeUserData = async ({body, user, file}) => {
+    const validate = await UserValidation.changeUserData.validateAsync(body)
+
+    let emailExist = await User.findOne({ email: validate.email }).lean()
+    if (emailExist != null) throw new ExistDataError(`Email đã tồn tại!`);
+
+    let phoneExist = await User.findOne({ phone: validate.phone }).lean()
+    if (phoneExist != null) throw new ExistDataError(`Số điện thoại đã tồn tại!`);
+
+    if (validate.fullname) {
+        validate.name_search = Utils.convertVietnameseString(validate.fullname)
+    }
+
+    if (validate.birthday) validate.birthday = new Date(validate.birthday)
+
+    if (file) {
+        validate.avatar = await uploadImage(file.buffer, "avatar", user.id)
+    }
+
+    const result = await User.findByIdAndUpdate(user.id, { ...validate }, {new: true})
+    return result
+}
+
+export const getUserData = async ({body, user}) => {
+    const result = await User.findById(user.id)
+        .select("-password -status -updatedAt -name_search -__v")
+        .lean()
+    return result
+}
+
 export const ping = async ({body, user, file}) => {
     console.log(file)
-    const result = await uploadImage(file.buffer, "demo")
+    const result = await uploadImage(file.buffer, "demo", "12022002")
     console.log(result)
     return result
 }

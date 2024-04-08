@@ -20,7 +20,7 @@ import "./setting.scss"
 
 const ModalAddService= (props) => {
 	const { _modal, _toggleModal, _done_action } = props;
-	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [dataAdd, setDataAdd] = useState({})
@@ -46,7 +46,7 @@ const ModalAddService= (props) => {
         let input = {
             name: dataAdd.name,
             price: dataAdd.price,
-            apartment: apartmentcurrent,
+            apartment: apartmentCurrent,
         }
 		const res = await http_request({ method: "POST", url: "cms/setting/service/", data: input })
 		const { code, data, message } = res

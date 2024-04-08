@@ -29,7 +29,7 @@ import { format_full_time } from '@utils/format_time';
 import AddIcon from '@mui/icons-material/Add';
 
 const ListApartment = () => {
-	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listApartment, setListApartment] = useState([])
     const [sort, setSort] = useState(false)
@@ -50,7 +50,7 @@ const ListApartment = () => {
 
     useEffect(() => {
         get_list_apartment(sort)
-    }, [apartmentcurrent])
+    }, [apartmentCurrent])
 
     useEffect(() => {
         get_list_apartment(sort)

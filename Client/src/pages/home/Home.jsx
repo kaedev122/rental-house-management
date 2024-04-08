@@ -360,10 +360,10 @@ const Home = () => {
                         <span className='header-text'>Quản trị chung</span>
                     </div>
                     <div className='d-flex legend-container'>
-                        <div className='legend-open-room legend-item border border-secondary border-1'>
+                        <div className='legend-open-room legend-item legend-item-1'>
                             P.Trống ({dataAdd.totalOpen})
                         </div>
-                        <div className='legend-rented-room legend-item border border-secondary border-1'>
+                        <div className='legend-rented-room legend-item legend-item-2'>
                             P.Đã được thuê ({dataAdd.totalRent})
                         </div>
                     </div>

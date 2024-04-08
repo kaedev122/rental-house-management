@@ -20,7 +20,7 @@ import { useSnackbar } from 'notistack';
 
 const ModalDetailRoom = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect, _apartmentData } = props;
-	const apartmentcurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [dataAdd, setDataAdd] = useState({

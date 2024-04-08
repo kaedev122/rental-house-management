@@ -10,10 +10,11 @@ import * as BillActions from '../actions/BillActions.js';
 import * as RevenueActions from '../actions/RevenueActions.js';
 import * as ReportActions from '../actions/ReportActions.js';
 import { verify } from '../middlewares/verifyMiddleware.js';
+import { uploadImage } from '../middlewares/uploadMiddleware.js';
 const router = express.Router();
 
 //ping
-router.get('/ping', verify(), handleRequest(UserActions.ping))
+router.post('/ping', verify(), uploadImage.single('image-room'), handleRequest(UserActions.ping))
 
 //Apartment
 router.post('/apartment/', verify(), handleRequest(ApartmentActions.create))
@@ -31,7 +32,7 @@ router.get('/room-group-extend', verify(), handleRequest(RoomActions.listRoomGro
 router.delete('/room-group/:id', verify(), handleRequest(RoomActions.removeRoomGroup))
 
 //Room
-router.post('/room/', verify(), handleRequest(RoomActions.create))
+router.post('/room/', verify(), uploadImage.single('image-room'), handleRequest(RoomActions.create))
 router.put('/room/:id', verify(), handleRequest(RoomActions.update))
 router.get('/rooms', verify(), handleRequest(RoomActions.list))
 router.get('/room/:id', verify(), handleRequest(RoomActions.get))

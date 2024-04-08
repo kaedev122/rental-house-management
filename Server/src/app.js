@@ -8,10 +8,12 @@ import schedule from 'node-schedule'
 import { Apartment, Bill, Contract } from "./models/index.js"
 import { DailyContractCheck } from './schedulers/index.js'
 import Promise from 'bluebird'
+import multer from "multer";
 
 import { connectDB } from "./connections/mongodb.js";
 import { AuthController, ErrorController, cmsController } from "./controllers/index.js";
 import { NotFoundError } from "./utils/errors.js";
+import { v2 as cloudinary } from "cloudinary";
 
 dayjs.locale('vi')
 dotenv.config();
@@ -40,6 +42,14 @@ app.get('/api', (req, res) => {
 })
 
 connectDB()
+
+// Configure cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_CLOUD_KEY,
+    api_secret: process.env.API_CLOUD_SECRET,
+    secure: true,
+});
 
 app.use('/api/auth', AuthController)
 app.use('/api/cms', cmsController)

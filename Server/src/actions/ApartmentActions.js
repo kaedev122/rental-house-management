@@ -6,6 +6,7 @@ import moment from 'moment';
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
 import Promise from "bluebird"
 import { getPagination, getPagingData } from "../utils/paging.js"
+import { uploadImage } from "../utils/UploadService.js"
 
 const _validateOtherPrice = (otherPrice) => {
     // validate quote [{content: string, price: number, type: TYPE_QUOTE}]

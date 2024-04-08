@@ -9,6 +9,7 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
 import { generateRandomString } from "../utils/index.js"
+import { uploadImage } from "../utils/UploadService.js"
 
 export const create = async ({body, file}) => {
     const newUser = await UserValidation.create.validateAsync(body)
@@ -197,6 +198,9 @@ export const newPassword = async ({body, user}) => {
     return true
 }
 
-export const ping = () => {
-    return "pong"
+export const ping = async ({body, user, file}) => {
+    console.log(file)
+    const result = await uploadImage(file.buffer, "demo")
+    console.log(result)
+    return result
 }

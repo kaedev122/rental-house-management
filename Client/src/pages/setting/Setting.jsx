@@ -26,6 +26,12 @@ import axios, {isCancel, AxiosError} from 'axios';
 import { useSnackbar } from 'notistack';
 import ModalAddService from './ModalAddService'
 import ModalDetailService from './ModalDetailService'
+import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import { vi } from 'date-fns/locale/vi';
+registerLocale('vi', vi)
+import "react-datepicker/dist/react-datepicker.css";
+import ImageUploading from 'react-images-uploading';
+import { MdFileUpload } from "react-icons/md";
 
 const Setting = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
@@ -47,6 +53,7 @@ const Setting = () => {
     const [location, setLocation] = useState()
 
     const [dataAdd, setDataAdd] = useState({})
+    const [userData, setUserData] = useState({})
     const [dataApartment, setDataApartment] = useState({})
 
     const [modalAdd, setModalAdd] = useState(false);
@@ -54,12 +61,27 @@ const Setting = () => {
         return setModalAdd(!modalAdd)
     }
 
+    const [imagesPreview, setImagesPreview] = useState("https://res.cloudinary.com/dn3syjps8/image/upload/v1712696651/placeholder/user.png");
+    const [images, setImages] = useState([]);
+    const [changed, setChanged] = useState(false);
+
+    const onUploadImage = (imageList, addUpdateIndex) => {
+        // data for submit
+        setImages(imageList);
+        setChanged(true)
+    };
+
     useEffect(() => {
         if (apartmentCurrent) {
             get_data_apartment()
             get_list_service()
+            get_user_data()
         }
     }, [apartmentCurrent])
+
+    useEffect(() => {
+        console.log(imagesPreview)
+    }, [imagesPreview])
 
     const updateLocation = async () => {
         let input = {
@@ -101,6 +123,28 @@ const Setting = () => {
         })
     }
 
+    const updateUserData = async () => {
+		const formData = new FormData()
+        if (userData.fullname) formData.append("fullname", userData.fullname)
+        if (userData.phone) formData.append("phone", userData.phone)
+        if (userData.email) formData.append("email", userData.email)
+        if (userData.address) formData.append("address", userData.address)
+        if (userData.birthday) formData.append("birthday", userData.birthday)
+        if (changed) formData.append("avatar", images[0]?.file)
+        const res = await http_request({method: "POST", url:`auth/change-user-data`, data: formData, up_file: true })
+		const { code, data, message } = res
+        if (code == 200) {
+            return enqueueSnackbar("Cập nhật thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
+
     const get_location = async (dataInput) => {
         if (!dataInput) {
             if (is_empty(dataAdd.address)) {
@@ -129,10 +173,16 @@ const Setting = () => {
             setLocation(data?.location || '')
             return true
         }
-        return enqueueSnackbar(message, {
-            variant: "error",
-            autoHideDuration: 5000,
-        })
+    }
+
+    const get_user_data = async () => {
+        const res = await http_request({method: "GET", url:`auth/user`})
+		const { code, data, message } = res
+        if (code == 200) {
+            setUserData(data)
+            if (data.avatar) setImages([{"data_url": data.avatar}])
+            return true
+        }
     }
 
 	const onChangeData = (type, value, number) => {
@@ -147,6 +197,22 @@ const Setting = () => {
 		}
 		return setDataAdd({
 			...dataAdd,
+			[type]: value
+		})
+	}
+
+	const onChangeUserData = (type, value, number) => {
+        console.log(value)
+        setErrorForm({})
+        if (number) {
+			const result = value.replace(/\D/g, "");
+			return setUserData({
+				...userData,
+				[type]: parseInt(result) || '',
+			});
+		}
+		return setUserData({
+			...userData,
 			[type]: value
 		})
 	}
@@ -232,11 +298,198 @@ const Setting = () => {
                             <TabList
                                 aria-label="lab API tabs example"
                             >
-                                <Tab label="1. Thông tin nhà trọ" value="1" index={1} onClick={() => selectTab("1")} />
-                                <Tab label="2. Địa chỉ và vị trí" value="2" index={2} onClick={() => selectTab("2")} />
+                                <Tab label="1. Thông tin tài khoản" value="1" index={1} onClick={() => selectTab("1")} />
+                                <Tab label="2. Thông tin nhà trọ" value="2" index={2} onClick={() => selectTab("2")} />
+                                <Tab label="3. Địa chỉ và vị trí" value="3" index={3} onClick={() => selectTab("3")} />
                             </TabList>
                         </Box>
                         <TabPanel index={1} key={"1"} value={"1"}>
+                            <Row>
+                                <Col md={8}>
+                                    <Row>
+                                        <Label>
+                                            Họ và tên
+                                        </Label>
+                                        <FormGroup>
+                                            <Input
+                                                id="fullname"
+                                                name="fullname"
+                                                error={errorForm.fullname?.error}
+                                                placeholder="Họ và tên"
+                                                disabled={!apartmentCurrent}
+                                                type="text"
+                                                value={userData.fullname}
+                                                onChange={(e) =>
+                                                    onChangeUserData("fullname", e.target.value)
+                                                }
+                                            />
+                                            {errorForm.fullname?.error && <div className='text-error'>{errorForm.fullname?.message}</div>}
+                                        </FormGroup>
+                                    </Row>
+                                    <Row>
+                                        <Label>
+                                            Số điện thoại
+                                        </Label>
+                                        <FormGroup>
+                                            <Input
+                                                id="phone"
+                                                name="phone"
+                                                error={errorForm.phone?.error}
+                                                placeholder="Số điện thoại"
+                                                disabled={!apartmentCurrent}
+                                                type="text"
+                                                value={userData.phone}
+                                                onChange={(e) =>
+                                                    onChangeUserData("phone", e.target.value)
+                                                }
+                                            />
+                                            {errorForm.phone?.error && <div className='text-error'>{errorForm.phone?.message}</div>}
+                                        </FormGroup>
+                                    </Row>
+                                    <Row>
+                                        <Label>
+                                            Email
+                                        </Label>
+                                        <FormGroup>
+                                            <Input
+                                                id="email"
+                                                name="email"
+                                                error={errorForm.email?.error}
+                                                placeholder="Email"
+                                                disabled={!apartmentCurrent}
+                                                type="text"
+                                                value={userData.email}
+                                                onChange={(e) =>
+                                                    onChangeUserData("email", e.target.value)
+                                                }
+                                            />
+                                            {errorForm.email?.error && <div className='text-error'>{errorForm.email?.message}</div>}
+                                        </FormGroup>
+                                    </Row>
+                                    <Row>
+                                        <Label>
+                                            Địa chỉ
+                                        </Label>
+                                        <FormGroup>
+                                            <Input
+                                                id="address"
+                                                name="address"
+                                                error={errorForm.address?.error}
+                                                placeholder="Địa chỉ"
+                                                disabled={!apartmentCurrent}
+                                                type="text"
+                                                value={userData.address}
+                                                onChange={(e) =>
+                                                    onChangeUserData("address", e.target.value)
+                                                }
+                                            />
+                                            {errorForm.address?.error && <div className='text-error'>{errorForm.address?.message}</div>}
+                                        </FormGroup>
+                                    </Row>
+                                    <Row>
+                                        <Col md={6}>
+                                            <Label>
+                                                Ngày sinh
+                                            </Label>
+                                            <FormGroup>
+                                                <DatePicker 
+                                                    selected={userData.birthday} 
+                                                    onChange={(date) => onChangeUserData("birthday", date)} 
+                                                    placeholderText="Ngày sinh"
+                                                    className="form-control"
+                                                    selectsStart
+                                                    maxDate={new Date()}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    locale='vi'
+                                                />
+                                            </FormGroup>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Label>
+                                                Giới tính
+                                            </Label>
+                                            <FormGroup>
+                                                <Input
+                                                    id="exampleSelect"
+                                                    name="select"
+                                                    type="select"
+                                                    className='btn-select pointer-btn'
+                                                    value={userData.sex}
+                                                    onChange={(e) => onChangeUserData("sex", e.target.value)}
+                                                >
+                                                    <option value="" disabled selected hidden>Chọn giới tính</option>
+                                                    <option key='Nam' value='Nam' >Nam</option>
+                                                    <option key='Nữ' value='Nữ' >Nữ</option>
+                                                </Input>
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col md={4} className='d-flex align-items-center justify-content-center flex-column'>
+                                    <Label>
+                                        Ảnh đại diện
+                                    </Label>
+                                    <FormGroup className='d-flex align-items-center justify-content-center'>
+                                        <ImageUploading
+                                            multiple
+                                            value={images}
+                                            onChange={onUploadImage}
+                                            maxNumber={1}
+                                            dataURLKey="data_url"
+                                            acceptType={['jpg', 'png']}
+                                        >
+                                            {({
+                                                imageList,
+                                                onImageUpload,
+                                                onImageRemoveAll,
+                                                onImageUpdate,
+                                                onImageRemove,
+                                                isDragging,
+                                                dragProps,
+                                            }) => (
+                                                // write your building UI
+                                                <div className="upload__image-wrapper">
+                                                    {imageList.length ? imageList.map((image, index) => (
+                                                        <div key={index} className="image-item">
+                                                            <img src={image['data_url']} alt="" width="250px" height="250px" className='border border-primary'/>
+                                                            <div className="d-flex flex-row justify-content-evenly">
+                                                                <Button onClick={() => onImageUpdate(index)}>Chọn lại</Button>
+                                                                <Button onClick={() => onImageRemove(index)}>Xóa ảnh</Button>
+                                                            </div>
+                                                        </div>
+                                                    )) : <Button
+                                                            style={{ width: "250px", height: "250px", borderStyle: "dashed" }}
+                                                            // style={isDragging ? { color: 'red' } : undefined}
+                                                            variant='outlined'
+                                                            onClick={onImageUpload}
+                                                            {...dragProps}
+                                                        >
+                                                            {!isDragging ? <div 
+                                                                className='d-flex flex-column align-items-center justify-content-center'
+                                                                // style={isDragging ? { color: 'red' } : undefined}
+                                                            >
+                                                                <MdFileUpload 
+                                                                    style={{ fontSize: "150px"}}
+                                                                />
+                                                                Nhấn hoặc kéo ảnh vào đây
+                                                            </div> : <div
+                                                                className='d-flex flex-column align-items-center justify-content-center'
+                                                            >
+                                                                <MdFileUpload 
+                                                                    style={{ fontSize: "150px"}}
+                                                                />
+                                                                Thả ảnh vào đây
+                                                            </div>}
+                                                        </Button>}
+                                                    {/* <Button onClick={onImageRemoveAll}>Remove all images</Button> */}
+                                                </div>
+                                            )}
+                                        </ImageUploading>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
+                        </TabPanel>
+                        <TabPanel index={2} key={"2"} value={"2"}>
                             <Row>
                                 <Col md={6}>
                                     <Label>Thông tin chung</Label>
@@ -386,7 +639,7 @@ const Setting = () => {
                                 </Col>
                             </Row>
                         </TabPanel>
-                        <TabPanel index={2} key={"2"} value={"2"}>
+                        <TabPanel index={3} key={"3"} value={"3"}>
                             <Row>
                                 <Col md={6}>
                                     <Row>
@@ -441,6 +694,12 @@ const Setting = () => {
                     disabled={!apartmentCurrent}
                     className='float-end'
                     onClick={() => updateLocation()}
+                >
+                    Cập nhật
+                </Button></CardFooter>}
+                {tabSelected==1 && <CardFooter><Button
+                    className='float-end'
+                    onClick={() => updateUserData()}
                 >
                     Cập nhật
                 </Button></CardFooter>}

@@ -29,7 +29,6 @@ export const create = async ({body, file}) => {
 
     let plainPassword = newUser.password;
     newUser.password = bcrypt.hashSync(plainPassword, 12)
-    
     const result = await User.create(newUser);
 
     const randomString = crypto.randomBytes(32).toString('hex');
@@ -219,10 +218,16 @@ export const changePassword = async ({body, user}) => {
 export const changeUserData = async ({body, user, file}) => {
     const validate = await UserValidation.changeUserData.validateAsync(body)
 
-    let emailExist = await User.findOne({ email: validate.email }).lean()
+    let emailExist = await User.findOne({ 
+        email: validate.email,
+        _id: {$ne: user.id},
+    }).lean()
     if (emailExist != null) throw new ExistDataError(`Email đã tồn tại!`);
 
-    let phoneExist = await User.findOne({ phone: validate.phone }).lean()
+    let phoneExist = await User.findOne({ 
+        phone: validate.phone,
+        _id: {$ne: user.id},
+    }).lean()
     if (phoneExist != null) throw new ExistDataError(`Số điện thoại đã tồn tại!`);
 
     if (validate.fullname) {
@@ -234,7 +239,9 @@ export const changeUserData = async ({body, user, file}) => {
     if (file) {
         validate.avatar = await uploadImage(file.buffer, "avatar", user.id)
     }
-
+    if (validate.avatar === "undefined") {
+        validate.avatar = ""
+    }
     const result = await User.findByIdAndUpdate(user.id, { ...validate }, {new: true})
     return result
 }

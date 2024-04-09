@@ -53,5 +53,6 @@ export const changeUserData = Joi.object({
     email: Joi.string().email().max(50).lowercase().label('Email'),
     sex: Joi.string().max(10).label("Giới tính"),
     fullname: Joi.string().max(100).label("Họ và tên"),
+    avatar: Joi.string().max(100).label("Avatar"),
     address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).max(100).label('Địa chỉ'),
 }).messages(errorJoiMessages);

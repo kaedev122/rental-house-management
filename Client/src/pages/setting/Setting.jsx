@@ -134,6 +134,7 @@ const Setting = () => {
         const res = await http_request({method: "POST", url:`auth/change-user-data`, data: formData, up_file: true })
 		const { code, data, message } = res
         if (code == 200) {
+            setChanged(false)
             return enqueueSnackbar("Cập nhật thành công", {
                 variant: "success",
                 autoHideDuration: 5000,

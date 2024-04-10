@@ -176,7 +176,8 @@ export const get = async ({ params }) => {
     if (!id) throw new ParamError('Thiếu id')
 
     const data = await Apartment.findById(id)
-        .select("-user -name_search -updatedAt -__v")
+        .select("-name_search -updatedAt -__v")
+        .populate("user", "fullname email phone")
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy nhà trọ')
 

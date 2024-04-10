@@ -227,7 +227,7 @@ export const list = async ({
         Bill.find(conditions)
             .select("-apartment -updatedAt -__v")
             .populate('room', 'name')
-            .populate('contract', 'code')
+            .populate('contract', 'code customer_represent')
             .sort({ createdAt: -1 })            
             .limit(limit)
             .skip(offset)
@@ -240,6 +240,7 @@ export const list = async ({
             code: Utils.padNumber('DTT', item.code),
             contract: {
                 _id: item?.contract._id,
+                customer_represent: item?.contract.customer_represent,
                 code: Utils.padNumber('HD', item?.contract?.code),
             }
         }
@@ -251,11 +252,11 @@ export const get = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError('Thiếu id')
 
-    const data = await Contract.findById(id)
+    const data = await Bill.findById(id)
         .select("-apartment -updatedAt -__v")
         .populate('room', 'name')
-        .populate('customer_represent', 'fullname phone')
-        .populate('customers', '-__v -status -avatar -apartment -lastname -firstname -name_search -updatedAt')
+        .populate('contract', '-__v -status -apartment -updatedAt')
+        .populate('contract.customer_represent', 'fullname phone')
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy hợp đồng')
 

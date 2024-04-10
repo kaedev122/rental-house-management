@@ -251,23 +251,27 @@ const ModalAddBill = (props) => {
             </ModalHeader>
             <ModalBody>
                 <Row>
-                    <Label>
-                        Chọn hợp đồng tiến hành xuất hóa đơn
-                    </Label>
-                    <Input
-                        id="exampleSelect"
-                        name="select"
-                        type="select"
-                        className='btn-select pointer-btn'
-                        disabled={_contract_id}
-                        value={contractSelected}
-                        onChange={(e)=>change_contract(e.target.value)}
-                    >
-                        <option value="" disabled selected hidden>Chọn hợp đồng</option>
-                        {listContract && listContract.map((item) =>{
-                            return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
-                        })}
-                    </Input>
+                    <Col md={4}>
+                        <Label>
+                            Chọn hợp đồng tiến hành xuất hóa đơn
+                        </Label>
+                    </Col>
+                    <Col md={8}>
+                        <Input
+                            id="exampleSelect"
+                            name="select"
+                            type="select"
+                            className='btn-select pointer-btn'
+                            disabled={_contract_id}
+                            value={contractSelected}
+                            onChange={(e)=>change_contract(e.target.value)}
+                        >
+                            <option value="" disabled selected hidden>Chọn hợp đồng</option>
+                            {listContract && listContract.map((item) =>{
+                                return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
+                            })}
+                        </Input>
+                    </Col>
                 </Row>
                 <Row className='mt-3 mb-3 border-bottom'>
                     <Col md={1}>

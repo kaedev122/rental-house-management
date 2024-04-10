@@ -26,6 +26,8 @@
     "date-fns": "^3.3.1",
     "dayjs": "^1.11.10",
     "dotenv": "^16.4.4",
+    "html-to-image": "^1.11.11",
+    "html2canvas": "^1.4.1",
     "mapbox-gl": "^1.13.3",
     "moment-timezone": "^0.5.45",
     "notistack": "^3.0.1",

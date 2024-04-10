@@ -17,6 +17,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import ModalPayBill from './ModalPayBill';
 import { ModalDialog } from '@components'
+import ExportBill from './ExportBill'
 
 const ModalDetailBill = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
@@ -212,23 +213,33 @@ const ModalDetailBill = (props) => {
             </ModalHeader>
             <ModalBody>
                 <Row>
-                    <Label>
-                        Chọn hợp đồng tiến hành xuất hóa đơn
-                    </Label>
-                    <Input
-                        id="exampleSelect"
-                        name="select"
-                        type="select"
-                        className='btn-select pointer-btn'
-                        disabled
-                        value={contractSelected}
-                        onChange={(e)=>change_contract(e.target.value)}
-                    >
-                        <option value="" disabled selected hidden>Chọn hợp đồng</option>
-                        {listContract && listContract.map((item) =>{
-                            return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
-                        })}
-                    </Input>
+                    <Col md={2}>
+                        <Label>
+                            Hợp đồng
+                        </Label>
+                    </Col>
+                    <Col md={8}>
+                        <Input
+                            id="exampleSelect"
+                            name="select"
+                            type="select"
+                            className='btn-select pointer-btn'
+                            disabled
+                            value={contractSelected}
+                            onChange={(e)=>change_contract(e.target.value)}
+                        >
+                            <option value="" disabled selected hidden>Chọn hợp đồng</option>
+                            {listContract && listContract.map((item) =>{
+                                return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
+                            })}
+                        </Input>
+                    </Col>
+                    <Col md={2}>
+                        <ExportBill
+                            _data={_dataSelect}
+                            _apartment={apartmentCurrent}
+                        />
+                    </Col>
                 </Row>
                 <Row className='mt-3 mb-3 border-bottom'>
                     <Col md={1}>

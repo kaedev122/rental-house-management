@@ -25,6 +25,7 @@ export const update = Joi.object({
     location: Joi.string().label('Vị trí'),
     water_price: Joi.number().label("Giá tiền một số nước"),
     electric_price: Joi.number().label("Giá tiền một số điện"),
+    images: Joi.string().allow('').label('Hình ảnh'),
     other_price: Joi.string().label('Chi phí khác'),
     status: Joi.number().label('Trạng thái')
 }).messages(errorJoiMessages);

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User, ActiveCode, RecoveryCode } from "../models/index.js"
+import { User, ActiveCode, RecoveryCode, Apartment } from "../models/index.js"
 import * as UserValidation from '../validations/UserValidation.js'
 import * as Utils from "../utils/index.js"
 import { sendMailActive, sendMailRecovery } from "../utils/mailer.js"
@@ -254,8 +254,7 @@ export const getUserData = async ({body, user}) => {
 }
 
 export const ping = async ({body, user, file}) => {
-    console.log(file)
-    const result = await uploadImage(file.buffer, "demo", "12022002")
-    console.log(result)
-    return result
+    await Apartment.create({
+        _id: "660a7899c11bbf00ddcdc8fd"
+    })
 }

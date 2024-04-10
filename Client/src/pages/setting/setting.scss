@@ -31,5 +31,13 @@
 
 .map-container {
     width: 43vw;
-    height: 56vh;
+    height: 50vh;
+}
+
+.image-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 15px !important;
 }

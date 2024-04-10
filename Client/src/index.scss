@@ -88,3 +88,50 @@ body {
   color: #0d7797 !important;
   cursor: pointer;
 }
+
+.logo {
+  font-size: 2em; /* Adjust size as needed */
+  font-weight: bold; /* Make the text bold */
+  color: #333; /* Set the text color */
+  text-align: center; /* Center the text */
+  padding: 20px; /* Add some padding */
+  border-radius: 5px; /* Optional: add some border radius for a "rounded" logo */
+}
+
+.login-form {
+  display: flex; /* Sử dụng flexbox layout */
+  flex-direction: column !important;
+  justify-content: center !important; /* Căn giữa theo chiều ngang */
+  align-items: center !important; /* Căn giữa theo chiều dọc */
+  height: 100vh !important; /* Độ cao của phần tử sẽ bằng chiều cao của màn hình */
+}
+
+@media only screen and (max-width: 1281px) {
+  .login-form {
+      display: flex; /* Sử dụng flexbox layout */
+      flex-direction: column !important;
+      justify-content: center !important; /* Căn giữa theo chiều ngang */
+      align-items: center !important; /* Căn giữa theo chiều dọc */
+      height: 100vh !important; /* Độ cao của phần tử sẽ bằng chiều cao của màn hình */
+  }
+  .login-form-card {
+      width: 100% !important;
+  }
+}
+
+.login-form-header {
+  background-color: rgba(0, 0, 0, 0);
+  border-width: 0;
+}
+
+.login-form-footer {
+  background-color: rgba(0, 0, 0, 0);
+  border-width: 0;
+  padding: 0;
+}
+
+.login-end-border {
+  background-color: rgba(0, 0, 0, 0.3);;
+  width: 100%;
+  height: 1px;
+}

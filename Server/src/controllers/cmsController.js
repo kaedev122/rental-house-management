@@ -17,8 +17,8 @@ const router = express.Router();
 router.post('/ping', verify(), uploadImage.single('image-room'), handleRequest(UserActions.ping))
 
 //Apartment
-router.post('/apartment/', verify(), handleRequest(ApartmentActions.create))
-router.put('/apartment/:id', verify(), handleRequest(ApartmentActions.update))
+router.post('/apartment/', verify(), uploadImage.array("images-apartment", 6), handleRequest(ApartmentActions.create))
+router.put('/apartment/:id', verify(), uploadImage.array("images-apartment", 6), handleRequest(ApartmentActions.update))
 router.get('/apartments', verify(), handleRequest(ApartmentActions.list))
 router.get('/apartment/:id', verify(), handleRequest(ApartmentActions.get))
 router.delete('/apartment/:id', verify(), handleRequest(ApartmentActions.remove))

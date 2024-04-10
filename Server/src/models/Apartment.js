@@ -12,6 +12,7 @@ const ApartmentSchema = new mongoose.Schema({
     status: {type : Number, default: 1},
     water_price: {type : Number, default: 0},
     electric_price: {type : Number, default: 0},
+    images: [{type: String}],
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true},
 }, { timestamps: true, versionKey: false });
 

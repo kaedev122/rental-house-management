@@ -145,12 +145,12 @@ const Login = () => {
     }
 
     return (
-        <div className='form'>
-            <div>LOGO</div>
+        <div className='login-form'>
+            <div className="logo">LodgingPro</div>
             <Card 
-                className="my-2"
+                className="my-2 login-form-card"
             >
-                <CardHeader>
+                <CardHeader className='login-form-header'>
                     <label className='d-flex justify-content-center'>Đăng nhập vào LodgingPro</label>
                 </CardHeader>
                     <FormGroup>
@@ -197,9 +197,9 @@ const Login = () => {
                         <Button variant="text" className='text-center w-100 btn-no-border' onClick={() => goToForgotPassword()}>
                             Quên mật khẩu
                         </Button>
-                    <div className='border'></div>
+                    <div className='login-end-border'></div>
                     </FormGroup>
-                <CardFooter>
+                <CardFooter className='login-form-footer'>
                     <FormGroup>
                         <Button variant="contained" color="success" className='text-center w-100 btn-no-border' onClick={() => goToRegister()}>
                             Đăng kí tài khoản mới

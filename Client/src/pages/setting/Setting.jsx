@@ -17,7 +17,7 @@ import { FaDollarSign, FaHandshakeSimple, FaHandshakeSimpleSlash, FaDoorClosed }
 import { TextField, Button, } from '@mui/material';
 import { MdOutlineSensorDoor } from "react-icons/md";
 import "./setting.scss";
-import { Paginations, MapBox } from "@components"
+import { Paginations, MapBox, ShowImage } from "@components"
 import { TabContext, TabList, TabPanel } from '@mui/lab'
 import { Box, Tab, Grid, Stack } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid';
@@ -32,6 +32,8 @@ registerLocale('vi', vi)
 import "react-datepicker/dist/react-datepicker.css";
 import ImageUploading from 'react-images-uploading';
 import { MdFileUpload } from "react-icons/md";
+import SaveIcon from '@mui/icons-material/Save';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const Setting = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
@@ -49,6 +51,7 @@ const Setting = () => {
     const toggle_modal_detail_service = () => {
         return setModalDetailService(!modalDetailService)
     }
+    const [loading, setLoading] = useState(false);
 
     const [location, setLocation] = useState()
 
@@ -61,14 +64,28 @@ const Setting = () => {
         return setModalAdd(!modalAdd)
     }
 
-    const [imagesPreview, setImagesPreview] = useState("https://res.cloudinary.com/dn3syjps8/image/upload/v1712696651/placeholder/user.png");
     const [images, setImages] = useState([]);
+    const [apartmentImages, setApartmentImages] = useState([])
     const [changed, setChanged] = useState(false);
+    const [apartmentChanged, setApartmentChanged] = useState(false);
+    const [showImage, setShowImage] = useState(false);
+    const [imagesPreview, setImagesPreview] = useState("");
+    const toggle_modal_image = (image) => {
+        setImagesPreview(image)
+        return setShowImage(!showImage)
+    }
+
 
     const onUploadImage = (imageList, addUpdateIndex) => {
         // data for submit
         setImages(imageList);
         setChanged(true)
+    };
+
+    const onUploadApartmentImage = (imageList, addUpdateIndex) => {
+        // data for submit
+        setApartmentImages(imageList);
+        setApartmentChanged(true)
     };
 
     useEffect(() => {
@@ -88,8 +105,24 @@ const Setting = () => {
             location: JSON.stringify(location),
             address: dataAdd.address
         }
-        const res = await http_request({method: "PUT", url:`cms/apartment/${apartmentCurrent}`, data: input})
+        console.log(input)
+		const formData = new FormData()
+        // if (location) formData.append("location", JSON.stringify(location))
+        if (dataAdd.address) formData.append("address", dataAdd.address)
+        if (apartmentChanged) {
+            if (apartmentImages.length > 0) {
+                for (let i in apartmentImages) {
+                    console.log(apartmentImages[i])
+                    if (apartmentImages[i].file) formData.append("images-apartment", apartmentImages[i]?.file)
+                }
+            }
+        }
+        console.log(dataAdd.images)
+        formData.append("images", dataAdd.images)
+        setLoading(true)
+        const res = await http_request({method: "PUT", url:`cms/apartment/${apartmentCurrent}`, data: formData, up_file: true })
 		const { code, data, message } = res
+        setLoading(false)
         if (code == 200) {
             return enqueueSnackbar("Cập nhật thành công", {
                 variant: "success",
@@ -172,6 +205,10 @@ const Setting = () => {
         if (code == 200) {
             setDataAdd(data)
             setLocation(data?.location || '')
+            if (data.images) {
+                // setDataAdd({...dataAdd, images: data.images})
+                setApartmentImages(data.images.map((item) => ({data_url: item})))
+            }
             return true
         }
     }
@@ -270,6 +307,17 @@ const Setting = () => {
         return get_list_service()
 	}
 
+    const removeOldImage = (index) => {
+        let image = apartmentImages[index]
+        let newListImages = dataAdd.images.filter((item, i) => {
+            return item !== image.data_url
+        })
+        setDataAdd({
+            ...dataAdd,
+            images: newListImages
+        })
+    }
+
     return (<div id="main-content">
         <Card>
             <CardHeader>
@@ -301,7 +349,7 @@ const Setting = () => {
                             >
                                 <Tab label="1. Thông tin tài khoản" value="1" index={1} onClick={() => selectTab("1")} />
                                 <Tab label="2. Thông tin nhà trọ" value="2" index={2} onClick={() => selectTab("2")} />
-                                <Tab label="3. Địa chỉ và vị trí" value="3" index={3} onClick={() => selectTab("3")} />
+                                <Tab label="3. Vị trí và hình ảnh" value="3" index={3} onClick={() => selectTab("3")} />
                             </TabList>
                         </Box>
                         <TabPanel index={1} key={"1"} value={"1"}>
@@ -452,7 +500,7 @@ const Setting = () => {
                                                 <div className="upload__image-wrapper">
                                                     {imageList.length ? imageList.map((image, index) => (
                                                         <div key={index} className="image-item">
-                                                            <img src={image['data_url']} alt="" width="250px" height="250px" className='border border-primary'/>
+                                                            <img onClick={() => toggle_modal_image(image)} src={image['data_url']} alt="" width="250px" height="250px" className='border border-primary'/>
                                                             <div className="d-flex flex-row justify-content-evenly">
                                                                 <Button onClick={() => onImageUpdate(index)}>Chọn lại</Button>
                                                                 <Button onClick={() => onImageRemove(index)}>Xóa ảnh</Button>
@@ -645,26 +693,32 @@ const Setting = () => {
                                 <Col md={6}>
                                     <Row>
                                         <Col md={10}>
-                                            <Label>
-                                                Địa chỉ
-                                            </Label>
-                                            <FormGroup>
-                                                <Input
-                                                    id="address"
-                                                    name="address"
-                                                    error={errorForm.address?.error}
-                                                    placeholder="Địa chỉ"
-                                                    disabled={!apartmentCurrent}
-                                                    type="text"
-                                                    value={dataAdd.address}
-                                                    onChange={(e) =>
-                                                        onChangeData("address", e.target.value)
-                                                    }
-                                                />
-                                                {errorForm.address?.error && <div className='text-error'>{errorForm.address?.message}</div>}
-                                            </FormGroup>
+                                            <Row>
+                                                <Col md={2}>
+                                                    <Label>
+                                                        Địa chỉ
+                                                    </Label>
+                                                </Col>
+                                                <Col md={10}>
+                                                    <FormGroup>
+                                                        <Input
+                                                            id="address"
+                                                            name="address"
+                                                            error={errorForm.address?.error}
+                                                            placeholder="Địa chỉ"
+                                                            disabled={!apartmentCurrent}
+                                                            type="text"
+                                                            value={dataAdd.address}
+                                                            onChange={(e) =>
+                                                                onChangeData("address", e.target.value)
+                                                            }
+                                                        />
+                                                        {errorForm.address?.error && <div className='text-error'>{errorForm.address?.message}</div>}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
                                         </Col>
-                                        <Col md={2} className='d-flex align-items-center'>
+                                        <Col md={2}>
                                             <Button
                                                 onClick={() => get_location(dataAdd.address)}
                                                 disabled={!apartmentCurrent}
@@ -676,28 +730,104 @@ const Setting = () => {
                                             {!location && <span>Vui lòng nhập địa chỉ và lấy vị trí hiện tại.</span>}
                                         </Row>
                                     </Row>
+                                    <Row>
+                                        <div className='map-container'>
+                                            <MapBox
+                                                _location={location}
+                                                _setLocation={setLocation}
+                                            />
+                                        </div>
+                                        {location && <span>Chọn vị trí chính xác bằng cách kéo dấu đỏ trên bản đồ.</span>}
+                                    </Row>
                                 </Col>
                                 <Col md={6}>
-                                    <div className='map-container'>
-                                        <MapBox
-                                            _location={location}
-                                            _setLocation={setLocation}
-                                        />
-                                    </div>
-                                    {location && <span>Chọn vị trí chính xác bằng cách kéo dấu đỏ trên bản đồ.</span>}
+                                    <Card className='w-100 h-100 p-2'>
+                                        <ImageUploading
+                                            multiple
+                                            value={apartmentImages}
+                                            onChange={onUploadApartmentImage}
+                                            maxNumber={6}
+                                            dataURLKey="data_url"
+                                            acceptType={['jpg', 'png']}
+                                        >
+                                            {({
+                                                imageList,
+                                                onImageUpload,
+                                                onImageRemoveAll,
+                                                onImageUpdate,
+                                                onImageRemove,
+                                                isDragging,
+                                                dragProps,
+                                            }) => (
+                                                // write your building UI
+                                                <div className="d-flex flex-row flex-wrap">
+                                                    { imageList.map((image, index) => (
+                                                        <div key={index} className="image-item">
+                                                            <img onClick={() => toggle_modal_image(image)} src={image['data_url']} alt="" width="230px" height="230px" className='border border-primary'/>
+                                                            <div className="justify-content-evenly">
+                                                                <Button onClick={() => {
+                                                                    removeOldImage(index)
+                                                                    onImageUpdate(index)
+                                                                }}>Chọn lại</Button>
+                                                                <Button onClick={() => {
+                                                                    removeOldImage(index)
+                                                                    onImageRemove(index)
+                                                                }}>Xóa ảnh</Button>
+                                                            </div>
+                                                        </div>
+                                                    )) }
+                                                    {imageList.length <= 5 ? <Button
+                                                        style={{ width: "230px", height: "230px", borderStyle: "dashed" }}
+                                                        // style={isDragging ? { color: 'red' } : undefined}
+                                                        variant='outlined'
+                                                        onClick={onImageUpload}
+                                                        {...dragProps}
+                                                    >
+                                                        {!isDragging ? <div 
+                                                            className='d-flex flex-column align-items-center justify-content-center'
+                                                            // style={isDragging ? { color: 'red' } : undefined}
+                                                            style={imageList.length > 5 ? { display: "none"} : undefined}
+                                                        >
+                                                            <MdFileUpload 
+                                                                style={{ fontSize: "130px"}}
+                                                            />
+                                                            Nhấn hoặc kéo ảnh vào đây
+                                                        </div> : <div
+                                                            className='d-flex flex-column align-items-center justify-content-center'
+                                                            style={imageList.length > 5 ? { display: "none"} : undefined}
+                                                        >
+                                                            <MdFileUpload 
+                                                                style={{ fontSize: "130px"}}
+                                                            />
+                                                            Thả ảnh vào đây
+                                                        </div>}
+                                                    </Button> : ""}
+                                                    {/* <Button onClick={onImageRemoveAll}>Remove all images</Button> */}
+                                                </div>
+                                            )}
+                                        </ImageUploading>
+                                    </Card>
                                 </Col>
                             </Row>
                         </TabPanel>
                     </TabContext>
                 </div>
             </CardBody>
-                {tabSelected==2 && <CardFooter><Button
+                {tabSelected==3 && <CardFooter>{!loading ? <Button
                     disabled={!apartmentCurrent}
                     className='float-end'
                     onClick={() => updateLocation()}
                 >
                     Cập nhật
-                </Button></CardFooter>}
+                </Button> : <LoadingButton
+                    loading
+                    loadingPosition="start"
+                    startIcon={<SaveIcon />}
+                    className="btn-custom save float-end"
+                    variant="contained"
+                >
+                    Cập nhật
+                </LoadingButton>}</CardFooter>}
                 {tabSelected==1 && <CardFooter><Button
                     className='float-end'
                     onClick={() => updateUserData()}
@@ -717,6 +847,12 @@ const Setting = () => {
             _toggleModal={toggle_modal_detail_service}
             _dataSelect={serviceRow}
             _done_action={done_action}
+        />}
+
+        {showImage && <ShowImage
+            _modalImage={showImage}
+            _toggleModalImage={toggle_modal_image}
+            _image={imagesPreview}
         />}
     </div>)
 }

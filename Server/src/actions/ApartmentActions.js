@@ -26,11 +26,10 @@ const _validateOtherPrice = (otherPrice) => {
     return { newOtherPrice }
 }
 
-export const create = async ({body, user, file}) => {
+export const create = async ({body, user, files}) => {
     let validate = await ApartmentValidation.create.validateAsync(body)
     validate.user = user.id
     validate.name_search = Utils.convertVietnameseString(validate.name)
-
     let apartmentExist = await Apartment.findOne({
         status: 1,
         name_search: validate.name_search,
@@ -62,6 +61,15 @@ export const create = async ({body, user, file}) => {
         validate.phone = userPhone.phone
     }
 
+    if (files && files.length > 0) {
+        let images = []
+        await Promise.map(files, async (file) => {
+            let result = await uploadImage(file.buffer, "apartment", user.id)
+            images.push(result)
+        })
+        validate.images = images
+    }
+
     const newApartment = {
         ...validate,
     }
@@ -69,9 +77,10 @@ export const create = async ({body, user, file}) => {
     return result
 }
 
-export const update = async ({body, params, user, file}) => {
+export const update = async ({body, params, user, files}) => {
     const { id } = params    
     if (!id) throw new ParamError("Thiếu id")
+    console.log(body)
     let validate = await ApartmentValidation.update.validateAsync(body)
     validate.user = user.id
     let oldApartment = await Apartment.findById(id).lean()
@@ -105,6 +114,23 @@ export const update = async ({body, params, user, file}) => {
         validate.other_price = newOtherPrice
     }
 
+    let images = []
+
+    if (validate.images) {
+        images = validate.images.split(",")
+    }
+
+    if (files && files.length > 0) {
+        await Promise.map(files, async (file) => {
+            let result = await uploadImage(file.buffer, "apartment", user.id)
+            images.push(result)
+        })
+    }
+
+    if (images.length > 0) {
+        validate.images = images
+    }
+    
     let result = await Apartment.findByIdAndUpdate(id, { ...validate }, {new: true})
     return result
 }
@@ -156,6 +182,7 @@ export const get = async ({ params }) => {
 
     return {
         ...data,
+        images: data.images ? data.images.filter(item => item) : []
     }
 }
 

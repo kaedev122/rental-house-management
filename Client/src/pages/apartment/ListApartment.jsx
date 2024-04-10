@@ -27,16 +27,21 @@ import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
 import { format_full_time } from '@utils/format_time';
 import AddIcon from '@mui/icons-material/Add';
+import { FaLockOpen } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
+import { ModalDialog } from '@components'
 
 const ListApartment = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listApartment, setListApartment] = useState([])
     const [sort, setSort] = useState(false)
+    const [openDialog, setOpenDialog] = useState(false)
     const toggle_sort = () => {
         return setSort(!sort)
     }
     const [dataAdd, setDataAdd] = useState({})
+    const [dataStatus, setDataStatus] = useState({})
     const [dataSelect, setDataSelect] = useState({})
 
     const [modalAdd, setModalAdd] = useState(false);
@@ -76,17 +81,31 @@ const ListApartment = () => {
 	const done_action = () => {
 		setModalAdd(false)
 		setModalDetail(false)
+        setOpenDialog(false)
         return get_list_apartment()
 	}
 
 	const open_detail = (item) => {
-		toggle_modal_detail()
+		setOpenDialog(true)
+        setDataStatus(item.status ? {
+            status: 0,
+            title: 'Khóa',
+            message: 'Bạn có muốn khóa?'
+        } : {
+            status: 1,
+            title: 'Mở khóa',
+            message: 'Bạn có muốn mở khóa?'
+        })
         return setDataSelect(item)
 	}
 
 	const render_action = (item) => {
-        return (<div>
-            <FaEdit title='Sửa' className='pointer-btn'
+        return ( item.status == 0 ? <div>
+            <FaLockOpen title='Mở khóa' className='pointer-btn'
+                onClick={()=>open_detail(item)}
+            />
+        </div> : <div>
+            <FaLock title='Khóa' className='pointer-btn'
                 onClick={()=>open_detail(item)}
             />
         </div>)
@@ -96,6 +115,31 @@ const ListApartment = () => {
 		if (status === 1) return <Button className='btn-status' color='success' size='sm'>Hoạt động</Button>
         return <Button className='btn-status' color='error' size='sm'>Khóa</Button>
 	}
+
+    const changeStatus = async (status) => {
+        let input = {
+            status: status
+        }
+		const res = await http_request({ method: "PUT", url: `cms/apartment/${dataSelect._id}`, data: input })
+		const { code, data, message } = res
+        if (is_empty(res)) {
+            return enqueueSnackbar("Có lỗi đã xảy ra!", {
+                variant: "error",
+                autoHideDuration: 5000,
+            })
+		}
+        if (code === 200) {
+            enqueueSnackbar(status ? "Mở khóa thành công" : "Ngưng hoạt động thành công", {
+                variant: "success",
+                autoHideDuration: 5000,
+            })
+            return done_action()
+        }
+        return enqueueSnackbar(message, {
+            variant: "error",
+            autoHideDuration: 5000,
+        })
+    }
 
     const columns = [
 		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
@@ -188,6 +232,15 @@ const ListApartment = () => {
             _toggleModal={toggle_modal_detail}
             _done_action={done_action}
             _dataSelect={dataSelect}
+        />}
+        {openDialog && <ModalDialog
+            title={dataStatus.title}
+            message={dataStatus.message}
+            open={openDialog}
+            confirm={() => {
+                changeStatus(dataStatus.status)
+            }}
+            cancel={() => setOpenDialog(false)}
         />}
     </div>)
 }

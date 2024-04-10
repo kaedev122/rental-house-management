@@ -6,6 +6,10 @@ import html2canvas from 'html2canvas';
 import { http_request, get_local_storage, is_empty, } from '@utils'
 import { BsHouse } from "react-icons/bs";
 import { format_date_time, format_full_time } from '@utils/format_time';
+import moment from 'moment-timezone';
+import 'moment/locale/vi'; 
+moment().tz("Asia/Ho_Chi_Minh").format();
+moment.locale('vi')
 
 const ExportBill = (props) => {
     const { _data, _apartment } = props;
@@ -25,17 +29,17 @@ const ExportBill = (props) => {
     }, [])
 
     const handleDownloadImage = async () => {
-        // const element = document.getElementById('print'),
-        // canvas = await html2canvas(element),
-        // data = canvas.toDataURL('image/jpg'),
-        // link = document.createElement('a');
+        const element = document.getElementById('print'),
+        canvas = await html2canvas(element),
+        data = canvas.toDataURL('image/jpg'),
+        link = document.createElement('a');
     
-        // link.href = data;
-        // link.download = 'downloaded-image.jpg';
+        link.href = data;
+        link.download = `${_data.room.name}-${_data.contract.code}-${moment(_data.createdAt).format("MM-YYYY")}.jpg`;
     
-        // document.body.appendChild(link);
-        // link.click();
-        // document.body.removeChild(link);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const get_apartment_data = async () => {

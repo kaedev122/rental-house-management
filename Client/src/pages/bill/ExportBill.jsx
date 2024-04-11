@@ -35,7 +35,7 @@ const ExportBill = (props) => {
         link = document.createElement('a');
     
         link.href = data;
-        link.download = `${_data.room.name}-${_data.contract.code}-${moment(_data.createdAt).format("MM-YYYY")}.jpg`;
+        link.download = `${_data.room.name}-${_data.contract.code}-T${moment(_data.createdAt).format("MM-YYYY")}.jpg`;
     
         document.body.appendChild(link);
         link.click();

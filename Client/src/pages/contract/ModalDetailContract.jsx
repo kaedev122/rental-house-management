@@ -63,6 +63,71 @@ const ModalDetailContract = (props) => {
 
     const [tabSelected, setTabSelected] = useState("1")
     const selectTab = (e) => {
+        if (is_empty(roomSelected)) {
+			return setErrorForm({
+				"room_selected": {
+					"error": true,
+					"message": "Vui lòng chọn phòng trước!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.water_price)) {
+			return setErrorForm({
+				"water_price": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.electric_price)) {
+			return setErrorForm({
+				"electric_price": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.room_price)) {
+			return setErrorForm({
+				"room_price": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.start_water_number)) {
+			return setErrorForm({
+				"start_water_number": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.start_electric_number)) {
+			return setErrorForm({
+				"start_electric_number": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(represent)) {
+			return setErrorForm({
+				"represent": {
+					"error": true,
+					"message": "Vui lòng chọn người đại diện!"
+				}
+			})
+		}
+        const customer = listCustomerSelectedData.find(item => item._id == represent)
+        if (is_empty(customer.phone)) {
+			return setErrorForm({
+				"represent": {
+					"error": true,
+					"message": "Người đại diện phải có SĐT!"
+				}
+			})
+		}
         setTabSelected(e)
     }
     const [customerRow, setCustomerRow] = useState({});
@@ -149,6 +214,15 @@ const ModalDetailContract = (props) => {
             return listCustomerSelected.includes(item._id)
         })
         setListCustomerSelectedData(newListCustomerData)
+        const check = newListCustomerData.filter(item => item._id == represent)
+        if (is_empty(check)) {
+            if (!is_empty(newListCustomerData)) {
+                setRepresent(newListCustomerData[0]._id)
+            } else {
+                setRepresent('')
+            }
+        }
+        return setErrorForm({})
     }
 
 	const change_room = async (room_id) => {
@@ -555,6 +629,7 @@ const ModalDetailContract = (props) => {
                             return (<option key={item._id} value={item._id} >{item.name}</option>)
                             })}
                         </Input>
+                        {errorForm.room_selected?.error && <div className='text-error'>{errorForm.room_selected?.message}</div>}
                     </Col>
                     <Col md={6}>
                         
@@ -719,9 +794,10 @@ const ModalDetailContract = (props) => {
                                         >
                                             <option value="" disabled selected hidden>Chọn người đại diện</option>
                                             {listCustomerSelectedData && listCustomerSelectedData.map((item) =>{
-                                            return (<option key={item._id} value={item._id} >{item.fullname} - {item.phone}</option>)
+                                            return (<option key={item._id} value={item._id} >{item.fullname} - {item.phone || "---"}</option>)
                                             })}
                                         </Input>
+                                        {errorForm.represent?.error && <div className='text-error'>{errorForm.represent?.message}</div>}
                                     </Col>
                                 </Row>
                             </Col>

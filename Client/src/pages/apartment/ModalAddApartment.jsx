@@ -43,6 +43,22 @@ const ModalAddApartment = (props) => {
 				}
 			})
 		}
+        if (is_empty(dataAdd.phone)) {
+			return setErrorForm({
+				"phone": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.address)) {
+			return setErrorForm({
+				"address": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
         const formData = new FormData()
         if (dataAdd.name) formData.append("name", dataAdd.name)
         if (dataAdd.phone) formData.append("phone", dataAdd.phone)

@@ -37,6 +37,14 @@ const ModalPayBill = (props) => {
     }
 
     const onSubmit = async () => {
+        if (is_empty(dataAdd.money) || dataAdd.money == 0) {
+			return setErrorForm({
+				"money": {
+					"error": true,
+					"message": "Vui lòng nhập số tiền!"
+				}
+			})
+		}
         let input = {
             money: dataAdd.money
         }
@@ -174,7 +182,7 @@ const ModalPayBill = (props) => {
                                 <Input 
                                     id="total"
                                     name="total"
-                                    error={errorForm.total?.error}
+                                    error={errorForm.money?.error}
                                     placeholder="Tổng tiền"
                                     type="text"
                                     disabled={!dataAdd.debt}
@@ -190,7 +198,7 @@ const ModalPayBill = (props) => {
                                     Toàn bộ
                                 </Button>
                             </InputGroup>
-                            {errorForm.total?.error && <div className='text-error'>{errorForm.total?.message}</div>}
+                            {errorForm.money?.error && <div className='text-error'>{errorForm.money?.message}</div>}
                         </FormGroup>
                     </Col>
                 </Row>

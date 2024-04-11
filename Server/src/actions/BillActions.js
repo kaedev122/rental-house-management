@@ -88,7 +88,7 @@ export const create = async ({ body, user }) => {
     const result = await Bill.create(newBill)
     if (result) {
         await Contract.findByIdAndUpdate(validate.contract, {
-            last_export_bill: new Date(),
+            last_check_date: new Date(),
             bill_status: 1
         })
     }

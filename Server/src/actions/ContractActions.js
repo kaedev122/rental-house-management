@@ -83,7 +83,7 @@ export const create = async ({ body, user }) => {
     const newContract = {
         ...validate,
         bill_status: 2,
-        last_export_bill: new Date(),
+        last_check_date: validate.date_start,
     }
     const result = await Contract.create(newContract)
     if (result) {

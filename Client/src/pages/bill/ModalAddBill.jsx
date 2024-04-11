@@ -48,6 +48,7 @@ const ModalAddBill = (props) => {
     }, [contractSelected])
 
 	const change_contract = async (contract_id) => {
+        setErrorForm({})
 		return setContractSelected(contract_id)
 	}
 
@@ -136,6 +137,14 @@ const ModalAddBill = (props) => {
     }
 
     const onSubmit = async () => {
+        if (is_empty(contractSelected)) {
+			return setErrorForm({
+				"contract_selected": {
+					"error": true,
+					"message": "Vui lòng chọn hợp đồng trước!"
+				}
+			})
+		}
         let input = {
             note: dataAdd.note,
             last_water_number: dataAdd.last_water_number,
@@ -271,6 +280,7 @@ const ModalAddBill = (props) => {
                                 return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
                             })}
                         </Input>
+                        {errorForm.contract_selected?.error && <div className='text-error'>{errorForm.contract_selected?.message}</div>}
                     </Col>
                 </Row>
                 <Row className='mt-3 mb-3 border-bottom'>

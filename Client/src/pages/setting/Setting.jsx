@@ -44,6 +44,16 @@ const Setting = () => {
 	const [errorForm, setErrorForm] = useState({})
     const selectTab = (e) => {
         setTabSelected(e)
+        if (e == 1) {
+            get_user_data()
+        }
+        if (e == 2) {
+            get_data_apartment()
+            get_list_service()
+        }
+        if (e == 3) {
+            get_data_apartment()
+        }
     }
     const [serviceRow, setServiceRow] = useState({});
 
@@ -101,6 +111,15 @@ const Setting = () => {
     }, [imagesPreview])
 
     const updateLocation = async () => {
+        if (is_empty(dataAdd.address)) {
+            return setErrorForm({
+                "address": {
+                    "error": true,
+                    "message": "Không được để trống!"
+                }
+            })
+        }
+        
         let input = {
             location: JSON.stringify(location),
             address: dataAdd.address
@@ -136,6 +155,38 @@ const Setting = () => {
     }
 
     const updateApartment = async () => {
+        if (is_empty(dataAdd.name)) {
+			return setErrorForm({
+				"apartment_name": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.phone)) {
+			return setErrorForm({
+				"apartment_phone": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.electric_price)) {
+			return setErrorForm({
+				"electric_price": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(dataAdd.water_price)) {
+			return setErrorForm({
+				"water_price": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
         let input = {
             name: dataAdd.name,
             phone: dataAdd.phone,
@@ -157,6 +208,30 @@ const Setting = () => {
     }
 
     const updateUserData = async () => {
+        if (is_empty(userData.fullname)) {
+			return setErrorForm({
+				"fullname": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(userData.phone)) {
+			return setErrorForm({
+				"user_phone": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
+        if (is_empty(userData.address)) {
+			return setErrorForm({
+				"user_address": {
+					"error": true,
+					"message": "Không được để trống!"
+				}
+			})
+		}
 		const formData = new FormData()
         if (userData.fullname) formData.append("fullname", userData.fullname)
         if (userData.phone) formData.append("phone", userData.phone)
@@ -240,7 +315,6 @@ const Setting = () => {
 	}
 
 	const onChangeUserData = (type, value, number) => {
-        console.log(value)
         setErrorForm({})
         if (number) {
 			const result = value.replace(/\D/g, "");
@@ -392,7 +466,7 @@ const Setting = () => {
                                                     onChangeUserData("phone", e.target.value)
                                                 }
                                             />
-                                            {errorForm.phone?.error && <div className='text-error'>{errorForm.phone?.message}</div>}
+                                            {errorForm.user_phone?.error && <div className='text-error'>{errorForm.user_phone?.message}</div>}
                                         </FormGroup>
                                     </Row>
                                     <Row>
@@ -432,7 +506,7 @@ const Setting = () => {
                                                     onChangeUserData("address", e.target.value)
                                                 }
                                             />
-                                            {errorForm.address?.error && <div className='text-error'>{errorForm.address?.message}</div>}
+                                            {errorForm.user_address?.error && <div className='text-error'>{errorForm.user_address?.message}</div>}
                                         </FormGroup>
                                     </Row>
                                     <Row>
@@ -564,7 +638,7 @@ const Setting = () => {
                                                         onChangeData("name", e.target.value)
                                                     }
                                                 />
-                                                {errorForm.name?.error && <div className='text-error'>{errorForm.name?.message}</div>}
+                                                {errorForm.apartment_name?.error && <div className='text-error'>{errorForm.apartment_name?.message}</div>}
                                             </FormGroup>
                                         </Col>
                                     </Row>
@@ -588,7 +662,7 @@ const Setting = () => {
                                                         onChangeData("phone", e.target.value)
                                                     }
                                                 />
-                                                {errorForm.phone?.error && <div className='text-error'>{errorForm.phone?.message}</div>}
+                                                {errorForm.apartment_phone?.error && <div className='text-error'>{errorForm.apartment_phone?.message}</div>}
                                             </FormGroup>
                                         </Col>
                                     </Row>

@@ -255,7 +255,7 @@ const HeaderNavbar = (props) => {
               href="/cms/bill"
             >
               <i className="d-flex">
-                <RiBillFill />
+                <IoReceiptSharp />
               </i>
               <p>HÓA ĐƠN</p>
             </NavLink>
@@ -297,9 +297,9 @@ const HeaderNavbar = (props) => {
               href="/cms/revenue"
             >
               <i className="d-flex">
-                <GrMoney />
+                <FaMoneyBillTrendUp />
               </i>
-              <p>DOANH THU</p>
+              <p>PHIẾU THU</p>
             </NavLink>
           </NavItem>
 

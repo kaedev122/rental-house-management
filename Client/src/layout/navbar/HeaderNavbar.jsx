@@ -11,8 +11,9 @@ import { IoMdSettings } from "react-icons/io";
 import { IoStatsChartSharp, IoLogOut, IoHomeSharp  } from "react-icons/io5";
 import { set_apartment_list, set_apartment_current } from '@redux/apartmentSlice'
 import { FaPerson } from "react-icons/fa6";
-import { GrMoney } from "react-icons/gr";
+import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { ModalDialog } from '@components'
+import { IoReceiptSharp } from "react-icons/io5";
 
 const HeaderNavbar = (props) => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
@@ -120,7 +121,7 @@ const HeaderNavbar = (props) => {
               href="/cms/bill"
             >
               <i className="d-flex">
-                <RiBillFill />
+                <IoReceiptSharp />
               </i>
               <p>HÓA ĐƠN</p>
             </NavLink>
@@ -161,9 +162,9 @@ const HeaderNavbar = (props) => {
               href="/cms/revenue"
             >
               <i className="d-flex">
-                <GrMoney />
+                <FaMoneyBillTrendUp />
               </i>
-              <p>DOANH THU</p>
+              <p>PHIẾU THU</p>
             </NavLink>
           </NavItem>
 

@@ -32,8 +32,8 @@ router.get('/room-group-extend', verify(), handleRequest(RoomActions.listRoomGro
 router.delete('/room-group/:id', verify(), handleRequest(RoomActions.removeRoomGroup))
 
 //Room
-router.post('/room/', verify(), uploadImage.single('image-room'), handleRequest(RoomActions.create))
-router.put('/room/:id', verify(), handleRequest(RoomActions.update))
+router.post('/room/', verify(), uploadImage.array('images-room', 6), handleRequest(RoomActions.create))
+router.put('/room/:id', verify(), uploadImage.array('images-room', 6), handleRequest(RoomActions.update))
 router.get('/rooms', verify(), handleRequest(RoomActions.list))
 router.get('/room/:id', verify(), handleRequest(RoomActions.get))
 router.delete('/room/:id', verify(), handleRequest(RoomActions.remove))

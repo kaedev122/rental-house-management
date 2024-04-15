@@ -126,12 +126,11 @@ const Setting = () => {
         }
         console.log(input)
 		const formData = new FormData()
-        // if (location) formData.append("location", JSON.stringify(location))
+        if (location) formData.append("location", JSON.stringify(location))
         if (dataAdd.address) formData.append("address", dataAdd.address)
         if (apartmentChanged) {
             if (apartmentImages.length > 0) {
                 for (let i in apartmentImages) {
-                    console.log(apartmentImages[i])
                     if (apartmentImages[i].file) formData.append("images-apartment", apartmentImages[i]?.file)
                 }
             }

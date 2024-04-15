@@ -106,7 +106,8 @@ export const removeRoomGroup = async ({ body, user, params }) => {
     return true
 }
 
-export const create = async ({ body, user }) => {
+export const create = async ({ body, user, files }) => {
+    console.log(files)
     let validate = await RoomValidation.create.validateAsync(body)
     validate.name_search = Utils.convertVietnameseString(validate.name)
 
@@ -120,6 +121,16 @@ export const create = async ({ body, user }) => {
     }).lean()
     if (roomExist) throw new ExistDataError(`Tên phòng đã tồn tại!`)
 
+    if (files && files.length > 0) {
+        if (files.length > 6) throw new ExistDataError("Chỉ được tối đa 6 ảnh!")
+        let images = []
+        await Promise.map(files, async (file) => {
+            let result = await uploadImage(file.buffer, "room", user.id)
+            images.push(result)
+        })
+        validate.images = images
+    }
+
     const newRoom = {
         ...validate,
     }
@@ -127,7 +138,9 @@ export const create = async ({ body, user }) => {
     return result
 }
 
-export const update = async ({ body, user, params }) => {
+export const update = async ({ body, user, params, files }) => {
+    console.log(files)
+    console.log(body)
     const { id } = params
     if (!id) throw new ParamError("Thiếu id")
     const validate = await RoomValidation.update.validateAsync(body)
@@ -155,6 +168,28 @@ export const update = async ({ body, user, params }) => {
             ...dataUpdate
         })
     }
+
+    let images = []
+
+    if (validate.images) {
+        images = validate.images.split(",")
+        // if (images)
+        console.log(images)
+    }
+
+    if (files && files.length > 0) {
+        if (files.length > 6) throw new ExistDataError("Chỉ được tối đa 6 ảnh!")
+        await Promise.map(files, async (file) => {
+            let result = await uploadImage(file.buffer, "room", user.id)
+            images.push(result)
+        })
+    }
+
+    if (images.length > 0) {
+        validate.images = images
+    }
+
+    console.log(validate)
 
     let result = await Room.findByIdAndUpdate(id, { ...validate }, {new: true})
     return result

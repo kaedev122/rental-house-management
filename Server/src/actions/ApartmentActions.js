@@ -63,6 +63,7 @@ export const create = async ({body, user, files}) => {
 
     if (files && files.length > 0) {
         let images = []
+        if (files.length > 6) throw new ExistDataError("Chỉ được tối đa 6 ảnh!")
         await Promise.map(files, async (file) => {
             let result = await uploadImage(file.buffer, "apartment", user.id)
             images.push(result)
@@ -80,7 +81,6 @@ export const create = async ({body, user, files}) => {
 export const update = async ({body, params, user, files}) => {
     const { id } = params    
     if (!id) throw new ParamError("Thiếu id")
-    console.log(body)
     let validate = await ApartmentValidation.update.validateAsync(body)
     validate.user = user.id
     let oldApartment = await Apartment.findById(id).lean()
@@ -121,6 +121,7 @@ export const update = async ({body, params, user, files}) => {
     }
 
     if (files && files.length > 0) {
+        if (files.length > 6) throw new ExistDataError("Chỉ được tối đa 6 ảnh!")
         await Promise.map(files, async (file) => {
             let result = await uploadImage(file.buffer, "apartment", user.id)
             images.push(result)

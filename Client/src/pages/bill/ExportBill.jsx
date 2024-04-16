@@ -8,6 +8,7 @@ import { BsHouse } from "react-icons/bs";
 import { format_date_time, format_full_time } from '@utils/format_time';
 import moment from 'moment-timezone';
 import 'moment/locale/vi'; 
+import './bill.scss'
 moment().tz("Asia/Ho_Chi_Minh").format();
 moment.locale('vi')
 
@@ -46,7 +47,6 @@ const ExportBill = (props) => {
         const res = await http_request({method: "GET", url:`cms/apartment/${_apartment}`})
 		const { code, data, message } = res
         if (code == 200) {
-            console.log(data)
             setApartmentData(data)
             return true
         }
@@ -59,7 +59,6 @@ const ExportBill = (props) => {
     const get_customer_data = async () => {
         const res = await http_request({method: "GET", url:`cms/customer/${_data.contract.customer_represent}`})
 		const { code, data, message } = res
-        console.log(data)
         if (code == 200) {
             setCustomerData(data)
             return true
@@ -104,11 +103,25 @@ const ExportBill = (props) => {
                                 <Row><Label className='fs-5 fw-bold'>{apartmentData?.name}</Label></Row>
                                 <Row><Label className='fs-6 fw-bold'>Địa chỉ: {apartmentData?.address}</Label></Row>
                                 <Row><Label className=''>Quản lý: {apartmentData?.user?.fullname} - SĐT: {apartmentData?.phone}</Label></Row>
+                                {apartmentData.bank_info && 
+                                (<div>
+                                    <br/>
+                                    <Row><Label className='fs-6 fw-bold'>Thông tin thanh toán</Label></Row>
+                                    <Row><Label className=''>Ngân hàng: {apartmentData?.bank_info?.short_name} - {apartmentData?.bank_info?.name}</Label></Row>
+                                    <Row><Label className=''>STK: {apartmentData?.account_number} - {apartmentData?.account_name}</Label></Row>
+                                </div>)}
                             </Col>
                             <Col md={2}>
-                                <div className='w-100 h-100'>
-                                    QR thanh toán
-                                </div>
+                                {apartmentData.bank_info && 
+                                <div className='w-100 h-100 d-flex flex-column align-items-center'>
+                                    <Label className='fs-5 fw-bold'>QR thanh toán</Label>
+                                    <div className='crop'>
+                                        <img 
+                                            className='crop-image' 
+                                            src={`https://img.vietqr.io/image/${apartmentData.bank_info.bin}-${apartmentData.account_number}-print.png?amount=${_data.total}&addInfo=${_data?.room?.name}%20${_data?.contract?.code}%20${_data.code}%20${customerData?.fullname}&accountName=${apartmentData.account_name.replace(" ", "%20")}`} 
+                                        />
+                                    </div>
+                                </div>}
                             </Col>
                         </Row>
                         <Row className='mt-4'>

@@ -27,5 +27,8 @@ export const update = Joi.object({
     electric_price: Joi.number().label("Giá tiền một số điện"),
     images: Joi.string().allow('').label('Hình ảnh'),
     other_price: Joi.string().label('Chi phí khác'),
+    bank_id: Joi.string().label('Ngân hàng'),
+    account_number: Joi.string().label('Số tài khoản'),
+    account_name: Joi.string().label('Chủ tài khoản'),
     status: Joi.number().label('Trạng thái')
 }).messages(errorJoiMessages);

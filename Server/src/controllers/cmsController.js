@@ -9,6 +9,7 @@ import * as ServiceActions from '../actions/ServiceActions.js';
 import * as BillActions from '../actions/BillActions.js';
 import * as RevenueActions from '../actions/RevenueActions.js';
 import * as ReportActions from '../actions/ReportActions.js';
+import * as DefaultDataActions from '../actions/DefaultDataActions.js';
 import { verify } from '../middlewares/verifyMiddleware.js';
 import { uploadImage } from '../middlewares/uploadMiddleware.js';
 const router = express.Router();
@@ -76,5 +77,11 @@ router.get('/revenue-total', verify(), handleRequest(RevenueActions.total))
 //Report
 router.get('/report-debt', verify(), handleRequest(ReportActions.getDebtReport))
 router.get('/report-income', verify(), handleRequest(ReportActions.getIncomeReport))
+
+//Default Data
+router.get('/default-data/bank', verify(), handleRequest(DefaultDataActions.listBank))
+
+//Script
+// router.get('/script', handleRequest(bank.insertBank))
 
 export default router;

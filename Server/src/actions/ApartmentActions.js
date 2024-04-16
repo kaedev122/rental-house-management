@@ -82,6 +82,15 @@ export const update = async ({body, params, user, files}) => {
     const { id } = params    
     if (!id) throw new ParamError("Thiếu id")
     let validate = await ApartmentValidation.update.validateAsync(body)
+    if (validate.bank_id || validate.account_number || validate.account_name) {
+        if (!validate.bank_id || !validate.account_number || !validate.account_name) throw new ParamError('Thiếu thông tin ngân hàng')
+        validate.bank_info = {
+            bank_id: validate.bank_id,
+            account_number: validate.account_number,
+            account_name: validate.account_name.toUpperCase()
+        }
+    }
+
     validate.user = user.id
     let oldApartment = await Apartment.findById(id).lean()
     if (!oldApartment) throw new NotFoundError(`Không tìm thấy nhà trọ!`)
@@ -131,7 +140,7 @@ export const update = async ({body, params, user, files}) => {
     if (images.length > 0) {
         validate.images = images
     }
-    
+
     let result = await Apartment.findByIdAndUpdate(id, { ...validate }, {new: true})
     return result
 }
@@ -179,11 +188,20 @@ export const get = async ({ params }) => {
     const data = await Apartment.findById(id)
         .select("-name_search -updatedAt -__v")
         .populate("user", "fullname email phone")
+        .populate("bank_info.bank_id", "-updatedAt -__v -createdAt")
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy nhà trọ')
-
     return {
         ...data,
+        bank_info: {
+            short_name: data.bank_info ? data.bank_info.bank_id.short_name : "",
+            name: data.bank_info ? data.bank_info.bank_id.name : "",
+            bin: data.bank_info ? data.bank_info.bank_id.bin : "",
+            logo: data.bank_info ? data.bank_info.bank_id.logo : "",
+        },
+        bank_id: data.bank_info ? data.bank_info.bank_id._id : "",
+        account_number: data.bank_info ? data.bank_info.account_number : "",
+        account_name: data.bank_info ? data.bank_info.account_name : "",
         images: data.images ? data.images.filter(item => item) : []
     }
 }

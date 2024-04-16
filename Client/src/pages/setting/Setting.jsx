@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Navigate, useLocation } from 'react-router-dom'
 import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader, Label, FormGroup, Input, } from 'reactstrap'
-import { http_request, get_local_storage, is_empty, } from '@utils'
+import { http_request, get_local_storage, is_empty } from '@utils'
 import { format_date_time } from '@utils/format_time'
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -80,11 +80,11 @@ const Setting = () => {
     const [apartmentChanged, setApartmentChanged] = useState(false);
     const [showImage, setShowImage] = useState(false);
     const [imagesPreview, setImagesPreview] = useState("");
+    const [bankList, setBankList] = useState([]);
     const toggle_modal_image = (image) => {
         setImagesPreview(image)
         return setShowImage(!showImage)
     }
-
 
     const onUploadImage = (imageList, addUpdateIndex) => {
         // data for submit
@@ -103,12 +103,17 @@ const Setting = () => {
             get_data_apartment()
             get_list_service()
             get_user_data()
+            getBankList()
         }
     }, [apartmentCurrent])
 
-    useEffect(() => {
-        console.log(imagesPreview)
-    }, [imagesPreview])
+    const getBankList = async () => {
+        const res = await http_request({method: "GET", url:`cms/default-data/bank`})
+		const { code, data, message } = res
+        if (code == 200) {
+            return setBankList(data)
+        }
+    }
 
     const updateLocation = async () => {
         if (is_empty(dataAdd.address)) {
@@ -186,11 +191,42 @@ const Setting = () => {
 				}
 			})
 		}
+        if (dataAdd.bank_id || dataAdd.account_number || dataAdd.account_name) {
+            if (!dataAdd.bank_id) {
+                return setErrorForm({
+                    "bank_id": {
+                        "error": true,
+                        "message": "Không được để trống!"
+                    },
+                })
+            }
+            if (!dataAdd.account_number) {
+                return setErrorForm({
+                    "account_number": {
+                        "error": true,
+                        "message": "Không được để trống!"
+                    },
+                })
+            }
+            if (!dataAdd.account_name) {
+                return setErrorForm({
+                    "account_name": {
+                        "error": true,
+                        "message": "Không được để trống!"
+                    },
+                })
+            }
+        }
+            
+
         let input = {
             name: dataAdd.name,
             phone: dataAdd.phone,
             water_price: dataAdd.water_price,
             electric_price: dataAdd.electric_price,
+            bank_id: dataAdd.bank_id ? dataAdd.bank_id : "",
+            account_number: dataAdd.account_number ? dataAdd.account_number.toString() : "",
+            account_name: dataAdd.account_name ? dataAdd.account_name : "",
         }
         const res = await http_request({method: "PUT", url:`cms/apartment/${apartmentCurrent}`, data: input})
 		const { code, data, message } = res
@@ -277,7 +313,9 @@ const Setting = () => {
         const res = await http_request({method: "GET", url:`cms/apartment/${apartmentCurrent}`})
 		const { code, data, message } = res
         if (code == 200) {
-            setDataAdd(data)
+            setDataAdd({
+                ...data,
+            })
             setLocation(data?.location || '')
             if (data.images) {
                 // setDataAdd({...dataAdd, images: data.images})
@@ -666,50 +704,125 @@ const Setting = () => {
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={3}>
-                                            <Label>
-                                                Giá điện mặc định
-                                            </Label>
+                                        <Col md={6}>
+                                            <Row>
+                                                <Col md={5}>
+                                                    <Label>
+                                                        Giá điện mặc định
+                                                    </Label>
+                                                </Col>
+                                                <Col md={7}>
+                                                    <FormGroup>
+                                                        <Input
+                                                            id="electric_price"
+                                                            name="electric_price"
+                                                            error={errorForm.electric_price?.error}
+                                                            placeholder="Giá điện"
+                                                            disabled={!apartmentCurrent}
+                                                            type="text"
+                                                            value={dataAdd.electric_price ? dataAdd.electric_price.toLocaleString() : ""}
+                                                            onChange={(e) =>
+                                                                onChangeData("electric_price", e.target.value, true)
+                                                            }
+                                                        />
+                                                        {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
                                         </Col>
-                                        <Col md={9}>
-                                            <FormGroup>
-                                                <Input
-                                                    id="electric_price"
-                                                    name="electric_price"
-                                                    error={errorForm.electric_price?.error}
-                                                    placeholder="Giá điện"
-                                                    disabled={!apartmentCurrent}
-                                                    type="text"
-                                                    value={dataAdd.electric_price ? dataAdd.electric_price.toLocaleString() : ""}
-                                                    onChange={(e) =>
-                                                        onChangeData("electric_price", e.target.value, true)
-                                                    }
-                                                />
-                                                {errorForm.electric_price?.error && <div className='text-error'>{errorForm.electric_price?.message}</div>}
-                                            </FormGroup>
+                                        <Col md={6}>
+                                            <Row>
+                                                <Col md={5}>
+                                                    <Label>
+                                                        Giá nước mặc định
+                                                    </Label>
+                                                </Col>
+                                                <Col md={7}>
+                                                    <FormGroup>
+                                                        <Input
+                                                            id="water_price"
+                                                            name="water_price"
+                                                            error={errorForm.water_price?.error}
+                                                            placeholder="Giá nước"
+                                                            disabled={!apartmentCurrent}
+                                                            type="text"
+                                                            value={dataAdd.water_price ? dataAdd.water_price.toLocaleString() : ""}
+                                                            onChange={(e) =>
+                                                                onChangeData("water_price", e.target.value, true)
+                                                            }
+                                                        />
+                                                        {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
+                                                    </FormGroup>
+                                                </Col>
+                                            </Row>
                                         </Col>
                                     </Row>
+                                    <br/>
                                     <Row>
                                         <Col md={3}>
                                             <Label>
-                                                Giá nước mặc định
+                                                Tên ngân hàng
                                             </Label>
                                         </Col>
                                         <Col md={9}>
                                             <FormGroup>
                                                 <Input
-                                                    id="water_price"
-                                                    name="water_price"
-                                                    error={errorForm.water_price?.error}
-                                                    placeholder="Giá nước"
+                                                    type="select"
+                                                    placeholder='Danh sách ngân hàng'
+                                                    value={dataAdd.bank_id}
+                                                    onChange={(e) => onChangeData("bank_id", e.target.value)}
+                                                >
+                                                    <option value="" selected disabled hidden>Chọn ngân hàng</option>
+                                                        {bankList && bankList.map((item, index) => (
+                                                            <option key={item._id} value={item._id}>
+                                                                {item.short_name} - {item.name}
+                                                            </option>
+                                                        ))}
+                                                </Input>
+                                            </FormGroup>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Label>
+                                                Số tài khoản
+                                            </Label>
+                                        </Col>
+                                        <Col md={9}>
+                                            <FormGroup>
+                                                <Input
+                                                    id="account_number"
+                                                    name="account_number"
+                                                    error={errorForm.account_number?.error}
+                                                    placeholder="Số tài khoản"
                                                     disabled={!apartmentCurrent}
                                                     type="text"
-                                                    value={dataAdd.water_price ? dataAdd.water_price.toLocaleString() : ""}
+                                                    value={dataAdd.account_number}
                                                     onChange={(e) =>
-                                                        onChangeData("water_price", e.target.value, true)
+                                                        onChangeData("account_number", e.target.value, true)
                                                     }
                                                 />
-                                                {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
+                                                {errorForm.account_number?.error && <div className='text-error'>{errorForm.account_number?.message}</div>}
+                                            </FormGroup>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Label>
+                                                Tên chủ tài khoản
+                                            </Label>
+                                        </Col>
+                                        <Col md={9}>
+                                            <FormGroup>
+                                                <Input
+                                                    id="account_name"
+                                                    name="account_name"
+                                                    error={errorForm.account_name?.error}
+                                                    placeholder="Tên chủ tài khoản"
+                                                    disabled={!apartmentCurrent}
+                                                    type="text"
+                                                    value={dataAdd.account_name}
+                                                    onChange={(e) =>
+                                                        onChangeData("account_name", e.target.value)
+                                                    }
+                                                />
+                                                {errorForm.account_name?.error && <div className='text-error'>{errorForm.account_name?.message}</div>}                                                
                                             </FormGroup>
                                         </Col>
                                     </Row>

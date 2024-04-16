@@ -13,6 +13,11 @@ const ApartmentSchema = new mongoose.Schema({
     water_price: {type : Number, default: 0},
     electric_price: {type : Number, default: 0},
     images: [{type: String}],
+    bank_info: {
+        bank_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Bank'},
+        account_number: {type: String},
+        account_name: {type: String},
+    },
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true},
 }, { timestamps: true, versionKey: false });
 

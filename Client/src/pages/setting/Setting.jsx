@@ -797,7 +797,7 @@ const Setting = () => {
                                                     type="text"
                                                     value={dataAdd.account_number}
                                                     onChange={(e) =>
-                                                        onChangeData("account_number", e.target.value, true)
+                                                        onChangeData("account_number", e.target.value)
                                                     }
                                                 />
                                                 {errorForm.account_number?.error && <div className='text-error'>{errorForm.account_number?.message}</div>}

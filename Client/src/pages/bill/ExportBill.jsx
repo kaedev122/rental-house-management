@@ -31,7 +31,10 @@ const ExportBill = (props) => {
 
     const handleDownloadImage = async () => {
         const element = document.getElementById('print'),
-        canvas = await html2canvas(element),
+        canvas = await html2canvas(element, {
+            allowTaint : false,
+            useCORS: true
+        }),
         data = canvas.toDataURL('image/jpg'),
         link = document.createElement('a');
     
@@ -115,8 +118,23 @@ const ExportBill = (props) => {
                                 {apartmentData.bank_info && 
                                 <div className='w-100 h-100 d-flex flex-column align-items-center'>
                                     <Label className='fs-5 fw-bold'>QR thanh toán</Label>
-                                    <div className='crop'>
+                                    <div 
+                                        className='crop'
+                                        style={{ 
+                                            width: "150px", 
+                                            height: "150px", 
+                                            overflow: "hidden", 
+                                            display: "flex", 
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            position: "relative",
+                                        }}
+                                    >
                                         <img 
+                                            style={{ 
+                                                width: "150%",
+                                                marginTop: "40%",
+                                            }}
                                             className='crop-image' 
                                             src={`https://img.vietqr.io/image/${apartmentData.bank_info.bin}-${apartmentData.account_number}-print.png?amount=${_data.total}&addInfo=${_data?.room?.name}%20${_data?.contract?.code}%20${_data.code}%20${customerData?.fullname}&accountName=${apartmentData.account_name.replace(" ", "%20")}`} 
                                         />

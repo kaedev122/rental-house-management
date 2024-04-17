@@ -338,6 +338,9 @@ const Setting = () => {
 	const onChangeData = (type, value, number) => {
         console.log(value)
         setErrorForm({})
+        if (type == "account_number" || type == "account_name") {
+            value = value.toUpperCase()
+        }
         if (number) {
 			const result = value.replace(/\D/g, "");
 			return setDataAdd({

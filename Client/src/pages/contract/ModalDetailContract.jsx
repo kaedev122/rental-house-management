@@ -39,25 +39,31 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { ModalDialog } from '@components'
 import AddIcon from '@mui/icons-material/Add';
+import makeAnimated from 'react-select/animated';
+import AsyncSelect from 'react-select/async'
+import { FaWindowClose } from "react-icons/fa";
+import { set } from 'mongoose'
+
+const animatedComponents = makeAnimated();
 
 const ModalDetailContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _customersData, _dataSelect, _services, _servicesData } = props;
-
+    console.log(_customersData)
     const timer = useRef()
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const [listCurrentCustomer, setListCurrentCustomer] = useState([]);
-    const [listCustomerSelected, setListCustomerSelected] = useState(_dataSelect.customers);
+
     const [listServiceSelected, setListServiceSelected] = useState(_services);
-    const [listCustomerSelectedData, setListCustomerSelectedData] = useState(_customersData);
+
     const [listServiceSelectedData, setListServiceSelectedData] = useState(_servicesData);
     const [listService, setListService] = useState([])
     const [listRoom, setListRoom] = useState([])
     const [roomData, setRoomData] = useState({})
     const [roomSelected, setRoomSelected] = useState(_dataSelect.room._id)
     const [represent, setRepresent] = useState(_dataSelect.customer_represent._id)
-    const [listCustomer, setListCustomer] = useState()
-
+    const [listCustomer, setListCustomer] = useState([])
+    const [listCustomerSelected, setListCustomerSelected] = useState(_customersData);
+    
     const [dataAdd, setDataAdd] = useState(_dataSelect)
 	const [errorForm, setErrorForm] = useState({})
 
@@ -119,7 +125,8 @@ const ModalDetailContract = (props) => {
 				}
 			})
 		}
-        const customer = listCustomerSelectedData.find(item => item._id == represent)
+        const customer = listCustomerSelected.find(item => item._id == represent)
+
         if (is_empty(customer.phone)) {
 			return setErrorForm({
 				"represent": {
@@ -159,11 +166,10 @@ const ModalDetailContract = (props) => {
     }
     useEffect(() => {
         get_list_room_data()
-        // get_list_customer()
-        get_customer_data()
         get_list_service()
         setListServiceSelectedData(_servicesData)
         setListServiceSelected(_services)
+        get_list_customer()
     }, [])
 
     useEffect(() => {
@@ -172,57 +178,14 @@ const ModalDetailContract = (props) => {
     
     useEffect(() => {
         if(!listCustomerSelected.includes(represent)) {
-            change_customer_represent(listCustomerSelected[0])
+            change_customer_represent(listCustomerSelected[0]._id)
         }
     }, [listCustomerSelected])
-
-    useEffect(() => {
-        setDataAdd({
-            ...dataAdd,
-            customers: JSON.stringify(listCustomerSelected)
-        })
-        convert_customer_table()
-    }, [listCustomerSelected])
-
-    useEffect(() => {
-        convert_customer_table()
-    },[listCustomer])
-
-    const get_customer_data = async () => {
-        let result = await get_list_customer()
-        setListCustomer(result.concat(_customersData))
-    }
 
     const calc_total_price = () => {
         return listServiceSelectedData.reduce((total, item) => {
             return total + item.price * item.number
         }, 0)
-    }
-
-    const calc_total_price_done = () => {
-        return _dataSelect.other_price.reduce((total, item) => {
-            return total + item.price * item.number
-        }, 0)
-    }
-
-    const convert_customer_table = async () => {
-        let newListCustomer = listCustomer.filter(item => {
-            return !listCustomerSelected.includes(item._id)
-        })
-        setListCurrentCustomer(newListCustomer)
-        let newListCustomerData = listCustomer.filter(item => {
-            return listCustomerSelected.includes(item._id)
-        })
-        setListCustomerSelectedData(newListCustomerData)
-        const check = newListCustomerData.filter(item => item._id == represent)
-        if (is_empty(check)) {
-            if (!is_empty(newListCustomerData)) {
-                setRepresent(newListCustomerData[0]._id)
-            } else {
-                setRepresent('')
-            }
-        }
-        return setErrorForm({})
     }
 
 	const change_room = async (room_id) => {
@@ -266,16 +229,31 @@ const ModalDetailContract = (props) => {
             status: 1,
             apartment: apartmentCurrent,
         }
+        console.log(input)
         const res = await http_request({method: "GET", url:"cms/customer/contract", params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            setListCurrentCustomer(data.items)
-            return data.items
+            console.log((data?.items || []).concat(_customersData))
+            let result = (data?.items || []).concat(_customersData).filter(item => {
+                return listCustomerSelected.filter(i => i._id == item._id).length == 0
+            })
+            console.log(result)
+            setListCustomer(result)
+            return result
         }
         return enqueueSnackbar(message, {
             variant: "error",
             autoHideDuration: 5000,
         })
+    }
+
+    const get_contract_data = async (contract) => {
+        const res = await http_request({method: "GET", url:`cms/contract/${contract}`})
+		const { code, data, message } = res
+        if (code == 200) {
+            console.log(data.customers)
+            return setListCustomerSelected(data.customers)
+        }
     }
 
     const get_list_service = async () => {
@@ -307,10 +285,10 @@ const ModalDetailContract = (props) => {
 		setModalDetailCustomer(false)
 		setModalDetailService(false)
 		setModalAddService(false)
-        get_customer_data()
         get_list_room_data()
         get_list_service()
-        return convert_customer_table()
+        get_contract_data(_dataSelect._id)
+        return get_list_customer()
 	}
 
     const onSubmit = async () => {
@@ -322,6 +300,9 @@ const ModalDetailContract = (props) => {
                 number: parseInt(item.number)
             }
         })
+        const customers = listCustomerSelected.map(item => {
+            return item._id
+        })
         let input = {
             room: dataAdd.room,
             note: dataAdd.note,
@@ -329,7 +310,7 @@ const ModalDetailContract = (props) => {
             water_price: dataAdd.water_price, 
             electric_price: dataAdd.electric_price, 
             room_price: dataAdd.room_price,
-            customers: Array.isArray(dataAdd.customers) ? JSON.stringify(dataAdd.customers) : dataAdd.customers,
+            customers: JSON.stringify(customers),
             date_start: startDate,
             date_end: endDate,
             customer_represent: represent,
@@ -337,7 +318,6 @@ const ModalDetailContract = (props) => {
             start_electric_number: dataAdd.start_electric_number,
             other_price: JSON.stringify(other_price)
         }
-        console.log(input.customers)
 		const res = await http_request({ method: "PUT", url: `cms/contract/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
@@ -415,14 +395,30 @@ const ModalDetailContract = (props) => {
 	}
 
 	const render_customer_action = (item) => {
-        return (<div>
-            <FaEdit title='Sửa' className='pointer-btn'
+        return (<div className='w-100 d-flex justify-content-between'>
+            <FaEdit title='Sửa' className='pointer-btn me-3'
                 onClick={()=>open_customer_detail(item)}
             />
+            {_dataSelect.status == 1 && <FaWindowClose color="red" title='Bỏ' className='pointer-btn'
+                onClick={()=> {
+                    let newListCustomerData = listCustomerSelected.filter(i => i._id != item._id)
+                    const check = newListCustomerData.filter(item => item._id == represent)
+                    if (is_empty(check)) {
+                        if (!is_empty(newListCustomerData)) {
+                            setRepresent(newListCustomerData[0]._id)
+                        } else {
+                            setRepresent('')
+                        }
+                    }
+                    setErrorForm({})
+                    return setListCustomerSelected(newListCustomerData)
+                }}
+            />}
         </div>)
 	}
 
     const open_customer_detail = (item) => {
+        console.log(item)
 		toggle_modal_detail_customer()
         return setCustomerRow(item)
 	}
@@ -586,6 +582,7 @@ const ModalDetailContract = (props) => {
 		{ field: 'stt', headerName: 'STT', width: 20, align: "center",},
 		{ field: 'fullname', headerName: 'Tên khách thuê', flex: 1 },
 		{ field: 'phone', headerName: 'SĐT', flex: 1 },
+		{ field: 'address', headerName: 'Địa chỉ', flex: 1 },
         { field: 'action', headerName: 'Hành động', width: 100, align: "center",
             renderCell: (params) => (
                 <div>
@@ -598,6 +595,26 @@ const ModalDetailContract = (props) => {
     const confirm_close_contract = () => {
         setOpenDialog(false)
         return onEndContract()
+    }
+    
+    const handle_change = (item) => {
+        let test = listCustomerSelected.filter(i => i._id == item._id).length > 0
+        if (!test) {
+            return setListCustomerSelected(listCustomerSelected.concat(item))
+        }
+    }
+
+    const formatOptionLabel = (option) => {
+        return <div className="d-flex item-option">
+            <span>{option.fullname} - {option.phone}</span>
+        </div>
+    }
+    
+    const promiseOptions = async (text = '') => {
+        clearTimeout(timer.current)
+        return new Promise(resolve => {
+            timer.current = setTimeout(async () => resolve(search_text(text)), 500)
+        })
     }
 
     return (<Fragment>
@@ -646,84 +663,55 @@ const ModalDetailContract = (props) => {
                         </TabList>
                     </Box>
                     <TabPanel index={1} key={"1"} value={"1"}>
-                        <Row>
-                            <Col md={6}>
-                                <Label className='me-2'>Chọn khách thuê</Label>
-                                <Button
-                                    onClick={() => toggle_modal_add_customer()}
-                                    endIcon={<AddIcon />} 
-                                    size="small"
-                                >
-                                    Thêm mới
-                                </Button>
-                            </Col>
-                            <Col md={6}>
-                                <Label>Danh sách khách thuê</Label>
-                            </Col>
-                        </Row>
-
-                        {_dataSelect.status == 1 ? <Row>
-                            <Col md={6}>
-                                <div style={{ height: 318, width: '100%' }}>
-                                    <DataGrid 
-                                        checkboxSelection={_dataSelect.status == 1}
-                                        disableRowSelectionOnClick 
-                                        getRowId={(row) => row._id}
-                                        columns={columns_customer}
-                                        rows={listCurrentCustomer.map((item, index) => {
-                                            return {
-                                                ...item,
-                                                stt: index + 1,
-                                            }
-                                        })}
-                                        keepNonExistentRowsSelected
-                                        onRowSelectionModelChange={(newCustomer) => {
-                                            setListCustomerSelected(newCustomer);
-                                        }}
-                                        rowSelectionModel={listCustomerSelected}
-                                        components={{
-                                            Footer: () => { return <div></div>},
-                                            NoRowsOverlay: () => (
-                                                <Stack height="100%" alignItems="center" justifyContent="center">
-                                                    Dữ liệu khách thuê
-                                                </Stack>
-                                            ),
-                                        }}
-                                    />
-                                </div>
-                            </Col>
-                            <Col md={6}>
-                                <div style={{ height: 318, width: '100%' }}>
-                                    <DataGrid 
-                                        checkboxSelection={_dataSelect.status == 1}
-                                        disableRowSelectionOnClick 
-                                        getRowId={(row) => row._id}
-                                        columns={columns_customer}
-                                        rows={listCustomerSelectedData.map((item, index) => {
-                                            return {
-                                                ...item,
-                                                stt: index + 1
-                                            }
-                                        })}
-                                        keepNonExistentRowsSelected
-                                        onRowSelectionModelChange={(newCustomer) => {
-                                            setListCustomerSelected(newCustomer);
-                                        }}
-                                        rowSelectionModel={listCustomerSelected}
-                                        components={{
-                                            Footer: () => { return <div></div>},
-                                            NoRowsOverlay: () => (
-                                                <Stack height="100%" alignItems="center" justifyContent="center">
-                                                    Vui lòng chọn khách thuê
-                                                </Stack>
-                                            ),
-                                        }}
-                                    />
-                                </div>
-                            </Col>
-                        </Row> :
-                        <Row>
-                            <Col md={12}>
+                        {_dataSelect.status == 1 && <div className='d-flex align-items-center w-100'>
+                            <span className='fs-6 me-2'>Chọn khách thuê</span>
+                            <Button
+                                onClick={() => toggle_modal_add_customer()}
+                                variant='contained'
+                                endIcon={<AddIcon />} 
+                                size="small"
+                            >
+                                Thêm mới khách
+                            </Button>
+                        </div>}
+                        {_dataSelect.status == 1 && <Row className='mt-2'>
+                            <AsyncSelect
+                                components={animatedComponents}
+                                placeholder={'Tìm kiếm khách bằng số điện thoại hoặc tên'}
+                                value={null}
+                                cacheOptions
+                                defaultOptions={listCustomer.concat(_customersData).filter(item => {
+                                    return listCustomerSelected.filter(i => i._id == item._id).length == 0
+                                })}
+                                options={listCustomer.concat(_customersData)}
+                                loadOptions={promiseOptions}
+                                onChange={handle_change}
+                                formatOptionLabel={formatOptionLabel}
+                                closeMenuOnSelect={false}
+                            />
+                        </Row>}
+                        {_dataSelect.status == 1 ? <Row className='mt-2'>
+                            <div style={{ height: 318, width: '100%' }}>
+                                <DataGrid 
+                                    getRowId={(row) => row._id}
+                                    columns={columns_customer}
+                                    rows={listCustomerSelected.map((item, index) => {
+                                        return {
+                                            ...item,
+                                            stt: index + 1
+                                        }
+                                    })}
+                                    components={{
+                                        Footer: () => { return <div></div>},
+                                        NoRowsOverlay: () => (
+                                            <Stack height="100%" alignItems="center" justifyContent="center">
+                                                Vui lòng chọn khách thuê
+                                            </Stack>
+                                        ),
+                                    }}
+                                />
+                            </div>
+                        </Row> : <Row>
                             <div style={{ height: 318, width: '100%' }}>
                                     <DataGrid 
                                         disableRowSelectionOnClick 
@@ -745,9 +733,7 @@ const ModalDetailContract = (props) => {
                                         }}
                                     />
                                 </div>
-                            </Col>
                         </Row>}
-
                         <Row className='mt-3'>
                             <Col md={6}>
                                 <Row>
@@ -793,7 +779,7 @@ const ModalDetailContract = (props) => {
                                             onChange={(e)=>change_customer_represent(e.target.value)}
                                         >
                                             <option value="" disabled selected hidden>Chọn người đại diện</option>
-                                            {listCustomerSelectedData && listCustomerSelectedData.map((item) =>{
+                                            {listCustomerSelected && listCustomerSelected.map((item) =>{
                                             return (<option key={item._id} value={item._id} >{item.fullname} - {item.phone || "---"}</option>)
                                             })}
                                         </Input>

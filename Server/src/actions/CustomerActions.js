@@ -148,16 +148,35 @@ export const list = async ({
 
 export const listAdd = async ({ 
     query: { 
+        q='',
         status,
         apartment,
     }, 
     user 
 }) => {
     let conditions = {}
-
+    if (q && !Utils.checkSearch(q)) {
+        let phone = ''
+        if (Utils.validatePhoneNumber(q.replace(' ', ''))) {
+            phone = q
+        } 
+        conditions["$or"] = [
+            {
+                name_search: {
+                    $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
+                }
+            },
+        ]
+        if (phone) conditions["$or"].push(
+            {
+                phone: {
+                    $regex: ".*" + phone + ".*",
+                }
+            })
+    }
     conditions.apartment = apartment
     if (status) conditions.status = status
-
+    console.log(conditions)
     const [totalItems, data] = await Promise.all([
         Customer.countDocuments(conditions),
         Customer.find(conditions)
@@ -167,7 +186,7 @@ export const listAdd = async ({
     ])
 
     let result = data
-
+    console.log(data)
     return {items: result, total: totalItems}
 }
 

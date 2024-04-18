@@ -211,8 +211,8 @@ export const list = async ({
         q,
         status = 1,
         apartment,
-        page,
-        limit,
+        page=1,
+        limit=10,
     }, 
     user 
 }) => {
@@ -307,8 +307,8 @@ export const get = async ({ body, user, params }) => {
     const data = await Contract.findById(id)
         .select("-apartment -updatedAt -__v")
         .populate('room', 'name')
-        .populate('customer_represent', 'fullname phone')
-        .populate('customers', '-__v -status -avatar -apartment -lastname -firstname -name_search -updatedAt')
+        .populate('customer_represent', '-__v -status -apartment -updatedAt -createdAt -name_search')
+        .populate('customers', '-__v -status -apartment -updatedAt -createdAt -name_search')
         .lean()
     if (!data) throw new NotFoundError('Không tìm thấy hợp đồng')
     const lastBill = await Bill.findOne({

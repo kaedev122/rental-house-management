@@ -42,7 +42,6 @@ import AddIcon from '@mui/icons-material/Add';
 import makeAnimated from 'react-select/animated';
 import AsyncSelect from 'react-select/async'
 import { FaWindowClose } from "react-icons/fa";
-import { set } from 'mongoose'
 
 const animatedComponents = makeAnimated();
 

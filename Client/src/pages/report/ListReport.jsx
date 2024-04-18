@@ -296,7 +296,8 @@ const ListRevenue = () => {
                                             <DropdownToggle
                                                 className='filter-select-date d-flex'
                                                 caret
-                                                color='primary'
+                                                color='secondary' 
+                                                outline
                                             >
                                                 Ngày tạo: {render_time_select()}
                                             </DropdownToggle>

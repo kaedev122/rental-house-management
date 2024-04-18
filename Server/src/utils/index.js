@@ -32,6 +32,9 @@ export const convertVietnameseString = (str) => {
     str = str.replace(/[ùúủũụưừứửữự]/g, 'u');
     str = str.replace(/[ỳýỷỹỵ]/g, 'y');
     
+    // Replace all special characters with spaces
+    str = str.replace(/[^a-zA-Z0-9 ]/g, ' ');
+
     // Replace multiple spaces with a single space
     str = str.replace(/\s+/g, ' ');
     // Replace spaces with underscores
@@ -96,6 +99,7 @@ export const padNumber = (prefix = 'HD', num) => {
 }
 
 export const convertCode = (q, keyword) => {
+    q = q.toUpperCase();
     let code = '';
     const keywordIndex = q.toUpperCase().indexOf(keyword);
     if (typeof q === 'string' && keywordIndex > -1) {

@@ -1,0 +1,65 @@
+.input-group {
+    max-width: 300px;
+    margin: 0 5px;
+}
+
+.filter-select-date {
+    background-color: white;
+    color: black;
+    border-color: #ced4da;
+    align-items: center;
+}
+
+.btn-primary.dropdown-toggle {
+    background-color: white;
+    color: black;
+}
+
+.filter-select {
+    border-radius: 20px;
+    background-color: white;
+    align-items: center;
+    max-width: 300px;
+    color: black;
+}
+
+.dropdown-menu {
+    max-width: 500px;
+    width: 100%;
+}
+
+.div-date-search {
+    padding: 0px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    width: 100%;
+    .form-label {
+        white-space: nowrap;
+        margin-right: 3px;
+        margin-top: 5px;
+    }
+
+    .react-datepicker-wrapper {
+        width: 100%;
+        .react-datepicker__input-container {
+
+            input {
+                background-color: white;
+                color: black;
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+                line-height: 1.5;
+                padding: 5px;
+                max-width: 500px;
+                width: 100%;
+            }
+        }
+    }
+
+    .form-control {
+        width: none;
+    }
+}

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import { User, RoomGroup, Room, Customer, Contract, Bill } from "../models/index.js"
 import * as ContractValidation from '../validations/ContractValidation.js'
 import * as Utils from "../utils/index.js"
@@ -208,6 +208,7 @@ export const endContract = async ({ body, user, params }) => {
 
 export const list = async ({ 
     query: {
+        q,
         status = 1,
         apartment,
         page,
@@ -216,23 +217,79 @@ export const list = async ({
     user 
 }) => {
     let conditions = {}
+    let qConditions = {}
+
+    if (q && !Utils.checkSearch(q)) {
+        let contractCode = Utils.convertCode(q, "HD")
+        let roomName = Utils.convertVietnameseString(q)
+        let customerName = Utils.convertVietnameseString(q)
+        let phone = ''
+        if (Utils.validatePhoneNumber(q.replace(' ', ''))) {
+            phone = q
+        } 
+        qConditions["$or"] = []        
+        if (contractCode) qConditions["$or"].push({  
+            "code": {
+                $regex: ".*" + contractCode + ".*",
+            }
+        })
+        if (roomName) qConditions["$or"].push({
+            "room.name_search": {
+                $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
+            }
+        })
+        if (customerName) qConditions["$or"].push({
+            "customer_represent.name_search": {
+                $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
+            }
+        })
+        if (phone) qConditions["$or"].push({
+            "customer_represent.phone": {
+                $regex: ".*" + phone + ".*",
+            }
+        })
+    }
 
     if (!apartment) throw new ParamError("Thiếu id nhà trọ")
-    conditions.apartment = apartment
-    if (status) conditions.status = status
+    conditions.apartment = mongoose.Types.ObjectId(apartment)
+    if (status) conditions.status = parseInt(status)
     let { offset } = getPagination(page, limit)
 
-    const [totalItems, data] = await Promise.all([
-        Contract.countDocuments(conditions),
-        Contract.find(conditions)
-            .select("-apartment -updatedAt -__v")
-            .populate('room', 'name')
-            .populate('customer_represent', 'fullname phone')
-            .sort({ createdAt: -1 })            
-            .limit(limit)
-            .skip(offset)
-            .lean()
-    ])
+    // const [totalItems, data] = await Promise.all([
+    //     Contract.countDocuments(conditions),
+    //     Contract.find(conditions)
+    //         .select("-apartment -updatedAt -__v")
+    //         .populate('room', 'name')
+    //         .populate('customer_represent', 'fullname phone')
+    //         .sort({ createdAt: -1 })            
+    //         .limit(limit)
+    //         .skip(offset)
+    //         .lean()
+    // ])
+
+    const data = await Contract.aggregate([
+        { $match: conditions },
+        { $project: { apartment: 0, updatedAt: 0, __v: 0 } },
+        { $lookup: { from: 'rooms', localField: 'room', foreignField: '_id', as: 'room' } },
+        { $unwind: '$room' },
+        { $lookup: { from: 'customers', localField: 'customer_represent', foreignField: '_id', as: 'customer_represent' } },
+        { $unwind: '$customer_represent' },
+        { $match: { ...qConditions }},
+        { $sort: { createdAt: -1 } },
+        { $skip: offset },
+        { $limit: parseInt(limit) },
+    ]);
+
+    const totalItems = await Contract.aggregate([
+        { $match: conditions },
+        { $project: { apartment: 0, updatedAt: 0, __v: 0 } },
+        { $lookup: { from: 'rooms', localField: 'room', foreignField: '_id', as: 'room' } },
+        { $unwind: '$room' },
+        { $lookup: { from: 'customers', localField: 'customer_represent', foreignField: '_id', as: 'customer_represent' } },
+        { $unwind: '$customer_represent' },
+        { $match: { ...qConditions }},
+        { $count: 'total'}
+    ]);
 
     const result = data.map(item => {
         return {
@@ -240,7 +297,7 @@ export const list = async ({
             code: Utils.padNumber('HD', item.code),
         }
     })
-    return getPagingData(result, totalItems, page, limit)
+    return getPagingData(result, totalItems[0]?.total || 0, page, limit)
 }
 
 export const get = async ({ body, user, params }) => {

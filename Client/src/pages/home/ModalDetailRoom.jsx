@@ -64,6 +64,7 @@ const ModalDetailRoom = (props) => {
         if (dataAdd.room_price) formData.append("room_price", dataAdd.room_price)
         if (dataAdd.electric_price) formData.append("electric_price", dataAdd.electric_price)
         if (dataAdd.water_price) formData.append("water_price", dataAdd.water_price)
+        if (dataAdd.area) formData.append("area", dataAdd.area)
         if (changed) {
             if (roomImages.length > 0) {
                 for (let i in roomImages) {
@@ -231,6 +232,22 @@ const ModalDetailRoom = (props) => {
                                 />
                             {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
                         </FormGroup>
+                        <FormGroup>
+                            <TextField
+                                id="area"
+                                name="area"
+                                error={errorForm.area?.error}
+                                fullWidth={true}
+                                label={`Diện tích m2`}
+                                type="text"
+                                value={dataAdd.area ? dataAdd.area.toLocaleString() : ""}
+                                onChange={(e) =>
+                                    onChangeData("area", e.target.value, true)
+                                }
+                                onKeyUp={pressEnterEvent}
+                                />
+                            {errorForm.area?.error && <div className='text-error'>{errorForm.area?.message}</div>}
+                        </FormGroup>
                     </Col>
                     <Col md={7}>
                         <Card className='w-100 h-100 p-2'>
@@ -306,6 +323,7 @@ const ModalDetailRoom = (props) => {
                         </Card>
                     </Col>
                 </Row>
+                <div className='mt-2 text-end fst-italic'>(Các dữ liệu trên phục vụ cho mục đích quảng bá nhà trọ của bạn)</div>
             </ModalBody>
             <ModalFooter className='justify-content-between'>
                 <div>

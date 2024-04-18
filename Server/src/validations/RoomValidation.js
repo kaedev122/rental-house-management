@@ -17,6 +17,7 @@ export const create = Joi.object({
     room_price: Joi.number().label("Giá phòng"),
     water_price: Joi.number().label("Giá nước"),
     electric_price: Joi.number().label("Giá điện"),
+    area: Joi.number().label("Diện tích"),
 }).messages(errorJoiMessages);
 
 export const update = Joi.object({
@@ -26,4 +27,5 @@ export const update = Joi.object({
     water_price: Joi.number().label("Giá nước"),
     electric_price: Joi.number().label("Giá điện"),
     contract: Joi.number().label("Hợp đồng"),
+    area: Joi.number().label("Diện tích"),
 }).messages(errorJoiMessages);

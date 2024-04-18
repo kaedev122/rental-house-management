@@ -25,6 +25,10 @@ import { DataGrid } from '@mui/x-data-grid';
 import { FaEdit } from "react-icons/fa";
 import { format_full_time } from '@utils/format_time';
 import { Paginations, SearchBar } from "@components"
+import DatePicker, { registerLocale } from "react-datepicker"
+import viLocale from 'date-fns/locale/vi'
+registerLocale('vi', viLocale)
+import 'react-datepicker/dist/react-datepicker.css'
 
 const ListReport = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
@@ -113,28 +117,12 @@ const ListReport = () => {
 		return await get_list_revenue(data_input)
 	}
 
-    const search_type = async (type, value) => {
-		setPage(1)
-		return search_data_input({
-			...dataSearch,
-			[type]: value,
-			"page": 1
-		})
-	}
-
-	const render_selected = (list_select, selected) => {
-		const new_list = list_select.filter(item => item.value == selected)
-		if (is_empty(new_list)) {
-			return list_select[0]?.text
-		}
-		return new_list[0]?.text
-	}
     const get_list_revenue = async (dataInput) => {
         let input = {
             ...dataInput,
             "limit": size
         }
-
+        console.log(input)
         const res = await http_request({method: "GET", url:"cms/revenues", params: input})
 		const { code, data, message } = res
         if (code == 200) {
@@ -151,8 +139,9 @@ const ListReport = () => {
         })
     }
 
-    const get_total_revenue = async () => {
+    const get_total_revenue = async (searchInput) => {
         let input = {
+            ...searchInput,
             apartment: apartmentCurrent
         }
         const res = await http_request({method: "GET", url:"cms/revenue-total", params: input})
@@ -165,49 +154,6 @@ const ListReport = () => {
             autoHideDuration: 5000,
         })
     }
-
-	const open_detail = async (item) => {
-        console.log(item)
-        setDataSelect(item)
-        return toggle_modal_detail()
-	}
-
-	const open_pay = async (item) => {
-        console.log(item)
-        setDataSelect(item)
-        return toggle_modal_pay()
-	}
-
-	const done_action = () => {
-		setModalAdd(false)
-		setModalDetail(false)
-		setModalPay(false)
-        return get_list_revenue({
-            ...dataSearch,
-			"apartment": apartmentCurrent,
-			"page": 1,
-            "limit": size
-        })
-	}
-
-	const render_action = (item) => {
-        return (<div>
-            <FaEdit title='Sửa' className='pointer-btn'
-                onClick={()=>open_detail(item)}
-            />
-        </div>)
-	}
-
-	const render_status = (status) => {
-		if (status === 1) return <Button className='btn-status' color='success' size='sm'>Mở</Button>
-		return <Button className='btn-status' color='error' size='sm'>Đóng</Button>
-	}
-
-    const render_payment_status = (status) => {
-		if (status === 0) return <Button className='btn-status' color='error' size='sm'>Chưa thanh toán</Button>
-		if (status === 1) return <Button className='btn-status' color='warning' size='sm'>Thanh toán một phần</Button>
-		return <Button className='btn-status' color='success' size='sm'>Đã thanh toán</Button>
-	}
 
 	const onChangeText = async (text = '') => {
 		clearTimeout(timer.current)
@@ -222,6 +168,23 @@ const ListReport = () => {
 			...dataSearch,
 			"q": trim(value),
 			"page": 1
+		})
+	}
+    
+    const render_time_select = () => {
+		return <div className='d-flex ms-2'>
+			{format_date_time(dataSearch.createdFrom)} - {format_date_time(dataSearch.createdTo)}
+		</div>
+	}
+
+	const search_data_table = async (type, value) => {
+		setDataSearch({
+			...dataSearch,
+			[type]: value,
+		})
+		return await get_list_revenue({
+			...dataSearch,
+			[type]: value,
 		})
 	}
 
@@ -249,7 +212,7 @@ const ListReport = () => {
             <CardHeader>
                 <div className='d-flex justify-content-between align-items-center'>
                     <div>
-                        <span className='header-text'>Quản lý doanh thu</span>
+                        <span className='header-text'>Quản lý phiếu thu</span>
                     </div>
                     <div className='float-end'>
 
@@ -258,49 +221,52 @@ const ListReport = () => {
             </CardHeader>
             <CardBody>
                 <div className='group-container'>
-                    <div className='d-flex align-items-center'>
+                    <div className='search-bar d-flex align-items-center w-100 justify-content-between'>
                         <SearchBar
                             placeholder={"Tìm kiếm theo mã hóa đơn"}
                             onChangeText={onChangeText}
                         />
-                        <UncontrolledDropdown
-							className="me-2 "
-							direction="down"
-						>
-							<DropdownToggle
-								className='filter-select h-100'
-								caret
-							>
-								{render_selected(list_status, dataSearch.status)}
-							</DropdownToggle>
-							<DropdownMenu>
-								{list_status && list_status.map((item, index) => (
-									<DropdownItem key={index} color='red' value={item.value} onClick={e => search_type("status", e.target.value)}>
-										{item.text}
-									</DropdownItem>
-								))}
-							</DropdownMenu>
-						</UncontrolledDropdown>
-                        <UncontrolledDropdown
-							className="me-2 "
-							direction="down"
-						>
-							<DropdownToggle
-								className='filter-select h-100'
-								caret
-							>
-								{render_selected(list_payment_status, dataSearch.payment_status)}
-							</DropdownToggle>
-							<DropdownMenu>
-								{list_payment_status && list_payment_status.map((item, index) => (
-									<DropdownItem key={index} color='red' value={item.value} onClick={e => search_type("payment_status", e.target.value)}>
-										{item.text}
-									</DropdownItem>
-								))}
-							</DropdownMenu>
-						</UncontrolledDropdown>
+                        <div className='d-flex float-end'>
+                            <UncontrolledDropdown
+                                direction="start"
+                                className='ms-2'
+                            >
+                                <DropdownToggle
+                                    className='filter-select-date d-flex'
+                                    caret
+                                    color='secondary' 
+                                    outline
+                                >
+                                    Ngày tạo: {render_time_select()}
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    <div className='div-date-search'>
+                                        <DatePicker
+                                            placeholderText="Từ ngày"
+                                            selected={dataSearch.createdFrom}
+                                            onChange={date => search_data_table("createdFrom", date)}
+                                            isClearable
+                                            dateFormat="dd/MM/yyyy"
+                                            maxDate={dataSearch.createdTo || new Date()}
+                                            locale='vi'
+                                        />
+                                        <DatePicker
+                                            placeholderText="Đến ngày"
+                                            selected={dataSearch.createdTo}
+                                            onChange={date => search_data_table("createdTo", date)}
+                                            selectsStart
+                                            isClearable
+                                            dateFormat="dd/MM/yyyy"
+                                            minDate={dataSearch.createdFrom || undefined}
+                                            maxDate={new Date()}
+                                            locale='vi'
+                                        />
+                                    </div>
+                                </DropdownMenu>
+                            </UncontrolledDropdown>
+                        </div>
                     </div>
-                    <div className='mt-3' style={{ height: "578px", width: '100%' }}>
+                    <div className='table-list' style={{ height: "578px", width: '100%' }}>
                         <DataGrid 
                             getRowId={(row) => row._id}
                             columns={columns}
@@ -314,7 +280,7 @@ const ListReport = () => {
                                 Footer: () => { return <div></div>},
                                 NoRowsOverlay: () => (
                                     <Stack height="100%" alignItems="center" justifyContent="center">
-                                        Dịch vụ
+                                        Phiếu thu
                                     </Stack>
                                 ),
                             }}

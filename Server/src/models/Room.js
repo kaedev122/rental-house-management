@@ -10,7 +10,7 @@ const RoomSchema = new mongoose.Schema({
     water_price: { type: Number, default: 0 },
     electric_price: { type: Number, default: 0 },
     images: [{type: String}],
-    
+    area: {type: Number},
     customer_represent: {type: mongoose.Schema.Types.ObjectId, ref: 'Customer'},
     contract: {type: mongoose.Schema.Types.ObjectId, ref: 'Contract'},
     apartment: {type: mongoose.Schema.Types.ObjectId, ref: 'Apartment', index: true},

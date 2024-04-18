@@ -73,15 +73,9 @@ const ModalPayBill = (props) => {
         setErrorForm({})
         if (isNumber) {
 			let result = value.replace(/\D/g, "");
-            const checkMax = parseInt(value)
+            const checkMax = Number(result)
             if (checkMax > dataAdd.debt) {
                 result = dataAdd.debt
-            }
-            if (type == 'start_electric_number' || type =='start_water_number') {
-                return setDataAdd({
-                    ...dataAdd,
-                    [type]: parseInt(result) || 0,
-                });
             }
 			return setDataAdd({
 				...dataAdd,

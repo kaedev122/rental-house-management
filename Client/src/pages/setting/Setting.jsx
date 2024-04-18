@@ -273,6 +273,7 @@ const Setting = () => {
         if (userData.email) formData.append("email", userData.email)
         if (userData.address) formData.append("address", userData.address)
         if (userData.birthday) formData.append("birthday", userData.birthday)
+        if (userData.sex) formData.append("sex", userData.sex)
         if (changed) formData.append("avatar", images[0]?.file)
         const res = await http_request({method: "POST", url:`auth/change-user-data`, data: formData, up_file: true })
 		const { code, data, message } = res
@@ -996,6 +997,7 @@ const Setting = () => {
                                             )}
                                         </ImageUploading>
                                     </Card>
+                                    <div className='mt-2 text-end fst-italic'>(Các dữ liệu trên phục vụ cho mục đích quảng bá nhà trọ của bạn)</div>
                                 </Col>
                             </Row>
                         </TabPanel>

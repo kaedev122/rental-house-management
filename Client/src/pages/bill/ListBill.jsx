@@ -63,22 +63,19 @@ const ListBill = () => {
     
 	const list_status = [
         {
-			'text': 'Tất cả',
-			'value': ""
-		},{
 			'text': 'Mở',
 			'value': 1,
 		},{
 			'text': 'Đóng',
 			'value': 0,
+		},{
+			'text': 'Tất cả',
+			'value': ""
 		}
 	]
 
 	const list_payment_status = [
         {
-			'text': 'Tất cả',
-			'value': ""
-		},{
 			'text': 'Chưa thanh toán',
 			'value': 0,
 		},{
@@ -125,13 +122,24 @@ const ListBill = () => {
 		})
 	}
 
-	const render_selected = (list_select, selected) => {
+	const render_payment_selected = (list_select, selected) => {
+        if (selected == "") return "Tất cả"
 		const new_list = list_select.filter(item => item.value == selected)
 		if (is_empty(new_list)) {
-			return list_select[0]?.text
+			return "Trạng thái thanh toán"
 		}
 		return new_list[0]?.text
 	}
+
+    const render_status_selected = (list_select, selected) => {
+        if (selected == "") return "Tất cả"
+		const new_list = list_select.filter(item => item.value == selected)
+		if (is_empty(new_list)) {
+			return "Trạng thái"
+		}
+		return new_list[0]?.text
+	}
+
     const get_list_contract = async (dataInput) => {
         let input = {
             ...dataInput,
@@ -273,49 +281,55 @@ const ListBill = () => {
             </CardHeader>
             <CardBody>
                 <div className='group-container'>
-                    <div className='d-flex align-items-center'>
+                    <div className='search-bar d-flex align-items-center w-100 justify-content-between'>
                         <SearchBar
-                            placeholder={"Tìm kiếm theo mã hóa đơn"}
+                            placeholder={"Tìm kiếm theo mã hóa đơn, mã hợp đồng, tên phòng"}
                             onChangeText={onChangeText}
                         />
-                        <UncontrolledDropdown
-							className="me-2 "
-							direction="down"
-						>
-							<DropdownToggle
-								className='filter-select h-100'
-								caret
-							>
-								{render_selected(list_status, dataSearch.status)}
-							</DropdownToggle>
-							<DropdownMenu>
-								{list_status && list_status.map((item, index) => (
-									<DropdownItem key={index} color='red' value={item.value} onClick={e => search_type("status", e.target.value)}>
-										{item.text}
-									</DropdownItem>
-								))}
-							</DropdownMenu>
-						</UncontrolledDropdown>
-                        <UncontrolledDropdown
-							className="me-2 "
-							direction="down"
-						>
-							<DropdownToggle
-								className='filter-select h-100'
-								caret
-							>
-								{render_selected(list_payment_status, dataSearch.payment_status)}
-							</DropdownToggle>
-							<DropdownMenu>
-								{list_payment_status && list_payment_status.map((item, index) => (
-									<DropdownItem key={index} color='red' value={item.value} onClick={e => search_type("payment_status", e.target.value)}>
-										{item.text}
-									</DropdownItem>
-								))}
-							</DropdownMenu>
-						</UncontrolledDropdown>
+                        <div className='d-flex float-end'>
+                            <UncontrolledDropdown
+                                className="me-2 "
+                                direction="down"
+                            >
+                                <DropdownToggle
+                                    className='filter-select h-100'
+                                    caret
+                                    color='secondary' 
+                                    outline
+                                >
+                                    {render_status_selected(list_status, dataSearch.status)}
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    {list_status && list_status.map((item, index) => (
+                                        <DropdownItem key={index} value={item.value} onClick={e => search_type("status", e.target.value)}>
+                                            {item.text}
+                                        </DropdownItem>
+                                    ))}
+                                </DropdownMenu>
+                            </UncontrolledDropdown>
+                            <UncontrolledDropdown
+                                className="me-2 "
+                                direction="down"
+                            >
+                                <DropdownToggle
+                                    className='filter-select h-100'
+                                    caret                                    
+                                    color='secondary' 
+                                    outline
+                                >
+                                    {render_payment_selected(list_payment_status, dataSearch.payment_status)}
+                                </DropdownToggle>
+                                <DropdownMenu>
+                                    {list_payment_status && list_payment_status.map((item, index) => (
+                                        <DropdownItem key={index} value={item.value} onClick={e => search_type("payment_status", e.target.value)}>
+                                            {item.text}
+                                        </DropdownItem>
+                                    ))}
+                                </DropdownMenu>
+                            </UncontrolledDropdown>
+                        </div>
                     </div>
-                    <div className='mt-3' style={{ height: "578px", width: '100%' }}>
+                    <div className='table-list' style={{ height: "578px", width: '100%' }}>
                         <DataGrid 
                             getRowId={(row) => row._id}
                             columns={columns}
@@ -329,7 +343,7 @@ const ListBill = () => {
                                 Footer: () => { return <div></div>},
                                 NoRowsOverlay: () => (
                                     <Stack height="100%" alignItems="center" justifyContent="center">
-                                        Dịch vụ
+                                        Hóa đơn
                                     </Stack>
                                 ),
                             }}

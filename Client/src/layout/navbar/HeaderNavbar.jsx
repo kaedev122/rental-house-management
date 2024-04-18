@@ -126,34 +126,6 @@ const HeaderNavbar = (props) => {
               <p>HÓA ĐƠN</p>
             </NavLink>
           </NavItem>
-          <NavItem key="contract"
-            className={format_path() === 'contract' ? `highlight` : ''}
-          >
-            <NavLink 
-              className="d-flex flex-row align-items-center"
-              href="/cms/contract"
-            >
-              <i className="d-flex">
-                <FaFileContract />
-              </i>
-              <p>HỢP ĐỒNG</p>
-            </NavLink>
-          </NavItem>
-
-          <NavItem key="report"
-            className={format_path() === 'report' ? `highlight` : ''}
-          >
-            <NavLink 
-              className="d-flex flex-row align-items-center"
-              href="/cms/report"
-            >
-              <i className="d-flex">
-                <IoStatsChartSharp />
-              </i>
-              <p>BÁO CÁO</p>
-            </NavLink>
-          </NavItem>
-
           <NavItem key="revenue"
             className={format_path() === 'revenue' ? `highlight` : ''}
           >
@@ -167,7 +139,32 @@ const HeaderNavbar = (props) => {
               <p>PHIẾU THU</p>
             </NavLink>
           </NavItem>
-
+          <NavItem key="report"
+            className={format_path() === 'report' ? `highlight` : ''}
+          >
+            <NavLink 
+              className="d-flex flex-row align-items-center"
+              href="/cms/report"
+            >
+              <i className="d-flex">
+                <IoStatsChartSharp />
+              </i>
+              <p>BÁO CÁO</p>
+            </NavLink>
+          </NavItem>
+          <NavItem key="contract"
+            className={format_path() === 'contract' ? `highlight` : ''}
+          >
+            <NavLink 
+              className="d-flex flex-row align-items-center"
+              href="/cms/contract"
+            >
+              <i className="d-flex">
+                <FaFileContract />
+              </i>
+              <p>HỢP ĐỒNG</p>
+            </NavLink>
+          </NavItem>
           <NavItem key="apartment"            
             className={format_path() === 'apartment' ? `highlight` : ''}
           >
@@ -261,17 +258,17 @@ const HeaderNavbar = (props) => {
             </NavLink>
           </NavItem>
 
-          <NavItem key="contract"
-            className={format_path() === 'contract' ? `highlight` : ''}
+          <NavItem key="revenue"
+            className={format_path() === 'revenue' ? `highlight` : ''}
           >
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/cms/contract"
+              href="/cms/revenue"
             >
               <i className="d-flex">
-                <FaFileContract />
+                <FaMoneyBillTrendUp />
               </i>
-              <p>HỢP ĐỒNG</p>
+              <p>PHIẾU THU</p>
             </NavLink>
           </NavItem>
 
@@ -289,17 +286,17 @@ const HeaderNavbar = (props) => {
             </NavLink>
           </NavItem>
 
-          <NavItem key="revenue"
-            className={format_path() === 'revenue' ? `highlight` : ''}
+          <NavItem key="contract"
+            className={format_path() === 'contract' ? `highlight` : ''}
           >
             <NavLink 
               className="d-flex flex-row align-items-center"
-              href="/cms/revenue"
+              href="/cms/contract"
             >
               <i className="d-flex">
-                <FaMoneyBillTrendUp />
+                <FaFileContract />
               </i>
-              <p>PHIẾU THU</p>
+              <p>HỢP ĐỒNG</p>
             </NavLink>
           </NavItem>
 

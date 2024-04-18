@@ -203,36 +203,115 @@ export const list = async ({
     user 
 }) => {
     let conditions = {}
+    let qConditions = {}
 
     if (q && !Utils.checkSearch(q)) {
-        let code = Utils.convertCode(q, "DTT")
-        conditions["$or"] = [
-            {
-                code: {
-                    $regex: ".*" + code + ".*",
-                }
+        let billCode = Utils.convertCode(q, "DTT")
+        let contractCode = Utils.convertCode(q, "HD")
+        let roomName = Utils.convertVietnameseString(q)
+        qConditions["$or"] = []
+        if (billCode) qConditions["$or"].push({
+            "code": {
+                $regex: ".*" + billCode + ".*",
             }
-        ]
+        })            
+        if (contractCode) qConditions["$or"].push({  
+            "contract.code": {
+                $regex: ".*" + contractCode + ".*",
+            }
+        })
+        if (roomName) qConditions["$or"].push({
+            "room.name_search": {
+                $regex: ".*" + Utils.convertVietnameseString(q) + ".*",
+            }
+        })
     }
 
     if (!apartment) throw new ParamError("Thiếu id nhà trọ")
-    conditions.apartment = apartment
+    conditions.apartment = mongoose.Types.ObjectId(apartment)
     if (status) conditions.status = status
-    if (contract) conditions.contract = contract
+    if (contract) conditions.contract = mongoose.Types.ObjectId(contract)
     if (payment_status) conditions.payment_status = payment_status
     let { offset } = getPagination(page, limit)
 
-    const [totalItems, data] = await Promise.all([
-        Bill.countDocuments(conditions),
-        Bill.find(conditions)
-            .select("-apartment -updatedAt -__v")
-            .populate('room', 'name')
-            .populate('contract', 'code customer_represent')
-            .sort({ createdAt: -1 })            
-            .limit(limit)
-            .skip(offset)
-            .lean()
-    ])
+    // const [totalItems, data] = await Promise.all([
+    //     Bill.countDocuments(conditions),
+    //     Bill.find(conditions)
+    //         .select("-apartment -updatedAt -__v")
+    //         .populate('room', 'name')
+    //         .populate('contract', 'code customer_represent')
+    //         .sort({ createdAt: -1 })            
+    //         .limit(limit)
+    //         .skip(offset)
+    //         .lean()
+    // ])
+    const data = await Bill.aggregate([
+        { 
+            $match: {
+                ...conditions
+            }
+        },{ 
+            $lookup: {
+                from: 'rooms',
+                localField: 'room',
+                foreignField: '_id',
+                as: 'room'
+            }
+        },{ 
+            $unwind: '$room' 
+        },{ 
+            $lookup: {
+                from: 'contracts',
+                localField: 'contract',
+                foreignField: '_id',
+                as: 'contract'
+            }
+        },{ 
+            $unwind: '$contract' 
+        },{ 
+            $match: {
+                ...qConditions
+            }
+        },{
+            $sort: { createdAt: -1 } 
+        },{ 
+            $skip: offset 
+        },{ 
+            $limit: parseInt(limit) 
+        }
+    ]);
+
+    const totalItems = await Bill.aggregate([
+        { 
+            $match: {
+                ...conditions
+            }
+        },{ 
+            $lookup: {
+                from: 'rooms',
+                localField: 'room',
+                foreignField: '_id',
+                as: 'room'
+            }
+        },{ 
+            $unwind: '$room' 
+        },{ 
+            $lookup: {
+                from: 'contracts',
+                localField: 'contract',
+                foreignField: '_id',
+                as: 'contract'
+            }
+        },{ 
+            $unwind: '$contract' 
+        },{ 
+            $match: {
+                ...qConditions
+            }
+        },{
+            $count: 'total'
+        }
+    ]);
 
     const result = data.map(item => {
         return {
@@ -245,7 +324,8 @@ export const list = async ({
             }
         }
     })
-    return getPagingData(result, totalItems, page, limit)
+
+    return getPagingData(result, totalItems[0]?.total || 0, page, limit)
 }
 
 export const get = async ({ body, user, params }) => {

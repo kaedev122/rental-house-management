@@ -23,10 +23,10 @@ export const create = Joi.object({
     password: passwordComplexity(_complexityOptions).required().label("Mật khẩu"),
     email: Joi.string().email().max(50).lowercase().required().label('Email'),
     phone: _phoneValidation.required().label("Số điện thoại"),
-    birthday: Joi.date().label("Ngày sinh"),
-    sex: Joi.string().max(10).label("Giới tính"),
+    birthday: Joi.date().allow('', null).label("Ngày sinh"),
+    sex: Joi.string().max(10).allow('', null).label("Giới tính"),
     fullname: Joi.string().required().max(100).label("Họ và tên"),
-    address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).max(100).label('Địa chỉ'),
+    address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).max(100).allow('', null).label('Địa chỉ'),
 }).messages(errorJoiMessages);
 
 export const resendEmail = Joi.object({

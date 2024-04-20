@@ -229,9 +229,9 @@ export const list = async ({
 
     if (!apartment) throw new ParamError("Thiếu id nhà trọ")
     conditions.apartment = mongoose.Types.ObjectId(apartment)
-    if (status) conditions.status = status
+    if (status) conditions.status = parseInt(status)
     if (contract) conditions.contract = mongoose.Types.ObjectId(contract)
-    if (payment_status) conditions.payment_status = payment_status
+    if (payment_status) conditions.payment_status = parseInt(payment_status)
     let { offset } = getPagination(page, limit)
 
     // const [totalItems, data] = await Promise.all([

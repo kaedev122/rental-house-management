@@ -53,11 +53,13 @@ const ModalAddContract = (props) => {
     const [listServiceSelectedData, setListServiceSelectedData] = useState([]);
     const [listService, setListService] = useState([])
     const [listRoom, setListRoom] = useState([])
+    const [listRoomDefault, setListRoomDefault] = useState([])
     const [roomData, setRoomData] = useState({})
     const [roomSelected, setRoomSelected] = useState(_room_selected)
     const [represent, setRepresent] = useState()
 
     const [listCustomer, setListCustomer] = useState([])
+    const [listCustomerDefault, setListCustomerDefault] = useState([])
     const [listCustomerSelected, setListCustomerSelected] = useState([]);
 
     const [dataAdd, setDataAdd] = useState({})
@@ -167,6 +169,7 @@ const ModalAddContract = (props) => {
         // get_list_customer()
         get_customer_data()
         get_list_service()
+        get_default_data()
     }, [])
 
     useEffect(() => {
@@ -188,6 +191,7 @@ const ModalAddContract = (props) => {
 
 	const change_room = async (room_id) => {
         setErrorForm({})
+        console.log(room_id)
 		return setRoomSelected(room_id)
 	}
 
@@ -197,7 +201,7 @@ const ModalAddContract = (props) => {
 	}
 
     const get_room_data = async () => {
-        const res = await http_request({method: "GET", url:`cms/room/${roomSelected}`})
+        const res = await http_request({method: "GET", url:`cms/room/${roomSelected.value}`})
 		const { code, data, message } = res
         if (code == 200) {
             setDataAdd({
@@ -219,8 +223,22 @@ const ModalAddContract = (props) => {
         const res = await http_request({method: "GET", url:`cms/rooms`, params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            return setListRoom(data.items)
+            setListRoom(data.items)
+            return data.items.map((item) => {
+                return {
+                    label: item.name,
+                    value: item._id
+                }
+            })
         }
+    }
+
+    const get_default_data = async () => {
+        let customerData = await get_list_customer()
+        setListCustomerDefault(customerData)
+        let roomData = await get_list_room_data()
+        console.log(roomData)
+        setListRoomDefault(roomData)
     }
 
     const get_list_customer = async (data_search) => {
@@ -236,9 +254,6 @@ const ModalAddContract = (props) => {
                 return listCustomerSelected.filter(i => i._id == item._id).length == 0
             })
             setListCustomer(result)
-            setListCustomerSelected((data?.items || []).filter(item => { 
-                return listCustomerSelected.filter(i => i._id == item._id).length == 1
-            }))
             return result
         }
         return enqueueSnackbar(message, {
@@ -343,7 +358,12 @@ const ModalAddContract = (props) => {
 		})
 	}
 
-    const search_text = async (value) => {
+    const search_text = async (value, type) => {
+        if (type == 'room') {
+            return get_list_room_data({
+                "q": trim(value),
+            })
+        }
 		return get_list_customer({
 			"q": trim(value),
 		})
@@ -529,11 +549,25 @@ const ModalAddContract = (props) => {
             <span>{option.fullname} - {option.phone}</span>
         </div>
     }
+
+    const formatRoomOptionLabel = (option) => {
+        console.log(option)
+        return <div className="d-flex item-option">
+            <span>{option.label}</span>
+        </div>
+    }
     
     const promiseOptions = async (text = '') => {
         clearTimeout(timer.current)
         return new Promise(resolve => {
-            timer.current = setTimeout(async () => resolve(search_text(text)), 500)
+            timer.current = setTimeout(async () => resolve(search_text(text, "customer")), 500)
+        })
+    }
+
+    const promiseRoomOptions = async (text = '') => {
+        clearTimeout(timer.current)
+        return new Promise(resolve => {
+            timer.current = setTimeout(async () => resolve(search_text(text, "room")), 500)
         })
     }
 
@@ -549,11 +583,26 @@ const ModalAddContract = (props) => {
             </ModalHeader>
             <ModalBody>
                 <Row>
-                    <Col md={6}>
+                    <Col md={8}>
                         <Label>
                             Chọn phòng tiến hành đăng ký hợp đồng
                         </Label>
-                        <Input
+                        <AsyncSelect
+                            placeholder={'Tìm kiếm phòng theo tên phòng'}
+                            cacheOptions
+                            defaultOptions={listRoomDefault}
+                            options={listRoom}
+                            loadOptions={promiseRoomOptions}
+                            onChange={(e)=>change_room(e)}
+                            value={roomSelected}
+                            formatOptionLabel={formatRoomOptionLabel}
+                            components={{
+                                ...animatedComponents,
+                                LoadingMessage: () => <div className="no-option">Đang tìm kiếm...</div>,
+                                NoOptionsMessage: () => <div className="no-option">Không tìm thấy kết quả!</div>,
+                            }}
+                        />
+                        {/* <Input
                             id="exampleSelect"
                             name="select"
                             type="select"
@@ -566,10 +615,10 @@ const ModalAddContract = (props) => {
                             {listRoom && listRoom.map((item) =>{
                                 return (<option key={item?._id} value={item?._id} >{item?.name}</option>)
                             })}
-                        </Input>
+                        </Input> */}
                         {errorForm.room_selected?.error && <div className='text-error'>{errorForm.room_selected?.message}</div>}
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         
                     </Col>
                 </Row>
@@ -597,18 +646,23 @@ const ModalAddContract = (props) => {
                         </div>
                         <Row className='mt-2'>
                             <AsyncSelect
-                                components={animatedComponents}
                                 placeholder={'Tìm kiếm khách bằng số điện thoại hoặc tên'}
                                 value={null}
                                 cacheOptions
-                                defaultOptions={listCustomer.filter(item => {
-                                    return listCustomerSelected.filter(i => i._id == item._id).length == 0
+                                defaultOptions={listCustomerDefault.filter(item => {
+                                    return !listCustomerSelected.some(i => i._id == item._id)
                                 })}
                                 options={listCustomer}
                                 loadOptions={promiseOptions}
                                 onChange={handle_change}
                                 formatOptionLabel={formatOptionLabel}
                                 closeMenuOnSelect={false}
+                                components={{
+                                    ...animatedComponents,
+                                    DropdownIndicator: () => null,
+                                    LoadingMessage: () => <div className="no-option">Đang tìm kiếm...</div>,
+                                    NoOptionsMessage: () => <div className="no-option">Không tìm thấy kết quả!</div>,
+                                }}
                             />
                         </Row>
                         <Row className='mt-2'>

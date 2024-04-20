@@ -131,7 +131,7 @@ const ListReport = () => {
             setDataAdd(data)
             setTotalRecord(data.total)
             setTotalPage(data.totalPages)
-            return get_total_revenue()
+            // return get_total_revenue()
         }
         return enqueueSnackbar(message, {
             variant: "error",

@@ -57,6 +57,11 @@ export const errorJoiMessages = {
     'number.positive': '{#label} phải lớn hơn 0',
     'date.base': '{#label} phải là ngày tháng',
     'date.format': '{#label} không đúng định dạng ngày tháng',
+    "passwordComplexity.uppercase": "Mật khẩu phải có chứa chữ cái in hoa",
+    "passwordComplexity.lowercase": "Mật khẩu phải có chứa chữ cái in thường",
+    "passwordComplexity.numeric": "Mật khẩu phải có chứa chữ số",
+    "passwordComplexity.tooShort": "Mật khẩu phải có ít nhất 8 kí tự",
+    "passwordComplexity.tooLong": "Mật khẩu chỉ được nhiều nhất 20 kí tự",
 };
 
 export const generateRandomString = () => {

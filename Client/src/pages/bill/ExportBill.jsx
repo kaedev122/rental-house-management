@@ -123,20 +123,17 @@ const ExportBill = (props) => {
                                         style={{ 
                                             width: "150px", 
                                             height: "150px", 
-                                            overflow: "hidden", 
                                             display: "flex", 
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            position: "relative",
                                         }}
                                     >
                                         <img 
                                             style={{ 
-                                                width: "150%",
-                                                marginTop: "40%",
+                                                width: "100%",
                                             }}
                                             className='crop-image' 
-                                            src={`https://img.vietqr.io/image/${apartmentData.bank_info.bin}-${apartmentData.account_number}-print.png?amount=${_data.total}&addInfo=${_data?.room?.name}%20${_data?.contract?.code}%20${_data.code}%20${customerData?.fullname}&accountName=${apartmentData.account_name.replace(" ", "%20")}`} 
+                                            src={`https://api.vietqr.io/image/${apartmentData.bank_info.bin}-${apartmentData.account_number}-COpVyjx.jpg?amount=${_data.total}&addInfo=${_data?.room?.name}%20${_data?.contract?.code}%20${_data.code}%20${customerData?.fullname}&accountName=${apartmentData.account_name.replace(" ", "%20")}`} 
                                         />
                                     </div>
                                 </div>}

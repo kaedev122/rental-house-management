@@ -8,6 +8,7 @@ import "./login.scss";
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { set_apartment_list, set_apartment_current } from '@redux/apartmentSlice'
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const Login = () => {
     const location = useLocation();
@@ -22,6 +23,7 @@ const Login = () => {
 		password: ""
 	});
 	const [errorForm, setErrorForm] = useState({})
+    const [loading, setLoading] = useState(false)
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
 	const get_data_store = async () => {
@@ -58,7 +60,9 @@ const Login = () => {
 			"username": trim(dataAdd.username),
 			"password": trim(dataAdd.password)
 		}
+        setLoading(true)
 		const res = await http_request({ method: "POST", url: "auth/login", data: input, path: location.pathname })
+        setLoading(false)
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -146,12 +150,12 @@ const Login = () => {
 
     return (
         <div className='login-form'>
-            <div className="logo">LodgingPro</div>
+            <div className="logo">RoomMaster</div>
             <Card 
                 className="my-2 login-form-card"
             >
                 <CardHeader className='login-form-header'>
-                    <label className='d-flex justify-content-center'>Đăng nhập vào LodgingPro</label>
+                    <label className='d-flex justify-content-center'>Đăng nhập vào RoomMaster</label>
                 </CardHeader>
                     <FormGroup>
                         <TextField
@@ -186,14 +190,15 @@ const Login = () => {
                         {errorForm.password?.error && <div className='text-error'>{errorForm.password?.message}</div>}
                     </FormGroup>
                     <FormGroup>
-                        <Button
+                        <LoadingButton
                             color="primary" 
+                            loading={loading}
                             variant="contained"
                             onClick={onSubmit}
                             className='text-center w-100 btn-no-border'
                         >
                             Đăng nhập
-                        </Button>
+                        </LoadingButton>
                         <Button variant="text" className='text-center w-100 btn-no-border' onClick={() => goToForgotPassword()}>
                             Quên mật khẩu
                         </Button>

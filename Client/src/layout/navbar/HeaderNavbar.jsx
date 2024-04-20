@@ -80,7 +80,7 @@ const HeaderNavbar = (props) => {
       { windowWidth <= 1470 ? 
       (<Navbar color="faded" light>
         <div className='d-flex w-100 flex-row justify-content-between'>
-          <NavbarBrand href="/cms/home">LodgingPro</NavbarBrand>
+          <NavbarBrand href="/cms/home">RoomMaster</NavbarBrand>
           <div className='d-flex flex-row'>
             <Input
               id="exampleSelect"
@@ -229,7 +229,7 @@ const HeaderNavbar = (props) => {
         className={`top-narbar`}
       >
         <div className="d-flex navbar-menu">
-          <NavbarBrand href="/cms/home">LodgingPro</NavbarBrand>
+          <NavbarBrand href="/cms/home">RoomMaster</NavbarBrand>
           <NavItem key="home"            
             className={format_path() === 'home' ? `highlight` : ''}
           >

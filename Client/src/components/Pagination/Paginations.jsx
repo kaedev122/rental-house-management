@@ -210,7 +210,7 @@ const Paginations = (props) => {
         ) : (
             <div className="page-navigation clearfix d-flex justify-content-end">
             <div className="mt-2">{_html_title()}</div>
-            <div className="ms-2">
+            {/* <div className="ms-2">
                 <Input type="select"
                 onChange={(e) => {
                     const size = parseInt(e.target.value, 10)
@@ -235,7 +235,7 @@ const Paginations = (props) => {
                     50
                 </option>
                 </Input>
-            </div>
+            </div> */}
             <div className="ms-2">{_html_pagi()}</div>
 
            

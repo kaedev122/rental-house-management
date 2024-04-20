@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Navigate, useLocation } from 'react-router-dom'
 import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader, ModalBody, Label, ModalFooter, FormGroup } from 'reactstrap'
-import { http_request, get_local_storage, is_empty, } from '@utils'
+import { http_request, get_local_storage, is_empty, set_local_storage } from '@utils'
 import { format_date_time } from '@utils/format_time'
 import Accordion from '@mui/material/Accordion';
 import AccordionActions from '@mui/material/AccordionActions';
@@ -25,8 +25,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 const ModalAddApartment = (props) => {
 	const { _modal, _toggleModal, _done_action } = props;
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+    console.log(apartmentCurrent)
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
+    
     const [dataAdd, setDataAdd] = useState({})
 	const [errorForm, setErrorForm] = useState({})
     const [imagesPreview, setImagesPreview] = useState();
@@ -63,8 +64,8 @@ const ModalAddApartment = (props) => {
         if (dataAdd.name) formData.append("name", dataAdd.name)
         if (dataAdd.phone) formData.append("phone", dataAdd.phone)
         if (dataAdd.address) formData.append("address", dataAdd.address)
-        if (dataAdd.water_price) formData.append("water_price", dataAdd.water_price)
-        if (dataAdd.electric_price) formData.append("electric_price", dataAdd.electric_price)
+        if (dataAdd.water_price) formData.append("water_price", parseInt(dataAdd.water_price.replace(/\D/g, "")))
+        if (dataAdd.electric_price) formData.append("electric_price", parseInt(dataAdd.electric_price.replace(/\D/g, "")))
         if (images.length > 0) {
             for (let i in images) {
                 formData.append("images-apartment", images[i]?.file)
@@ -85,6 +86,7 @@ const ModalAddApartment = (props) => {
                 variant: "success",
                 autoHideDuration: 5000,
             })
+            set_local_storage("apartment", data._id)
             return _done_action()
         }
         return enqueueSnackbar(message, {
@@ -97,8 +99,21 @@ const ModalAddApartment = (props) => {
         if (event.keyCode === 13) return onSubmit()
     }
 
-	const onChangeData = (type, value) => {
+	const onChangeData = (type, value, isNumber) => {
         setErrorForm({})
+        if (isNumber) {
+			const result = value.replace(/\D/g, "");
+            if (type == 'electric_price' || type =='water_price') {
+                return setDataAdd({
+                    ...dataAdd,
+                    [type]: parseInt(result || 0).toLocaleString(),
+                });
+            }
+			return setDataAdd({
+				...dataAdd,
+				[type]: result || '',
+			});
+		}
 		return setDataAdd({
 			...dataAdd,
 			[type]: value
@@ -147,7 +162,7 @@ const ModalAddApartment = (props) => {
                                 label="Số điện thoại liên hệ"
                                 type="text"
                                 onChange={(e) =>
-                                    onChangeData("phone", e.target.value)
+                                    onChangeData("phone", e.target.value, true)
                                 }
                             />
                             {errorForm.phone?.error && <div className='text-error'>{errorForm.phone?.message}</div>}
@@ -174,8 +189,9 @@ const ModalAddApartment = (props) => {
                                 fullWidth={true}
                                 label="Giá tiền một số nước"
                                 type="text"
+                                value={dataAdd.water_price}
                                 onChange={(e) =>
-                                    onChangeData("water_price", e.target.value)
+                                    onChangeData("water_price", e.target.value, true)
                                 }
                             />
                             {errorForm.water_price?.error && <div className='text-error'>{errorForm.water_price?.message}</div>}
@@ -184,12 +200,13 @@ const ModalAddApartment = (props) => {
                             <TextField
                                 id="electric_price"
                                 name="electric_price"
-                                error={errorForm.water_price?.error}
+                                error={errorForm.electric_price?.error}
                                 fullWidth={true}
                                 label="Giá tiền một số điện"
+                                value={dataAdd.electric_price}
                                 type="text"
                                 onChange={(e) =>
-                                    onChangeData("electric_price", e.target.value)
+                                    onChangeData("electric_price", e.target.value, true)
                                 }
                                 onKeyUp={pressEnterEvent}
                             />

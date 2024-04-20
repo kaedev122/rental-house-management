@@ -14,6 +14,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import makeAnimated from 'react-select/animated';
+import AsyncSelect from 'react-select/async'
+import { FaWindowClose } from "react-icons/fa";
+
+const animatedComponents = makeAnimated();
 
 const ModalAddBill = (props) => {
 	const { _modal, _toggleModal, _done_action, _contract_id } = props;
@@ -23,7 +28,9 @@ const ModalAddBill = (props) => {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
     const [listContract, setListContract] = useState([])
+    const [listContractDefault, setListContractDefault] = useState([])
     const [contractSelected, setContractSelected] = useState(_contract_id)
+    const [contractData, setContractData] = useState(_contract_id)
 
     const [dataAdd, setDataAdd] = useState({
         water_number_used: "---",
@@ -39,6 +46,7 @@ const ModalAddBill = (props) => {
 
     useEffect(() => {
         get_list_contract_data()
+        get_default_data()
     }, [])
 
     useEffect(() => {
@@ -47,9 +55,10 @@ const ModalAddBill = (props) => {
         }
     }, [contractSelected])
 
-	const change_contract = async (contract_id) => {
+	const change_contract = async (contract) => {
         setErrorForm({})
-		return setContractSelected(contract_id)
+        setContractData(contract)
+		return setContractSelected(contract._id)
 	}
 
     const calc_total_price_done = () => {
@@ -84,16 +93,30 @@ const ModalAddBill = (props) => {
         }
     }
 
-    const get_list_contract_data = async () => {
+    const get_default_data = async () => {
+        const result = await get_list_contract_data()
+        console.log(result)
+        setListContractDefault(result)
+    }
+
+    const get_list_contract_data = async (inputSearch) => {
         let input = {
+            ...inputSearch,
             status: 1,
             apartment: apartmentCurrent,
         }
         const res = await http_request({method: "GET", url:`cms/contracts`, params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            console.log(data.items)
-            return setListContract(data.items)
+            console.log(data)
+            const result = data.items.map(item => {
+                return {
+                    ...item,
+                    value: item._id,
+                }
+            })
+            setListContract(result)
+            return result
         }
     }
 
@@ -142,6 +165,22 @@ const ModalAddBill = (props) => {
 				"contract_selected": {
 					"error": true,
 					"message": "Vui lòng chọn hợp đồng trước!"
+				}
+			})
+		}
+        if (dataAdd.water_number < dataAdd.last_water_number) {
+			return setErrorForm({
+				"water_number": {
+					"error": true,
+					"message": "Số nước kỳ này phải lớn hơn kỳ trước!"
+				}
+			})
+		}
+        if (dataAdd.electric_number < dataAdd.last_electric_number) {
+			return setErrorForm({
+				"electric_number": {
+					"error": true,
+					"message": "Số điện kỳ này phải lớn hơn kỳ trước!"
 				}
 			})
 		}
@@ -248,6 +287,29 @@ const ModalAddBill = (props) => {
         })
     }
 
+    const formatOptionLabel = (item) => {
+        return <div className="d-flex item-option">
+            {item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}
+        </div>
+    }
+
+    useEffect(() => {
+        console.log(contractSelected)
+    }, [contractSelected])
+
+    const promiseOptions = async (text = '') => {
+        clearTimeout(timer.current)
+        return new Promise(resolve => {
+            timer.current = setTimeout(async () => resolve(search_text(text)), 500)
+        })
+    }
+
+    const search_text = async (value) => {
+		return get_list_contract_data({
+			"q": trim(value),
+		})
+	}
+
     return (<Fragment>
         <Modal 				
             isOpen={_modal}
@@ -266,7 +328,24 @@ const ModalAddBill = (props) => {
                         </Label>
                     </Col>
                     <Col md={8}>
-                        <Input
+                        <AsyncSelect
+                            className='z-first'
+                            placeholder={'Tìm kiếm hợp đồng theo mã HĐ, tên phòng, SĐT hoặc tên KH'}
+                            cacheOptions
+                            formatOptionLabel={formatOptionLabel}
+                            onChange={(contract) => change_contract(contract)}
+                            value={contractData}
+                            name="color"
+                            options={listContract}
+                            defaultOptions
+                            loadOptions={promiseOptions}
+                            components={{
+                                ...animatedComponents,
+                                LoadingMessage: () => <div className="no-option">Đang tìm kiếm...</div>,
+                                NoOptionsMessage: () => <div className="no-option">Không tìm thấy kết quả!</div>,
+                            }}
+                        />
+                        {/* <Input
                             id="exampleSelect"
                             name="select"
                             type="select"
@@ -279,7 +358,7 @@ const ModalAddBill = (props) => {
                             {listContract && listContract.map((item) =>{
                                 return (<option key={item._id} value={item._id} >{item.room.name} - {item.code} - {item.customer_represent.fullname} - {item.customer_represent.phone}</option>)
                             })}
-                        </Input>
+                        </Input> */}
                         {errorForm.contract_selected?.error && <div className='text-error'>{errorForm.contract_selected?.message}</div>}
                     </Col>
                 </Row>
@@ -521,7 +600,7 @@ const ModalAddBill = (props) => {
                         <Row>
                             <TableContainer style={{ width: '100%', height: "200px" }} component={Paper}>
                                 <Table stickyHeader aria-label="collapsible table">
-                                    <TableHead>
+                                    <TableHead >
                                         <TableRow style={{backgroundColor:'white'}}>
                                             <TableCell width="50" align="left">
                                                 STT

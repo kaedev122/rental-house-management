@@ -361,10 +361,10 @@ const Home = () => {
                     </div>
                     <div className='d-flex legend-container'>
                         <div className='legend-open-room legend-item legend-item-1'>
-                            P.Trống ({dataAdd.totalOpen})
+                            P.Trống ({dataAdd?.totalOpen || "---"})
                         </div>
                         <div className='legend-rented-room legend-item legend-item-2'>
-                            P.Đã được thuê ({dataAdd.totalRent})
+                            P.Đã được thuê ({dataAdd?.totalRent || "---"})
                         </div>
                     </div>
                     <div className='float-end'>
@@ -389,7 +389,7 @@ const Home = () => {
                 </div>
             </CardBody>
             <CardFooter>
-                <span className='float-end'>Tổng cộng: {dataAdd.total}</span>
+                <span className='float-end'>Tổng: {dataAdd.total || "---"}</span>
             </CardFooter>
         </Card>
 

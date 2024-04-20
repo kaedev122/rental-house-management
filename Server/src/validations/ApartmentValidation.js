@@ -12,10 +12,10 @@ export const create = Joi.object({
     name: Joi.string().max(50).pattern(/[a-zA-Z0-9\s]/).required().label("Tên nhà trọ"),
     phone: _phoneValidation.label("Số điện thoại"),
     address: Joi.string().pattern(/^[^`'"!+%$^&*()]+$/).required().max(100).label('Địa chỉ'),
-    location: Joi.string().label('Vị trí'),
-    water_price: Joi.number().label("Giá tiền một số nước"),
-    electric_price: Joi.number().label("Giá tiền một số điện"),
-    other_price: Joi.string().label('Chi phí khác'),
+    location: Joi.string().allow('', null).label('Vị trí'),
+    water_price: Joi.number().allow('', null).label("Giá tiền một số nước"),
+    electric_price: Joi.number().allow('', null).label("Giá tiền một số điện"),
+    other_price: Joi.string().allow('', null).label('Chi phí khác'),
 }).messages(errorJoiMessages);
 
 export const update = Joi.object({

@@ -20,6 +20,7 @@ import ModalAddApartment from './ModalAddApartment';
 import ModalDetailApartment from './ModalDetailApartment';
 import "./Apartment.scss";
 import { useSnackbar } from 'notistack';
+import { set_apartment_list, set_apartment_current } from '@redux/apartmentSlice'
 import { TabContext, TabList, TabPanel } from '@mui/lab'
 import { Box, Tab, Grid, Stack } from '@mui/material'
 import Select from 'react-select'
@@ -33,6 +34,7 @@ import { ModalDialog } from '@components'
 
 const ListApartment = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+	const dispatch = useDispatch()
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [listApartment, setListApartment] = useState([])
     const [sort, setSort] = useState(false)
@@ -69,6 +71,7 @@ const ListApartment = () => {
 		const { code, data, message } = res
         if (code == 200) {
             setListApartment(data.items)
+            dispatch(set_apartment_list(data.items))
             setDataAdd(data)
             return true
         }

@@ -47,7 +47,7 @@ const animatedComponents = makeAnimated();
 
 const ModalDetailContract = (props) => {
 	const { _modal, _toggleModal, _done_action, _customersData, _dataSelect, _services, _servicesData } = props;
-    console.log(_customersData)
+
     const timer = useRef()
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -58,9 +58,14 @@ const ModalDetailContract = (props) => {
     const [listService, setListService] = useState([])
     const [listRoom, setListRoom] = useState([])
     const [roomData, setRoomData] = useState({})
-    const [roomSelected, setRoomSelected] = useState(_dataSelect.room._id)
+    const [roomSelected, setRoomSelected] = useState({
+        label: _dataSelect.room.name,
+        value: _dataSelect.room._id
+    } || {})
     const [represent, setRepresent] = useState(_dataSelect.customer_represent._id)
     const [listCustomer, setListCustomer] = useState([])
+    const [listRoomDefault, setListRoomDefault] = useState([])
+    const [listCustomerDefault, setListCustomerDefault] = useState([])
     const [listCustomerSelected, setListCustomerSelected] = useState(_customersData);
     
     const [dataAdd, setDataAdd] = useState(_dataSelect)
@@ -125,7 +130,7 @@ const ModalDetailContract = (props) => {
 			})
 		}
         const customer = listCustomerSelected.find(item => item._id == represent)
-
+        console.log(customer)
         if (is_empty(customer.phone)) {
 			return setErrorForm({
 				"represent": {
@@ -168,6 +173,7 @@ const ModalDetailContract = (props) => {
         get_list_service()
         setListServiceSelectedData(_servicesData)
         setListServiceSelected(_services)
+        get_default_data()
         get_list_customer()
     }, [])
 
@@ -176,7 +182,7 @@ const ModalDetailContract = (props) => {
     }, [roomSelected])
     
     useEffect(() => {
-        if(!listCustomerSelected.includes(represent)) {
+        if(!listCustomerSelected.map(item => {return item._id}).includes(represent)) {
             change_customer_represent(listCustomerSelected[0]._id)
         }
     }, [listCustomerSelected])
@@ -196,7 +202,7 @@ const ModalDetailContract = (props) => {
 	}
 
     const get_room_data = async () => {
-        const res = await http_request({method: "GET", url:`cms/room/${roomSelected}`})
+        const res = await http_request({method: "GET", url:`cms/room/${roomSelected.value}`})
 		const { code, data, message } = res
         if (code == 200) {
             setDataAdd({
@@ -218,8 +224,21 @@ const ModalDetailContract = (props) => {
         const res = await http_request({method: "GET", url:`cms/rooms`, params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            return setListRoom(data.items)
+            setListRoom(data.items)
+            return data.items.map((item) => {
+                return {
+                    label: item.name,
+                    value: item._id
+                }
+            })
         }
+    }
+
+    const get_default_data = async () => {
+        let customerData = await get_list_customer()
+        setListCustomerDefault(customerData)
+        let roomData = await get_list_room_data()
+        setListRoomDefault(roomData)
     }
 
     const get_list_customer = async (data_search) => {
@@ -228,16 +247,14 @@ const ModalDetailContract = (props) => {
             status: 1,
             apartment: apartmentCurrent,
         }
-        console.log(input)
         const res = await http_request({method: "GET", url:"cms/customer/contract", params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            console.log((data?.items || []).concat(_customersData))
             let result = (data?.items || []).concat(_customersData).filter(item => {
                 return listCustomerSelected.filter(i => i._id == item._id).length == 0
             })
-            console.log(result)
             setListCustomer(result)
+            console.log(result)
             return result
         }
         return enqueueSnackbar(message, {
@@ -317,6 +334,7 @@ const ModalDetailContract = (props) => {
             start_electric_number: dataAdd.start_electric_number,
             other_price: JSON.stringify(other_price)
         }
+        console.log(input)
 		const res = await http_request({ method: "PUT", url: `cms/contract/${_dataSelect._id}`, data: input })
 		const { code, data, message } = res
         if (is_empty(res)) {
@@ -386,8 +404,12 @@ const ModalDetailContract = (props) => {
         })
     }
 
-    const search_text = async (value) => {
-
+    const search_text = async (value, type) => {
+        if (type == 'room') {
+            return get_list_room_data({
+                "q": trim(value),
+            })
+        }
 		return get_list_customer({
 			"q": trim(value),
 		})
@@ -608,12 +630,26 @@ const ModalDetailContract = (props) => {
             <span>{option.fullname} - {option.phone}</span>
         </div>
     }
-    
+
     const promiseOptions = async (text = '') => {
         clearTimeout(timer.current)
         return new Promise(resolve => {
-            timer.current = setTimeout(async () => resolve(search_text(text)), 500)
+            timer.current = setTimeout(async () => resolve(search_text(text, "customer")), 500)
         })
+    }
+
+    const promiseRoomOptions = async (text = '') => {
+        clearTimeout(timer.current)
+        return new Promise(resolve => {
+            timer.current = setTimeout(async () => resolve(search_text(text, "room")), 500)
+        })
+    }
+
+    const formatRoomOptionLabel = (option) => {
+        console.log(option)
+        return <div className="d-flex item-option">
+            <span>{option.label}</span>
+        </div>
     }
 
     return (<Fragment>
@@ -632,19 +668,21 @@ const ModalDetailContract = (props) => {
                         <Label>
                             Chọn phòng tiến hành đăng ký hợp đồng
                         </Label>
-                        <Input
-                            id="exampleSelect"
-                            name="select"
-                            type="select"
-                            className='btn-select pointer-btn'
+                        <AsyncSelect
+                            placeholder={'Tìm kiếm phòng theo tên phòng'}
+                            cacheOptions
+                            defaultOptions={listRoomDefault}
+                            options={listRoom}
+                            loadOptions={promiseRoomOptions}
+                            onChange={(e)=>change_room(e)}
                             value={roomSelected}
-                            disabled={_dataSelect.status == 0}
-                            onChange={(e)=>change_room(e.target.value)}
-                        >
-                            {listRoom && listRoom.map((item) =>{
-                            return (<option key={item._id} value={item._id} >{item.name}</option>)
-                            })}
-                        </Input>
+                            formatOptionLabel={formatRoomOptionLabel}
+                            components={{
+                                ...animatedComponents,
+                                LoadingMessage: () => <div className="no-option">Đang tìm kiếm...</div>,
+                                NoOptionsMessage: () => <div className="no-option">Không tìm thấy kết quả!</div>,
+                            }}
+                        />
                         {errorForm.room_selected?.error && <div className='text-error'>{errorForm.room_selected?.message}</div>}
                     </Col>
                     <Col md={6}>
@@ -675,11 +713,10 @@ const ModalDetailContract = (props) => {
                         </div>}
                         {_dataSelect.status == 1 && <Row className='mt-2'>
                             <AsyncSelect
-                                components={animatedComponents}
                                 placeholder={'Tìm kiếm khách bằng số điện thoại hoặc tên'}
                                 value={null}
                                 cacheOptions
-                                defaultOptions={listCustomer.concat(_customersData).filter(item => {
+                                defaultOptions={listCustomerDefault.concat(_customersData).filter(item => {
                                     return listCustomerSelected.filter(i => i._id == item._id).length == 0
                                 })}
                                 options={listCustomer.concat(_customersData)}
@@ -687,6 +724,12 @@ const ModalDetailContract = (props) => {
                                 onChange={handle_change}
                                 formatOptionLabel={formatOptionLabel}
                                 closeMenuOnSelect={false}
+                                components={{
+                                    ...animatedComponents,
+                                    DropdownIndicator: () => null,
+                                    LoadingMessage: () => <div className="no-option">Đang tìm kiếm...</div>,
+                                    NoOptionsMessage: () => <div className="no-option">Không tìm thấy kết quả!</div>,
+                                }}
                             />
                         </Row>}
                         {_dataSelect.status == 1 ? <Row className='mt-2'>

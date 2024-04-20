@@ -14,11 +14,13 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const Register = () => {
     const navigate = useNavigate();
 	const location = useLocation();
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [loading, setLoading] = useState(false);
 
 	const [dataAdd, setDataAdd] = useState({
 		username: "",
@@ -103,7 +105,9 @@ const Register = () => {
             'fullname': `${trim(dataAdd.firstname)} ${trim(dataAdd.lastname)}`,
             'address': trim(dataAdd.address),
 		}
+        setLoading(true)
 		const res = await http_request({ method: "POST", url: "auth/register", data: input })
+        setLoading(false)
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -147,7 +151,7 @@ const Register = () => {
                 className="my-2"
             >
                 <CardHeader>
-                    <label className='d-flex justify-content-center'>Đăng ký tài khoản LodgingPro</label>
+                    <label className='d-flex justify-content-center'>Đăng ký tài khoản RoomMaster</label>
                 </CardHeader>
                     <FormGroup className=''>
                     <div className='d-flex justify-content-between'> 
@@ -314,14 +318,15 @@ const Register = () => {
                         </div>
                     </FormGroup>
                     <FormGroup>
-                        <Button
-                            onClick={onSubmit}                            
+                        <LoadingButton
+                            onClick={onSubmit}     
+                            loading={loading}                  
                             color="success" 
                             variant="contained"
                             className='text-center w-100 btn-no-border'
                         >
                             Đăng ký
-                        </Button>
+                        </LoadingButton>
                     <div className='border'></div>
                     </FormGroup>
                 <CardFooter>

@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
 import { ParamError, ExistDataError, NotFoundError, AuthenticationError, SystemError, PermissionError } from "../utils/errors.js";
 
-export const verify = () => {
+export const verify = (rolesCheck=[]) => {
     return async (req, res, next) => {
-        const { authorization } = req.headers
+    console.log(rolesCheck)
+    const { authorization } = req.headers
         if (!authorization) {
             return next(new AuthenticationError(`Bạn chưa đăng nhập!`))
         }
@@ -15,9 +16,19 @@ export const verify = () => {
                     return resolve(payload)
                 })
             })
-            let { id, username } = payload
+            let { id, username, role } = payload
             if (!id || !username) return next(new AuthenticationError(`Dữ liệu không đúng!`))
             req["user"] = { ...payload }
+            if (rolesCheck.length > 0) {
+                let isAllow = false
+                for (let i = 0; i < rolesCheck.length; i++) {
+                    if (role.includes(rolesCheck[i])) {
+                        isAllow = true
+                        break
+                    }
+                }
+                if (!isAllow) return next(new AuthenticationError(`Bạn không có quyền truy cập!`))
+            }
         } catch (error) {
             return next(new AuthenticationError(`Bạn chưa đăng nhập!`))
         }

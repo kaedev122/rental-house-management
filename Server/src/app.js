@@ -11,7 +11,7 @@ import Promise from 'bluebird'
 import multer from "multer";
 
 import { connectDB } from "./connections/mongodb.js";
-import { AuthController, ErrorController, cmsController } from "./controllers/index.js";
+import { AuthController, ErrorController, cmsController, AdminController } from "./controllers/index.js";
 import { NotFoundError } from "./utils/errors.js";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -53,6 +53,7 @@ cloudinary.config({
 
 app.use('/api/auth', AuthController)
 app.use('/api/cms', cmsController)
+app.use('/api/admin', AdminController)
 
 app.use((req, res, next) => {
     throw new NotFoundError(`Path ${req.originalUrl} is Not Found`)

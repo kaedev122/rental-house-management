@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema({
     fullname: {type: String, require: true },
     name_search: {type: String },
     address: {type: String, default: '' },
+    role: {type: String, default: 'user', require: true },
 }, { timestamps: true, versionKey: false });
 
 const User = mongoose.model('User', UserSchema);

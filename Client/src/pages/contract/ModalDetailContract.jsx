@@ -42,6 +42,7 @@ import AddIcon from '@mui/icons-material/Add';
 import makeAnimated from 'react-select/animated';
 import AsyncSelect from 'react-select/async'
 import { FaWindowClose } from "react-icons/fa";
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const animatedComponents = makeAnimated();
 
@@ -51,6 +52,7 @@ const ModalDetailContract = (props) => {
     const timer = useRef()
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const [loading, setLoading] = useState(false)
 
     const [listServiceSelected, setListServiceSelected] = useState(_services);
 
@@ -335,7 +337,9 @@ const ModalDetailContract = (props) => {
             other_price: JSON.stringify(other_price)
         }
         console.log(input)
+        setLoading(true)
 		const res = await http_request({ method: "PUT", url: `cms/contract/${_dataSelect._id}`, data: input })
+        setLoading(false)
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -1114,11 +1118,12 @@ const ModalDetailContract = (props) => {
                         className="btn-custom save"
                         variant="contained"
                         onClick={() => selectTab("2")}
-                    >Tiếp theo</Button> : <Button
+                    >Tiếp theo</Button> : <LoadingButton
+                        loading={loading}
                         className="btn-custom save"
                         variant="contained"
                         onClick={onSubmit}
-                    >Lưu</Button>}
+                    >Lưu</LoadingButton>}
                 </div>
             </ModalFooter>}
         </Modal>

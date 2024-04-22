@@ -18,10 +18,12 @@ import Paper from '@mui/material/Paper';
 import ModalPayBill from './ModalPayBill';
 import { ModalDialog } from '@components'
 import ExportBill from './ExportBill'
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const ModalDetailBill = (props) => {
 	const { _modal, _toggleModal, _done_action, _dataSelect } = props;
     const timer = useRef()
+    const [loading, setLoading] = useState(false)
 
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -90,7 +92,9 @@ const ModalDetailBill = (props) => {
             discount: dataAdd.discount,
             cost_incurred: dataAdd.cost_incurred,
         }
+        setLoading(true)
 		const res = await http_request({ method: "PUT", url: `cms/bill/${_dataSelect._id}`, data: input })
+        setLoading(false)
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -708,11 +712,12 @@ const ModalDetailBill = (props) => {
                     <Button className="btn-custom cancel" onClick={_toggleModal}>
                         Hủy bỏ
                     </Button>
-                    <Button
+                    <LoadingButton
+                        loading={loading}
                         className="btn-custom save"
                         variant="contained"
                         onClick={onSubmit}
-                    >Lưu</Button>
+                    >Lưu</LoadingButton>
                 </div>
             </ModalFooter>
         </Modal>

@@ -4,6 +4,7 @@ import { IntlProvider } from "react-intl"
 import { FallbackSpinner } from '@components'
 
 const CmsRouter = lazy(() => import('./CmsRouter'))
+const AdminRouter = lazy(() => import('./AdminRouter'))
 const Login = lazy(() => import('@pages/login'))
 // const Home = lazy(() => import('@pages/home'))
 const ResetPassword= lazy(() => import('@pages/recoveryPassword/ResetPassword'))
@@ -20,22 +21,24 @@ function AppRouter() {
 	} 
 
 	return (
-	  <BrowserRouter>
-	  	<Suspense fallback={<FallbackSpinner />} >
-		  <IntlProvider locale={state.default_locale} messages={state.messages}>
-		<Routes>
-		  <Route path="/cms/*" element={<CmsRouter/>} />
-		  <Route exact path="/login" element={<Login/>} />
-		  <Route exact path="/forgot-password" element={<Recovery/>} />
-		  <Route exact path="/reset-password" element={<ResetPassword/>} />
-		  <Route exact path="/register" element={<Register/>} />
-		  <Route exact path="/done-register" element={<DoneRegister/>} />
-		  <Route path="/active-user/:activeCode" element={<ActiveUser/>} />
-		</Routes>
-		</IntlProvider>
+	<BrowserRouter>
+		<Suspense fallback={<FallbackSpinner />} >
+			<IntlProvider locale={state.default_locale} messages={state.messages}>
+				<Routes>
+					<Route exact path="/" element={<Login/>} />
+					<Route path="/cms/*" element={<CmsRouter/>} />
+					<Route path="/admin/*" element={<AdminRouter/>} />
+					<Route exact path="/login" element={<Login/>} />
+					<Route exact path="/forgot-password" element={<Recovery/>} />
+					<Route exact path="/reset-password" element={<ResetPassword/>} />
+					<Route exact path="/register" element={<Register/>} />
+					<Route exact path="/done-register" element={<DoneRegister/>} />
+					<Route path="/active-user/:activeCode" element={<ActiveUser/>} />
+				</Routes>
+			</IntlProvider>
 		</Suspense>
-	  </BrowserRouter>
+	</BrowserRouter>
 	);
-  }
+}
 
 export default AppRouter

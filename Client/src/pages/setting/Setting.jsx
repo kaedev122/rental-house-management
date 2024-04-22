@@ -34,6 +34,7 @@ import ImageUploading from 'react-images-uploading';
 import { MdFileUpload } from "react-icons/md";
 import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
+import ModalChangePassword from './ModalChangePassword'
 
 const Setting = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
@@ -72,6 +73,11 @@ const Setting = () => {
     const [modalAdd, setModalAdd] = useState(false);
     const toggle_modal_add = () => {
         return setModalAdd(!modalAdd)
+    }
+
+    const [modalChangePassword, setModalChangePassword] = useState(false);
+    const toggle_modal_change_password = () => {
+        return setModalChangePassword(!modalChangePassword)
     }
 
     const [images, setImages] = useState([]);
@@ -418,6 +424,7 @@ const Setting = () => {
 	const done_action = () => {
 		setModalAdd(false)
 		setModalDetailService(false)
+        setModalChangePassword(false)
         get_data_apartment()
         return get_list_service()
 	}
@@ -587,6 +594,16 @@ const Setting = () => {
                                                 </Input>
                                             </FormGroup>
                                         </Col>
+                                    </Row>
+                                    <Row className='mt-3 align-items-center d-flex justify-content-center'>
+                                        <Button
+                                            color='primary'
+                                            variant='contained'
+                                            className='w-25'
+                                            onClick={() => toggle_modal_change_password()}
+                                        >
+                                            Đổi mật khẩu
+                                        </Button>
                                     </Row>
                                 </Col>
                                 <Col md={4} className='d-flex align-items-center justify-content-center flex-column'>
@@ -1044,6 +1061,13 @@ const Setting = () => {
             _modalImage={showImage}
             _toggleModalImage={toggle_modal_image}
             _image={imagesPreview}
+        />}
+
+        {modalChangePassword && <ModalChangePassword
+            _modal={modalChangePassword}
+            _toggleModal={toggle_modal_change_password}
+            _userData={userData}
+            _done_action={done_action}
         />}
     </div>)
 }

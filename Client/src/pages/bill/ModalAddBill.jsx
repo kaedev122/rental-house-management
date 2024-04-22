@@ -17,6 +17,7 @@ import Paper from '@mui/material/Paper';
 import makeAnimated from 'react-select/animated';
 import AsyncSelect from 'react-select/async'
 import { FaWindowClose } from "react-icons/fa";
+import LoadingButton from '@mui/lab/LoadingButton';
 
 const animatedComponents = makeAnimated();
 
@@ -31,6 +32,7 @@ const ModalAddBill = (props) => {
     const [listContractDefault, setListContractDefault] = useState([])
     const [contractSelected, setContractSelected] = useState(_contract_id)
     const [contractData, setContractData] = useState(_contract_id)
+    const [loading, setLoading] = useState(false)
 
     const [dataAdd, setDataAdd] = useState({
         water_number_used: "---",
@@ -200,7 +202,9 @@ const ModalAddBill = (props) => {
             room: dataAdd.room,
             apartment: apartmentCurrent,
         }
+        setLoading(true)
 		const res = await http_request({ method: "POST", url: "cms/bill/", data: input })
+        setLoading(false)
 		const { code, data, message } = res
         if (is_empty(res)) {
             return enqueueSnackbar("Có lỗi đã xảy ra!", {
@@ -770,11 +774,12 @@ const ModalAddBill = (props) => {
                 <Button className="btn-custom cancel" onClick={_toggleModal}>
                     Hủy bỏ
                 </Button>
-                <Button
+                <LoadingButton
+                    loading={loading}
                     className="btn-custom save"
                     variant="contained"
                     onClick={onSubmit}
-                >Lưu</Button>
+                >Lưu</LoadingButton>
             </ModalFooter>
         </Modal>
     </Fragment>)

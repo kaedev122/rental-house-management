@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { Form, FormGroup, Label, Input, Card, CardBody, CardHeader, CardFooter } from 'reactstrap'
-import { trim, set_authenticated_storage, http_request, get_local_storage, is_authenticated, set_local_storage, is_empty } from '@utils'
+import { trim, set_authenticated_storage, http_request, get_local_storage, is_authenticated, set_local_storage, is_empty, is_admin } from '@utils'
 import { TextField, Button, } from '@mui/material';
 import "@styles/style.scss";
 import "./login.scss";
@@ -78,6 +78,9 @@ const Login = () => {
                     autoHideDuration: 5000,
                 })
                 await get_data_store()
+                if (is_admin()) {
+                    return navigate("/admin/home")
+                }
                 return navigate("/cms/home")
             } else {
                 return navigate("/login")
@@ -104,6 +107,9 @@ const Login = () => {
 
     useEffect(() => {
         if (is_authenticated()) {
+            if (is_admin()) {
+                return navigate("/admin/home")
+            }
             return navigate("/cms/home")
         }
     }, [])

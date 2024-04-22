@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Navigate, useLocation } from 'react-router-dom'
+import { useNavigate, Navigate, useLocation } from 'react-router-dom'
 import { Card, CardHeader, CardBody, CardFooter, Col, Row, Modal, ModalHeader } from 'reactstrap'
 import { http_request, get_local_storage, is_empty, } from '@utils'
 import { format_date_time } from '@utils/format_time'
@@ -34,10 +34,13 @@ moment().tz("Asia/Ho_Chi_Minh").format();
 moment.locale('vi')
 import AddIcon from '@mui/icons-material/Add';
 import { MdOutlineBedroomChild } from "react-icons/md";
+import ModalAddApartment from '../apartment/ModalAddApartment';
 
 const Home = () => {
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
+
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const navigate = useNavigate();
     const [listRoomGroup, setListRoomGroup] = useState([])
     const [groupSelected, setGroupSelected] = useState('')
     const [roomSelected, setRoomSelected] = useState('')
@@ -92,6 +95,11 @@ const Home = () => {
         return setModalDetailBill(!modalDetailBill)
     }
 
+    const [modalAddApartment, setModalAddApartment] = useState(false);
+    const toggle_modal_add_apartment = () => {
+        return setModalAddApartment(!modalAddApartment)
+    }
+
     const [modalPay, setModalPay] = useState(false);
     const toggle_modal_pay = () => {
         return setModalPay(!modalPay)
@@ -107,8 +115,8 @@ const Home = () => {
     }, [apartmentCurrent, sort])
 
     useEffect(() => {
-        console.log(apartmentCurrent)
         if (apartmentCurrent) get_data_apartment()
+        else toggle_modal_add_apartment()
     }, [])
 
     const get_data_apartment = async () => {
@@ -191,7 +199,10 @@ const Home = () => {
         return toggle_modal_detail_room()
 	}
 
-	const done_action = () => {
+	const done_action = (isNewApartment=false) => {
+        if (isNewApartment) {
+            return window.location.reload();
+        }
 		setModalAddGroup(false)
 		setModalAddRoom(false)
 		setModalAddBill(false)
@@ -199,6 +210,7 @@ const Home = () => {
 		setModalAddContract(false)
         setModalDetailContract(false)
         setModalDetailRoom(false)
+        setModalAddApartment(false)
         return get_list_room_group_data()
 	}
 
@@ -451,6 +463,12 @@ const Home = () => {
             _toggleModal={toggle_modal_pay}
             _done_action={done_action}
             _dataSelect={billSelected}
+        />}
+
+        {modalAddApartment && <ModalAddApartment
+            _modal={modalAddApartment}
+            _toggleModal={toggle_modal_add_apartment}
+            _done_action={done_action}
         />}
     </div>)
 }

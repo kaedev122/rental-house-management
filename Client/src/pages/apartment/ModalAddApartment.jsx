@@ -25,7 +25,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 const ModalAddApartment = (props) => {
 	const { _modal, _toggleModal, _done_action } = props;
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
-    console.log(apartmentCurrent)
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     
     const [dataAdd, setDataAdd] = useState({})
@@ -87,7 +86,7 @@ const ModalAddApartment = (props) => {
                 autoHideDuration: 5000,
             })
             set_local_storage("apartment", data._id)
-            return _done_action()
+            return _done_action(true)
         }
         return enqueueSnackbar(message, {
             variant: "error",

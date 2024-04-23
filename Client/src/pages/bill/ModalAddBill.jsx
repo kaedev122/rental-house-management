@@ -31,7 +31,7 @@ const ModalAddBill = (props) => {
     const [listContract, setListContract] = useState([])
     const [listContractDefault, setListContractDefault] = useState([])
     const [contractSelected, setContractSelected] = useState(_contract_id)
-    const [contractData, setContractData] = useState(_contract_id)
+    const [contractData, setContractData] = useState()
     const [loading, setLoading] = useState(false)
 
     const [dataAdd, setDataAdd] = useState({
@@ -81,7 +81,7 @@ const ModalAddBill = (props) => {
         const res = await http_request({method: "GET", url:`cms/contract/${contractSelected}`})
 		const { code, data, message } = res
         if (code == 200) {
-            return setDataAdd({
+            setDataAdd({
                 ...dataAdd,
                 water_price: data.water_price,
                 electric_price: data.electric_price,
@@ -92,13 +92,17 @@ const ModalAddBill = (props) => {
                 last_water_number: data?.lastBill?.water_number || data.start_water_number,
                 last_electric_number: data?.lastBill?.electric_number || data.start_electric_number,
             })
+            return data
         }
     }
 
     const get_default_data = async () => {
         const result = await get_list_contract_data()
-        console.log(result)
         setListContractDefault(result)
+        if (_contract_id) {
+            let contractData = await get_contract_data()
+            setContractData(contractData)
+        }
     }
 
     const get_list_contract_data = async (inputSearch) => {

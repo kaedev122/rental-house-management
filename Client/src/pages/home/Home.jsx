@@ -162,7 +162,6 @@ const Home = () => {
         const res = await http_request({method: "GET", url:"cms/room-group-extend", params: input})
 		const { code, data, message } = res
         if (code == 200) {
-            console.log(data)
             setListRoomGroup(data.items)
             setDataAdd(data)
             return true
@@ -185,6 +184,7 @@ const Home = () => {
     }
 
     const open_pay_bill = (bill_id) => {
+        console.log(bill_id)
         setBillSelected(bill_id)
         return toggle_modal_pay()
     }
@@ -250,7 +250,7 @@ const Home = () => {
     const render_bill_status = (item) => {
         if (item.bill_status == 0) {
             return (<div
-                className='text-danger'
+                className='text-danger text-danger-hover'
                 onClick={() => add_bill(item._id)}
             >   
                 <RiWaterFlashFill/> Chưa ghi điện & nước
@@ -283,7 +283,7 @@ const Home = () => {
                 className='text-warning text-warning-hover'
                 onClick={() => {open_pay_bill(item)}}
             >
-                <FaMoneyBillWaveAlt /> Thanh toán một phần
+                <FaMoneyBillWaveAlt /> T.Toán một phần ({item.code})
             </div>)
         }
         if (item.payment_status == 2) {
@@ -294,14 +294,17 @@ const Home = () => {
         }
         return (
             <div className='text-danger text-danger-hover' onClick={() => {open_pay_bill(item)}}>
-                <FaMoneyBillWaveAlt /> Chưa thanh toán
+                <FaMoneyBillWaveAlt /> Chưa thanh toán ({item.code})
             </div>)
-        }
+    }
 
     const render_room = (rooms) => {
-        return rooms.map((item, index) => (
+        return rooms.map((item, index) => {
+            return (
             <Col xxl={4} xl={6}>
-                <div className={item.contract ? `border room-card-container border-secondary px-3 room-status-rented` : `border room-card-container border-secondary px-3 room-status-open`}>
+                <div className={item.contract ? (moment(item?.contract?.date_end) < moment() ? 
+                    `border room-card-container border-secondary px-3 room-status-expired` : `border room-card-container border-secondary px-3 room-status-rented`) 
+                    : `border room-card-container border-secondary px-3 room-status-open`}>
                     <Row className='room-card-header'>
                         <Col md={6} className=''>
                             <span 
@@ -361,7 +364,7 @@ const Home = () => {
                     </Row>
                 </div>
             </Col>
-        ))
+        )})
     }
 
     return (<div id="main-content">

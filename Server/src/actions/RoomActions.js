@@ -305,6 +305,11 @@ export const listRoomGroupExtend = async ({
                 paid: lastBill ? lastBill?.paid : "",
                 total: lastBill ? lastBill?.total : "",
                 debt: lastBill ? lastBill?.debt : "",
+                code: lastBill ? Utils.padNumber('DTT', lastBill?.code) : "",
+                room: lastBill ? {
+                    _id: room._id,
+                    name: room.name,
+                } : "",
             }
         }
     })

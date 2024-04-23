@@ -262,9 +262,9 @@ const ListRevenue = () => {
                     </div>
                 </CardHeader>
                 <CardBody>
-                    <div className='group-container'>
+                    <div style={{height: "75vh"}}>
                         <Row>
-                            <Col md={8}>
+                            <Col md={7}>
                                 <Row>
                                     <Col md={3}>
                                         <Label>
@@ -328,14 +328,14 @@ const ListRevenue = () => {
                                         </UncontrolledDropdown>
                                     </Col>
                                 </Row>
-                                <Row style={{height: "70vh"}} className='d-flex justify-content-center align-items-center'>
+                                <Row style={{height: "75vh"}} className='d-flex justify-content-center align-items-center'>
                                     <Bar 
                                         options={barOptions} 
                                         data={chartBarData} 
                                     />
                                 </Row>
                             </Col>
-                            <Col md={4}>
+                            <Col md={5}>
                                 <Row>
                                     <Col md={3}>
                                         <Label>

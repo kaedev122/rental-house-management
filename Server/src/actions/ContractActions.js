@@ -318,6 +318,7 @@ export const get = async ({ body, user, params }) => {
 
     return {
         ...data,
+        code: Utils.padNumber('HD', data.code),
         lastBill
     }
 }

@@ -63,7 +63,7 @@ export const getDebtReport = async ({
             room_id: item._id,
             total_debt: bill?.total_debt || 0,
             total_paid: bill?.total_paid || 0,
-            name: `${item.name} (${((bill?.total_debt || 0) + (bill?.total_paid || 0)).toLocaleString()} đ)`,
+            name: item.name,
             group: item.group,
         }
     })

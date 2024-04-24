@@ -125,7 +125,7 @@ const ModalDetailCustomer = (props) => {
             size="xl"
         >
             <ModalHeader toggle={_toggleModal}>
-                Thêm mới khách thuê
+                Cập nhật khách thuê
             </ModalHeader>
             <ModalBody>
                 <Row>

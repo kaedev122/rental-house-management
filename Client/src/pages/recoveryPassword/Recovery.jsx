@@ -178,7 +178,7 @@ const Recovery = () => {
                 className="my-2"
 			>
 				<CardHeader>
-                    <label className='d-flex justify-content-center'>Vui lòng nhập email dùng để đăng ký tài khoản của bạn</label>
+                    <label className='d-flex justify-content-center'>Vui lòng nhập mã OTP được gửi về email của bạn</label>
                 </CardHeader>
 				<CardBody>
 					<FormGroup

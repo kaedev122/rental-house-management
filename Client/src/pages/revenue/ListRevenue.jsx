@@ -223,7 +223,7 @@ const ListReport = () => {
                 <div className='group-container'>
                     <div className='search-bar d-flex align-items-center w-100 justify-content-between'>
                         <SearchBar
-                            placeholder={"Tìm kiếm theo mã hóa đơn"}
+                            placeholder={"Tìm kiếm theo mã hóa đơn, mã hợp đồng"}
                             onChangeText={onChangeText}
                         />
                         <div className='d-flex float-end'>

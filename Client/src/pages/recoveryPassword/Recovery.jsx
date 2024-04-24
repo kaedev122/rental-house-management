@@ -133,7 +133,7 @@ const Recovery = () => {
 	
     return (
         <div className='form'>
-            <div>LOGO</div>
+            <div className="logo">RoomMaster</div>
             {!emailSended ? <Card 
                 className="my-2"
             >

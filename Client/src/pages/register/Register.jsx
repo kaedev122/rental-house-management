@@ -146,7 +146,7 @@ const Register = () => {
 
     return (
         <div className='form'>
-            <div>LOGO</div>
+            <div className="logo">RoomMaster</div>
             <Card 
                 className="my-2"
             >

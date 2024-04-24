@@ -52,6 +52,36 @@ const ModalAddContract = (props) => {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [loading, setLoading] = useState(false)
 
+    const listDaysPerCheck = [
+        {
+            label: "1 tháng",
+            value: 30
+        },
+        {
+            label: "2 tháng",
+            value: 60
+        },
+        {
+            label: "3 tháng",
+            value: 90
+        },
+        {
+            label: "4 tháng",
+            value: 120
+        },
+        {
+            label: "5 tháng",
+            value: 150
+        },
+        {
+            label: "6 tháng",
+            value: 180
+        },
+        {
+            label: "12 tháng",
+            value: 360
+        },
+    ]
     const [listServiceSelectedData, setListServiceSelectedData] = useState([]);
     const [listService, setListService] = useState([])
     const [listRoom, setListRoom] = useState([])
@@ -64,7 +94,9 @@ const ModalAddContract = (props) => {
     const [listCustomerDefault, setListCustomerDefault] = useState([])
     const [listCustomerSelected, setListCustomerSelected] = useState([]);
 
-    const [dataAdd, setDataAdd] = useState({})
+    const [dataAdd, setDataAdd] = useState({
+        days_per_check: 30,
+    })
 	const [errorForm, setErrorForm] = useState({})
 
     const [tabSelected, setTabSelected] = useState("1")
@@ -169,7 +201,6 @@ const ModalAddContract = (props) => {
     useEffect(() => {
         get_list_room_data()
         // get_list_customer()
-        get_customer_data()
         get_list_service()
         get_default_data()
     }, [])
@@ -179,11 +210,6 @@ const ModalAddContract = (props) => {
             get_room_data(roomSelected)
         }
     }, [roomSelected])
-
-    const get_customer_data = async () => {
-        let result = await get_list_customer()
-        setListCustomer(result)
-    }
 
     const calc_total_price = () => {
         return listServiceSelectedData.reduce((total, item) => {
@@ -241,6 +267,7 @@ const ModalAddContract = (props) => {
         let roomData = await get_list_room_data()
         console.log(roomData)
         setListRoomDefault(roomData)
+        setRoomSelected(roomData.find(item => item.value == _room_selected))
     }
 
     const get_list_customer = async (data_search) => {
@@ -256,7 +283,10 @@ const ModalAddContract = (props) => {
                 return listCustomerSelected.filter(i => i._id == item._id).length == 0
             })
             setListCustomer(result)
-            return result
+            setListCustomerSelected(data.items.filter(item => {
+                return listCustomerSelected.filter(i => i?._id == item?._id).length > 0    
+            }))
+            return (data?.items || [])
         }
         return enqueueSnackbar(message, {
             variant: "error",
@@ -291,7 +321,6 @@ const ModalAddContract = (props) => {
         setModalAddService(false)
         setModalDetailCustomer(false)
         setModalDetailService(false)
-        get_customer_data()
         get_list_room_data()
         get_list_service()
         get_default_data()
@@ -627,6 +656,18 @@ const ModalAddContract = (props) => {
                         <Label>
                             Chọn kỳ hợp đồng
                         </Label>
+                        <Input
+                            id="exampleSelect"
+                            name="select"
+                            type="select"
+                            className='btn-select pointer-btn'
+                            value={dataAdd.days_per_check}
+                            onChange={(e)=>onChangeData("days_per_check", e.target.value, true)}
+                        >
+                            {listDaysPerCheck && listDaysPerCheck.map((item) =>{
+                                return (<option key={item?._id} value={item?.value} >{item?.label}</option>)
+                            })}
+                        </Input>
                     </Col>
                 </Row>
 
@@ -657,7 +698,7 @@ const ModalAddContract = (props) => {
                                 value={null}
                                 cacheOptions
                                 defaultOptions={listCustomerDefault.filter(item => {
-                                    return !listCustomerSelected.some(i => i._id == item._id)
+                                    return listCustomerSelected.filter(i => i._id == item._id).length == 0
                                 })}
                                 options={listCustomer}
                                 loadOptions={promiseOptions}

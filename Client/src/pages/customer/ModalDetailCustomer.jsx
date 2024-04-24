@@ -69,7 +69,7 @@ const ModalDetailCustomer = (props) => {
                 variant: "success",
                 autoHideDuration: 5000,
             })
-            return _done_action()
+            return _done_action(data)
         }
         return enqueueSnackbar(message, {
             variant: "error",

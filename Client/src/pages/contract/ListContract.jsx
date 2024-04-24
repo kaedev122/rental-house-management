@@ -348,6 +348,7 @@ const ListContract = () => {
             _done_action={done_action}
             _dataSelect={dataSelect}
             _customersData={customersData}
+            _setCustomersData={setCustomersData}
             _servicesData={servicesData}
             _services={services}
         />}

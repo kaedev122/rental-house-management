@@ -47,8 +47,37 @@ import LoadingButton from '@mui/lab/LoadingButton';
 const animatedComponents = makeAnimated();
 
 const ModalDetailContract = (props) => {
-	const { _modal, _toggleModal, _done_action, _customersData, _dataSelect, _services, _servicesData } = props;
-
+	const { _modal, _toggleModal, _done_action, _customersData, _setCustomersData, _dataSelect, _services, _servicesData } = props;
+    const listDaysPerCheck = [
+        {
+            label: "1 tháng",
+            value: 30
+        },
+        {
+            label: "2 tháng",
+            value: 60
+        },
+        {
+            label: "3 tháng",
+            value: 90
+        },
+        {
+            label: "4 tháng",
+            value: 120
+        },
+        {
+            label: "5 tháng",
+            value: 150
+        },
+        {
+            label: "6 tháng",
+            value: 180
+        },
+        {
+            label: "12 tháng",
+            value: 360
+        },
+    ]
     const timer = useRef()
 	const apartmentCurrent = useSelector((state) => state.apartment?.current) || get_local_storage("apartment", "")
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -256,10 +285,10 @@ const ModalDetailContract = (props) => {
             let result = (data?.items || []).concat(_customersData).filter(item => {
                 return listCustomerSelected.filter(i => i?._id == item?._id).length == 0
             })
-            console.log(listCustomer.concat(result))
             setListCustomer(result.concat(_customersData))
-            // setListCustomerSelected(listCustomerSelected.concat(result.map))
-            console.log(result)
+            setListCustomerSelected(data.items.concat(_customersData).filter(item => {
+                return listCustomerSelected.filter(i => i?._id == item?._id).length > 0    
+            }))
             return (data?.items || []).concat(_customersData)
         }
         return enqueueSnackbar(message, {
@@ -267,10 +296,6 @@ const ModalDetailContract = (props) => {
             autoHideDuration: 5000,
         })
     }
-
-    useEffect(() => {
-        console.log(listCustomerSelected)
-    }, [listCustomerSelected])
 
     const get_list_service = async () => {
         let input = {
@@ -296,7 +321,7 @@ const ModalDetailContract = (props) => {
         })
     }
 
-	const done_action = () => {
+	const done_action = (data) => {
 		setModalAddCustomer(false)
 		setModalDetailCustomer(false)
 		setModalDetailService(false)
@@ -304,6 +329,16 @@ const ModalDetailContract = (props) => {
         get_list_room_data()
         get_list_service()
         get_default_data()
+        if (data) {
+            let newList = _customersData
+            for (let i = 0; i < newList.length; i++) {
+                if (newList[i]._id === data._id) {
+                    newList[i] = data;
+                    break;
+                }
+            }
+            _setCustomersData(newList)
+        }
         return get_list_customer()
 	}
 
@@ -332,7 +367,8 @@ const ModalDetailContract = (props) => {
             customer_represent: represent,
             start_water_number: dataAdd.start_water_number,
             start_electric_number: dataAdd.start_electric_number,
-            other_price: JSON.stringify(other_price)
+            other_price: JSON.stringify(other_price),
+            days_per_check: dataAdd.days_per_check,
         }
         console.log(input)
         setLoading(true)
@@ -666,7 +702,7 @@ const ModalDetailContract = (props) => {
             </ModalHeader>
             <ModalBody>
                 <Row>
-                    <Col md={6}>
+                    <Col md={8}>
                         <Label>
                             Chọn phòng tiến hành đăng ký hợp đồng
                         </Label>
@@ -687,8 +723,22 @@ const ModalDetailContract = (props) => {
                         />
                         {errorForm.room_selected?.error && <div className='text-error'>{errorForm.room_selected?.message}</div>}
                     </Col>
-                    <Col md={6}>
-                        
+                    <Col md={4}>
+                        <Label>
+                            Chọn kỳ hợp đồng
+                        </Label>
+                        <Input
+                            id="exampleSelect"
+                            name="select"
+                            type="select"
+                            className='btn-select pointer-btn'
+                            value={dataAdd.days_per_check}
+                            onChange={(e)=>onChangeData("days_per_check", e.target.value, true)}
+                        >
+                            {listDaysPerCheck && listDaysPerCheck.map((item) =>{
+                                return (<option key={item?._id} value={item?.value} >{item?.label}</option>)
+                            })}
+                        </Input>
                     </Col>
                 </Row>
 

@@ -294,6 +294,7 @@ const ModalAddContract = (props) => {
         get_customer_data()
         get_list_room_data()
         get_list_service()
+        get_default_data()
         return get_list_customer()
 	}
 
@@ -623,7 +624,9 @@ const ModalAddContract = (props) => {
                         {errorForm.room_selected?.error && <div className='text-error'>{errorForm.room_selected?.message}</div>}
                     </Col>
                     <Col md={4}>
-                        
+                        <Label>
+                            Chọn kỳ hợp đồng
+                        </Label>
                     </Col>
                 </Row>
 
@@ -648,7 +651,7 @@ const ModalAddContract = (props) => {
                                 Thêm mới khách
                             </Button>
                         </div>
-                        <Row className='mt-2'>
+                        <div className='mt-2'>
                             <AsyncSelect
                                 placeholder={'Tìm kiếm khách bằng số điện thoại hoặc tên'}
                                 value={null}
@@ -668,7 +671,7 @@ const ModalAddContract = (props) => {
                                     NoOptionsMessage: () => <div className="no-option">Không tìm thấy kết quả!</div>,
                                 }}
                             />
-                        </Row>
+                        </div>
                         <Row className='mt-2'>
                             <div style={{ height: 318, width: '100%' }}>
                                 <DataGrid 

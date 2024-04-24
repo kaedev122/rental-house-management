@@ -7,7 +7,7 @@ const start = async (contract) => {
     const dayString = new Date()
     const today = moment(dayString, "YYYYMMDD")
     const lastExportDay = moment(contract.last_check_date, "YYYYMMDD")
-    if (today.diff(lastExportDay, 'days' >= 29)) await changeContractBillStatus(contract)
+    if (today.diff(lastExportDay, 'days' >= contract.days_per_check)) await changeContractBillStatus(contract)
 }
 
 // create static of each day since 2024-01-01

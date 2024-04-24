@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { User, ActiveCode, RecoveryCode, Apartment } from "../models/index.js"
+import { User, ActiveCode, RecoveryCode, Apartment, Contract } from "../models/index.js"
 import * as UserValidation from '../validations/UserValidation.js'
 import * as Utils from "../utils/index.js"
 import { sendMailActive, sendMailRecovery } from "../utils/mailer.js"
@@ -93,4 +93,31 @@ export const update = async ({ body, user, params }) => {
         status: status
     })
     return true
+}
+
+export const updateContractField = async () => {
+    await Contract.updateMany(
+        {
+            last_check_date: { $exists : false }
+        },
+        [
+            {
+                $set: {
+                    last_check_date: "$date_start"
+                }
+            }
+        ]
+    )    
+    await Contract.updateMany(
+        {
+            days_per_check: { $exists : false }
+        },
+        [
+            {
+                $set: {
+                    days_per_check: 30
+                }
+            }
+        ]
+    )
 }

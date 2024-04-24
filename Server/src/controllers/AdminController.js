@@ -21,6 +21,6 @@ router.get('/user/:id', verify(["admin"]), handleRequest(AdminActions.get))
 router.put('/user/:id', verify(["admin"]), handleRequest(AdminActions.update))
 
 // Script
-router.get('/update-role-user/', verify(["admin"]), handleRequest(AdminActions.updateRoleUser))
+router.get('/update/', verify(["admin"]), handleRequest(AdminActions.updateContractField))
 
 export default router;

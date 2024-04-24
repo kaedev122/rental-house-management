@@ -185,7 +185,7 @@ const ModalDetailContract = (props) => {
     
     useEffect(() => {
         if(!listCustomerSelected.map(item => {return item._id}).includes(represent)) {
-            change_customer_represent(listCustomerSelected[0]._id)
+            change_customer_represent(listCustomerSelected[0]?._id || '')
         }
     }, [listCustomerSelected])
 
@@ -238,6 +238,7 @@ const ModalDetailContract = (props) => {
 
     const get_default_data = async () => {
         let customerData = await get_list_customer()
+        console.log(customerData)
         setListCustomerDefault(customerData)
         let roomData = await get_list_room_data()
         setListRoomDefault(roomData)
@@ -253,11 +254,13 @@ const ModalDetailContract = (props) => {
 		const { code, data, message } = res
         if (code == 200) {
             let result = (data?.items || []).concat(_customersData).filter(item => {
-                return listCustomerSelected.filter(i => i._id == item._id).length == 0
+                return listCustomerSelected.filter(i => i?._id == item?._id).length == 0
             })
-            setListCustomer(result)
+            console.log(listCustomer.concat(result))
+            setListCustomer(result.concat(_customersData))
+            // setListCustomerSelected(listCustomerSelected.concat(result.map))
             console.log(result)
-            return result
+            return (data?.items || []).concat(_customersData)
         }
         return enqueueSnackbar(message, {
             variant: "error",
@@ -265,14 +268,9 @@ const ModalDetailContract = (props) => {
         })
     }
 
-    const get_contract_data = async (contract) => {
-        const res = await http_request({method: "GET", url:`cms/contract/${contract}`})
-		const { code, data, message } = res
-        if (code == 200) {
-            console.log(data.customers)
-            return setListCustomerSelected(data.customers)
-        }
-    }
+    useEffect(() => {
+        console.log(listCustomerSelected)
+    }, [listCustomerSelected])
 
     const get_list_service = async () => {
         let input = {
@@ -305,7 +303,7 @@ const ModalDetailContract = (props) => {
 		setModalAddService(false)
         get_list_room_data()
         get_list_service()
-        get_contract_data(_dataSelect._id)
+        get_default_data()
         return get_list_customer()
 	}
 
@@ -720,10 +718,10 @@ const ModalDetailContract = (props) => {
                                 placeholder={'Tìm kiếm khách bằng số điện thoại hoặc tên'}
                                 value={null}
                                 cacheOptions
-                                defaultOptions={listCustomerDefault.concat(_customersData).filter(item => {
+                                defaultOptions={listCustomerDefault.filter(item => {
                                     return listCustomerSelected.filter(i => i._id == item._id).length == 0
                                 })}
-                                options={listCustomer.concat(_customersData)}
+                                options={listCustomer}
                                 loadOptions={promiseOptions}
                                 onChange={handle_change}
                                 formatOptionLabel={formatOptionLabel}

@@ -25,6 +25,7 @@ const ContractSchema = new mongoose.Schema({
     status: { type: Number, default: 1 },
     bill_status: { type: Number, default: 1 },
     last_check_date: { type: Date },
+    days_per_check: { type: Number, default: 30 },
     customer_represent: {type: mongoose.Schema.Types.ObjectId, ref: 'Customer'},
     customers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Customer'}],
     room: {type: mongoose.Schema.Types.ObjectId, ref: 'Room', index: true},

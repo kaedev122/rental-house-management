@@ -233,6 +233,9 @@ const ListBill = () => {
 		{ field: 'total', headerName: 'Tổng tiền', width: 100, flex: 1, 
             valueGetter: (params) => `${params.row.total.toLocaleString()} đ` 
         },
+        { field: 'createdAt', headerName: 'Ngày tạo', width: 200, align: "center", 
+            valueGetter: (params) => `${format_date_time(params.row.createdAt)}`
+        },
 		{ field: 'status', headerName: 'Trạng thái', width: 200, align: "center",
             renderCell: (params) => (
                 <div>

@@ -378,8 +378,11 @@ const Home = () => {
                         <div className='legend-open-room legend-item legend-item-1'>
                             P.Trống ({dataAdd?.totalOpen || "---"})
                         </div>
-                        <div className='legend-rented-room legend-item legend-item-2'>
+                        <div className='legend-rented-room legend-item'>
                             P.Đã được thuê ({dataAdd?.totalRent || "---"})
+                        </div>
+                        <div className='legend-expired-room legend-item legend-item-2'>
+                            P.Đã hết hạn ({dataAdd?.totalExpired || "---"})
                         </div>
                     </div>
                     <div className='float-end'>

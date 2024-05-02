@@ -110,6 +110,7 @@ export const update = async ({ body, user, params }) => {
     const { id } = params
     if (!id) throw new ParamError("Thiếu id")
     const validate = await ContractValidation.update.validateAsync(body)
+console.log(validate)
     let oldContract = await Contract.findById(id).lean()
     if (!oldContract) throw new NotFoundError(`Không tìm hợp đồng!`)
     if (validate.customers) {
@@ -145,6 +146,9 @@ export const update = async ({ body, user, params }) => {
         } else {
             await Room.findByIdAndUpdate(validate.room, {
                 customer_represent: validate.customer_represent || oldContract.customer_represent,
+                room_price: validate.room_price || oldContract.room_price,
+                water_price: validate.water_price || oldContract.water_price,
+                electric_price: validate.electric_price || oldContract.electric_price,
             })
         }
     }

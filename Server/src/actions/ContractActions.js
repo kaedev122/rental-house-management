@@ -212,7 +212,7 @@ export const list = async ({
         status = 1,
         apartment,
         page=1,
-        limit=10,
+        limit=100,
     }, 
     user 
 }) => {

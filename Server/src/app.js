@@ -28,7 +28,7 @@ const metricsMiddleware = promBundle({
 })
 
 app.use(cors({
-    origin: ['https://www.kaedev.me', 'http://localhost:5173'],
+    origin: ['https://www.kaedev.me', 'http://localhost:5173', 'https://rental-house-management-client.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
